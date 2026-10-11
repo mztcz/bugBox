@@ -39,7 +39,7 @@ fight && sysCombatAI(dt);
 const ents = fight ? all.filter(e => !aiAct(C.walk.get(e)) && !C.combat.get(e).dead) : all;
 fight && sysSeek(ents);
 sysSteer(dt, ents), sysMove(dtS, fight ? all : ents);
-fight || (sysIdle(dt, ents), sysMate(dt, ents)), sysFeed();
+fight || (sysRareAct(dt, ents), sysMate(dt, ents)), sysFeed();
 sysResolve(fight ? all : ents, dtS)
 }
 let speedBeforePause = 1;

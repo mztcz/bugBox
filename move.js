@@ -5,18 +5,16 @@ const spdOf     = b => BASE_WALK * agiOf(b) * sf(b);
 const turningOf = b => TAU / (6.6 - .61 * agiOf(b)) * sf(b);
 const STUCK_CHECK_MS = 2000;
 const SLIDE_K = .25;
-const CORPSE_SLOW = .25;
+const CORPSE_SLOW = .5;
 const COMBAT_STEP_MS = 16, MAX_STEPS_PER_FRAME = 64;
 const wallNext = e => random() < (11 - intOf(C.bug.get(e))) / 20 && think(e) || decide(e);
 const facing = (p, a) => max(0, cos(a - p.dir));
 const busy = (b, p) => b.loveBite || p.dropStuck;
 function decide(e) {
-const b = C.bug.get(e), t = C.walk.get(e), p = C.pos.get(e);
+const b = C.bug.get(e), t = C.walk.get(e);
 if (t.turnA != null) return setAct(e, "turning");
 if (combatState || hpFrac(b) < 1 || random() < .7) return setAct(e, "walking", rf(WALK_MIN, WALK_MAX)), newDir(e);
-setAct(e, IDLE[intOf(b) > 4 ? ri(hasAbil(b, "flanking") ? 4 : 3) : 0], IDL_MIN + random() * IDL_SPAN), t.idlA = rf(HALF_PI, PI), t.idlE = null;
-const dW = [p.x, boxLW - p.x, p.y, boxLH - p.y];
-t.idlS = sign(norm([0, PI, HALF_PI, -HALF_PI][dW.indexOf(min(...dW))] - p.dir)) || 1
+setAct(e, RARE_ACT[intOf(b) > 4 ? ri(hasAbil(b, "flanking") ? 4 : 3) : 0], RARE_MIN + random() * RARE_SPAN), t.rareA = PI / 3, t.rareS = random() < .5 ? -1 : 1, t.rareE = null
 }
 function sysSteer(dt, ents) {
 const dtS = dt / 1e3, foods = ecsQuery("food", "pos"), obs = ecsQuery("obstacle", "pos");
@@ -51,7 +49,7 @@ turnToward(p, atan2(vy, vx), turningOf(b) * dtS)
 })
 }
 const hurt = e => { const b = C.bug.get(e), c = C.combat.get(e); return !(c && c.dead) && (c || b).curHp < maxHpOf(b) };
-const hungry = e => { const c = C.combat.get(e); return hurt(e) && !(c && 4 * c.curHp > 3 * c.maxHp) };
+const hungry = e => { const b = C.bug.get(e), c = C.combat.get(e); return hurt(e) && 4 * (c || b).curHp <= 3 * (c ? c.maxHp : maxHpOf(b)) };
 function seenFood(b, p, foods = ecsQuery("food", "pos")) {
 let fT = null, fD2 = 1 / 0;
 foods.forEach(fe => {
@@ -66,7 +64,7 @@ foods.forEach(fe => {
 const fp = C.pos.get(fe);
 for (const be of bugs) {
 const bp = C.pos.get(be), b = C.bug.get(be);
-if (hurt(be) && hypot(bp.x - fp.x, bp.y - fp.y) < 16) {
+if ((combatState ? hurt : hungry)(be) && hypot(bp.x - fp.x, bp.y - fp.y) < 16) {
 const h = C.combat.get(be) || b, mx = maxHpOf(b);
 h.curHp = min(mx, h.curHp + mx / 5);
 combatState || think(be);
@@ -229,39 +227,39 @@ boxCx.restore()
 }
 })
 }
-const IDL_MIN = 3000, IDL_SPAN = 5000, IDL_GAP = 2, IDLE = ["waiting", "observing", "stalking", "flankTraining"];
-function sysIdle(dt, ents) {
+const RARE_MIN = 3000, RARE_SPAN = 5000, RARE_GAP = 2, RARE_ACT = ["waiting", "observing", "stalking", "flankTraining"];
+function sysRareAct(dt, ents) {
 const dtS = dt / 1e3;
 ents.forEach(e => {
 const b = C.bug.get(e), p = C.pos.get(e), t = C.walk.get(e);
-if (IDLE.indexOf(t.act) < 1 || b.loveBite) return;
+if (RARE_ACT.indexOf(t.act) < 1 || b.loveBite) return;
 if (hpFrac(b) < 1) return void think(e);
 const fl = "flankTraining" === t.act;
-if (t.idlE == null) {
+if (t.rareE == null) {
 const tg = (fl ? [...ecsQuery("obstacle", "pos"), ...ecsQuery("food", "pos")] : ents.filter(o => o !== e)).find(o => seesPoint(b, p, C.pos.get(o).x, C.pos.get(o).y));
 if (tg == null) {
-const s = min(t.idlA, turningOf(b) * dtS);
-return void(p.dir = norm(p.dir + t.idlS * s), (t.idlA -= s) <= 0 && (t.act = "waiting"))
+const s = min(t.rareA, turningOf(b) * dtS);
+return void(p.dir = norm(p.dir + t.rareS * s), (t.rareA -= s) <= 0 && (t.act = "waiting"))
 }
 const op = C.pos.get(tg);
-t.idlE = tg, t.idlX = op.x, t.idlY = op.y, fl && (t.idlS = random() < .5 ? -1 : 1, t.idlR = 0, t.actT = 8e3)
+t.rareE = tg, t.rareX = op.x, t.rareY = op.y, fl && (t.rareS = random() < .5 ? -1 : 1, t.rareR = 0, t.actT = 8e3)
 }
-if (!ECS.pos.has(t.idlE)) return void think(e);
-const op = C.pos.get(t.idlE), a = atan2(op.y - p.y, op.x - p.x), d = hypot(op.x - p.x, op.y - p.y);
+if (!ECS.pos.has(t.rareE)) return void think(e);
+const op = C.pos.get(t.rareE), a = atan2(op.y - p.y, op.x - p.x), d = hypot(op.x - p.x, op.y - p.y);
 turnToward(p, a, turningOf(b) * dtS);
 if (fl) {
-if (hypot(op.x - t.idlX, op.y - t.idlY) > 2) return void think(e);
-if (t.idlR) {
-const w = spdOf(b) * dtS / t.idlR, th = a + PI + t.idlS * w;
-if ((t.idlA -= w) <= 0) return void think(e);
-p.x = op.x + cos(th) * t.idlR, p.y = op.y + sin(th) * t.idlR, p.dir = norm(th + PI)
+if (hypot(op.x - t.rareX, op.y - t.rareY) > 2) return void think(e);
+if (t.rareR) {
+const w = spdOf(b) * dtS / t.rareR, th = a + PI + t.rareS * w;
+if ((t.rareA -= w) <= 0) return void think(e);
+p.x = op.x + cos(th) * t.rareR, p.y = op.y + sin(th) * t.rareR, p.dir = norm(th + PI)
 } else {
 const s = spdOf(b) * RUSH * facing(p, a) * dtS;
-d - s > flankRange(b) + (C.obstacle.get(t.idlE)?.r || 0) ? (p.x += cos(p.dir) * s, p.y += sin(p.dir) * s) : (t.idlR = max(d, bugRadius(b) + 10), t.idlA = 3 * PI, t.actT = IDL_MIN + random() * IDL_SPAN)
+d - s > flankRange(b) + (C.obstacle.get(t.rareE)?.r || 0) ? (p.x += cos(p.dir) * s, p.y += sin(p.dir) * s) : (t.rareR = max(d, bugRadius(b) + 10), t.rareA = 3 * PI, t.actT = RARE_MIN + random() * RARE_SPAN)
 }
 } else {
-if ("stalking" !== t.act || d <= bugLen(b) * IDL_GAP) return;
-const s = min(spdOf(C.bug.get(t.idlE)), spdOf(b)) * dtS;
+if ("stalking" !== t.act || d <= bugLen(b) * RARE_GAP) return;
+const s = min(spdOf(C.bug.get(t.rareE)), spdOf(b)) * dtS;
 p.x += cos(p.dir) * s, p.y += sin(p.dir) * s
 }
 clampToBox(e)

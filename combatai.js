@@ -17,7 +17,7 @@ ecsQuery("bug", "pos", "combat").forEach(e => {
 const cb = C.combat.get(e), t = C.walk.get(e), p = C.pos.get(e);
 if (cb.dead) return;
 combatState && (achieve("scare"), achStep("scared", [5], "scared"), achieve({ 5: "scare5x", 10: "terrify", 15: "ptsd" }[cb.scares = (cb.scares || 0) + 1]));
-flee(e, (floor(atan2(p.y - boxLH / 2, p.x - boxLW / 2) / HALF_PI) + random()) * HALF_PI), cb.stunT = 0, t.seekX = boxLW / 2 + rf(-30, 30), t.seekY = boxLH / 2 + rf(-30, 30)
+flee(e, (floor(atan2(p.y - boxLH / 2, p.x - boxLW / 2) / HALF_PI) + random()) * HALF_PI, 1), cb.stunT = 0, t.seekX = boxLW / 2 + rf(-30, 30), t.seekY = boxLH / 2 + rf(-30, 30)
 })
 }
 const abilReady = (e, id) => { const cb = C.combat.get(e); return !cb.muted && hasAbil(C.bug.get(e), id) && !(cb.cd[id] > 0) };
@@ -174,7 +174,11 @@ cb.fledLvl = cb.fledLvl + 1;
 flee(e, p.dir + rf(45, 110) * PI / 180 * (random() < .5 ? -1 : 1)), cb.aimLock = 0, cb.aimTarget = -1, abilFire(e, "flee")
 }
 }
-if ("fleeing" === t.act) return go(cb.fleeA), void(cb.mvSpd *= RUSH);
+if ("fleeing" === t.act) {
+if (cb.fleeT != null) return void(turnToward(p, cb.fleeT, turn * dtS) && (cb.fleeT = null));
+const fT = hungry(e) && seenFood(b, p);
+return go(fT ? cb.fleeA + max(-PI / 6, min(PI / 6, norm(atan2(fT.y - p.y, fT.x - p.x) - cb.fleeA))) : cb.fleeA), void(cb.mvSpd *= RUSH)
+}
 if (hungry(e) && !melee() && seenFood(b, p)) return cb.aimLock = 0, cb.aimTarget = -1, void setAct(e, "rushing");
 if (target) {
 const tp = C.pos.get(target),
@@ -211,7 +215,7 @@ cb.dashT = ABILITIES.dash.dur; abilFire(e, "dash"); cb.dashHitPend = 1; cb.airT 
 if (cb.dashHitPend && minD <= attackReach) {
 cb.dashHitPend = 0; cb.dashT = 0; cb.airT = 0;
 biteDodged(b, p, tb, tp, tm.team) || (applyBite(cb, b, p, tcb, tb, tp, 1, tm.team, e), biteNoticed(target));
-biteDone(cb, b);
+biteDone(cb, b, tm.team);
 }
 let moveSpd = cb.dashT > 0 ? spd * 8 : minD > attackReach && seesPoint(b, p, tp.x, tp.y) ? spd * RUSH * facing(p, atan2(tp.y - p.y, tp.x - p.x)) : spd;
 if (aiming) moveSpd = 0;
@@ -286,7 +290,7 @@ abilFire(e, "knockout");
 cb.biteE === target || (cb.biteE = target, cb.biteN = 0), cb.biteN++;
 if (cb.biteN >= 3 && tcb.stunT <= 0 && abilReady(e, "backflip")) { cb.backflipT = ABILITIES.backflip.dur, cb.airT = cb.airMs = cb.backflipT / 2; abilFire(e, "backflip") }
 }
-biteDone(cb, b, cb.swiftPend ? .5 : 1), cb.swiftPend = 0;
+biteDone(cb, b, tm.team, cb.swiftPend ? .5 : 1), cb.swiftPend = 0;
 if (abilReady(e, "strongbite") && !cb.strongPend) { cb.strongPend = 1; abilFire(e, "strongbite") }
 if (abilReady(e, "swiftbite") && !cb.swiftPend) { cb.swiftPend = 1; abilFire(e, "swiftbite") }
 if (abilReady(e, "loud")) { cb.loudT = ABILITIES.loud.dur; abilFire(e, "loud") }

@@ -122,7 +122,7 @@ const BREED_SORT = [
 ["pwr", "Pwr", b => SK.reduce((t, k) => t + b[k], 0)]
 ];
 let labSort = "name", labDir = 1;
-function setLabSort(k) { labDir = labSort === k ? -labDir : "pwr" === k ? -1 : 1, labSort = k, renderLab() }
+function setLabSort(k) { labDir = labSort === k ? -labDir : "name" === k ? 1 : -1, labSort = k, renderLab() }
 function renderLabGrid(grid) {
 const val = BREED_SORT.find(r => r[0] === labSort)[2],
 list = [...bugsOwned].sort((x, y) => { const a = val(x), b = val(y); return labDir * ((a > b) - (a < b)) });

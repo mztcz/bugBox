@@ -153,7 +153,7 @@ boxCx.textAlign = "center", boxCx.font = "bold 9px 'Courier New'";
 dmgPops.forEach(d => {
 boxCx.save(), boxCx.globalAlpha = max(0, min(1, d.t));
 boxCx.fillStyle = d.team === 0 ? "#f66" : "#4cf";
-boxCx.fillText(round(d.amount), d.x, d.y);
+boxCx.fillText(round(d.amount), d.p.x + d.x, d.p.y + d.y);
 boxCx.restore()
 })
 }

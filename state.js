@@ -3,7 +3,8 @@ function setAct(e, act, ms = 1 / 0) {
 const t = C.walk.get(e);
 return t.slide = null, t.act = act, t.actT = ms
 }
-const think = (e, k = 1) => setAct(e, "thinking", k * (5500 - 500 * intOf(C.bug.get(e))) + rf(-250, 250));
+const intMs = e => 5500 - 500 * intOf(C.bug.get(e));
+const think = (e, k = 1) => setAct(e, "thinking", k * intMs(e) + rf(-250, 250));
 const aiAct = t => "fighting" === t.act || "fleeing" === t.act;
 const newDir = e => C.vel.get(e).wanderAngle = random() * TAU;
 const SN = ["CON", "STR", "AGI", "INT", "PER"];

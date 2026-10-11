@@ -1,7 +1,6 @@
 const bugLen = b => b ? ensureMorph(b).bodyLength : 22;
 const callRadius = b => bugLen(b) * 7, loudRadius = b => bugLen(b) * 3, dashRange = b => bugLen(b) * 7, flankRange = b => bugLen(b) * 2, flankEnd = cb => { cb.flankA = 0, cb.cd.flanking = ABILITIES.flanking.cd };
 const GRAB_HOLD_MS = 2500, FRONT_CONE = 20 * PI / 180, KB_DAMP = .72;
-const FLEE_MIN_MS = 1000, FLEE_MAX_MS = 4000;
 const BITE_PREP_MAX = 2000, BITE_PREP_MIN = 1000;
 const ABILITIES = {};
 [
@@ -24,7 +23,7 @@ const ABILITIES = {};
 ["focus", "Focus", "int", 0, 0, `Passive. Targets the weakest visible enemy by current HP instead of the closest one.`],
 ["tank", "Tank", "str", 0, 0, `Passive. Keeps walking at full speed even while biting and shoves any bug without Tank out of its path. Only the glass stops it.`],
 ["steadfast", "Steadfast", "agi", 0, 0, `Passive. Walks and turns at double speed, Dash included.`],
-["flee", "Flee", "int", 0, 0, `Twice per fight, below 50% HP and below 25% HP, turns away and runs for ${FLEE_MIN_MS / 1e3}-${FLEE_MAX_MS / 1e3}s before hunting again. Plays dead first if it can.`],
+["flee", "Flee", "int", 0, 0, `Twice per fight, below 50% HP and below 25% HP, turns away and runs for 4.5-9s (shorter with higher INT) before hunting again. Bitten while stuck, it fights back instead. Plays dead first if it can.`],
 ["resilient", "Resilient", "con", 0, 0, `Passive. 50% more max HP than its CON alone gives.`],
 ["chitin", "Chitin", "con", 0, 0, `Passive. Every bite it takes does half damage.`]
 ].forEach(([id, name, stat, cd, dur, txt]) => ABILITIES[id] = { name, stat, cd, dur, txt });
@@ -35,7 +34,7 @@ const ABIL_BY_STAT = {};
 SK.forEach(k => ABIL_BY_STAT[k] = ABIL_IDS.filter(id => ABILITIES[id].stat === k));
 const shuf = a => a.sort(() => random() - .5);
 const bitePrepOf = (b, k = 1) => (BITE_PREP_MAX - (BITE_PREP_MAX - BITE_PREP_MIN) * (clamp(b.agi || 5, 1, 10) - 1) / 9) * k + rf(-125, 125),
-biteDone = (cb, b, k) => (SFX.bite(), cb.biteT = 1, cb.bitePrep = cb.bitePrepMax = bitePrepOf(b, k));
+biteDone = (cb, b, t, k) => (SFX.bite(t), cb.biteT = 1, cb.bitePrep = cb.bitePrepMax = bitePrepOf(b, k));
 const FOV_MIN_DEG = 90, FOV_MAX_DEG = 94.5;
 function engageDistOf(b) { const m = ensureMorph(b); return m.bodyLength / 2 + m.headSize * 2 }
 function bugRadius(b) { const m = ensureMorph(b); return m.bodyLength / 2 + m.headSize }
@@ -62,16 +61,17 @@ function wakeToFight(e) {
 const t = C.walk.get(e);
 t && !aiAct(t) && (t.scanRemain = 0, t.seekX = t.turnA = null, setAct(e, "fighting"))
 }
-function flee(e, a, ms = rf(FLEE_MIN_MS, FLEE_MAX_MS)) {
-const t = C.walk.get(e);
-if ("fleeing" === t.act) return void(t.actT += ms);
+function flee(e, a, panic) {
+const t = C.walk.get(e), cb = C.combat.get(e), p = C.pos.get(e), ms = 4e3 + intMs(e);
+if ("fleeing" === t.act) return void(panic && (t.actT += ms));
 wakeToFight(e), setAct(e, "fleeing", ms);
-C.combat.get(e).fleeA = a
+cb.fleeA = a, cb.fleeX = p.x, cb.fleeY = p.y, cb.fleeT = panic ? p.dir + norm(a - p.dir) / 2 : null
 }
 function biteNoticed(te) {
 wakeToFight(te);
-const tp = C.pos.get(te), ttm = C.team.get(te);
+const tp = C.pos.get(te), ttm = C.team.get(te), tcb = C.combat.get(te);
 if (!tp || !ttm) return;
+"fleeing" === C.walk.get(te).act && (hypot(tp.x - tcb.fleeX, tp.y - tcb.fleeY) < bugLen(C.bug.get(te)) ? setAct(te, "fighting") : (tcb.fleeX = tp.x, tcb.fleeY = tp.y));
 ecsQuery("bug", "pos", "team", "walk").forEach(oe => {
 if (oe === te || C.team.get(oe).team !== ttm.team) return;
 const ocb = C.combat.get(oe);
@@ -110,7 +110,7 @@ flankA: 0,
 callT: 0, callR: 0, callTeam: -1, callX: 0, callY: 0, callCry: 0, callDoneX: 0, callDoneY: 0, goOn: 0, goX: 0, goY: 0, loudT: 0, curTarget: -1,
 aimTarget: -1, aimLock: 0, avengeE: -1, avengeA: 0, lostSide: 1, wasInRange: 0, regather: 0,
 pickE: -1, swT: 0, biteE: -1, biteN: 0,
-memT: 0, memX: 0, memY: 0, memA: 0, searchPhase: 0, fleeA: 0, fledLvl: 0,
+memT: 0, memX: 0, memY: 0, memA: 0, searchPhase: 0, fleeA: 0, fleeX: 0, fleeY: 0, fleeT: null, fledLvl: 0,
 mvA: 0, mvSpd: 0, mvOn: 0,
 imX: 0, imY: 0,
 phoenixUsed: 0, phoenixT: 0, fakeUsed: 0, fakeT: 0, muted: 0, abT: 0, abTxt: ""
