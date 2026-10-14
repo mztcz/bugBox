@@ -101,13 +101,13 @@ You are in mode A when you have no write access to the repo.
 You are in mode B when the repo is checked out and you can commit.
 1. User analyzes and tests the live game, errors, goals.
 2. User submits a task from the Code tab.
-3. Claude edits the files in place and pushes a branch. No download links, no file contents in chat.
-4. User opens the diff, creates the PR, merges it. GitHub Pages redeploys from `main`.
+3. Claude edits the files in place, commits and pushes straight to `main`. No download links, no file contents in chat.
+4. GitHub Pages redeploys from `main`.
 5. Repeat.
 
 **Mode B delivery rules**
 - Commit **only the files that changed**.
-- One branch per task. Do not commit to `main` directly.
+- Commit and push straight to `main`. No PR.
 - Commit message = one line, what changed, no version number.
 
 ### Work rules
