@@ -30,4 +30,4 @@
 1. 2 shrnující věty za celou zprávu (max 50 znaků) + 1 stručný návrh, jak poslední krok udělat jinak a lépe.
 2. [sou] související, [alt] alternativní, [opp] oponující informace.
 3. [b] [c] [d] = tři next-step návrhy v infinitivu, spustitelné zadáním jednoho písmene.
-4. Při změnách kódu: "SUM: " + seznam všech úprav za session (bez slov velkými písmeny), 2 prázdné řádky, 1–4 věty o změnách od poslední zprávy, nový řádek "vX.Y:".
+4. Při změnách kódu: "SUM: " + seznam všech úprav za session (bez slov psaných celých velkými písmeny, např. PR, SUM, FIX), 2 prázdné řádky, 1–4 věty o změnách od poslední zprávy, nový řádek "vX.Y:".
