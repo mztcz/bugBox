@@ -13,6 +13,7 @@
 - Při každé změně zvyš číslo verze (umístění viz ARCHITECTURE.md).
 - Když se mění soubory nebo symboly, aktualizuj ARCHITECTURE.md.
 - Commit a push přímo do main.
+- Po každém pushi do main napiš do odpovědi klikací testovací URL: https://mztcz.github.io/bugBox/
 
 ## Odpovědi (česky, tykej)
 - Odrážky, číslované; čísla unikátní a rostoucí v rámci celé session.
