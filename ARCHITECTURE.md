@@ -67,8 +67,8 @@ Open `index.html`. All paths are relative, so it works from a local folder or fr
 ## Workflow
 
 **Repo**
-`https://github.com/michal-zak-tiscali-cz/bugBox`
-Live: `https://michal-zak-tiscali-cz.github.io/bugBox/`
+`https://github.com/mztcz/bugBox`
+Live: `https://mztcz.github.io/bugBox/`
 
 The user works in one of two modes. Detect which one you are in, then follow only that mode's delivery rules. Everything below `Work rules` applies to both.
 
