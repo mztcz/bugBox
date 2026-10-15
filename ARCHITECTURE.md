@@ -66,6 +66,9 @@ Open `index.html`. All paths are relative, so it works from a local folder or fr
 
 ## Workflow
 Workflow, delivery and answer rules: see `CLAUDE.md`.
+- `.claude/smoke.cjs` = smoke test: all scripts as one ES module (duplicate top-level names across files fail), then headless Chromium: market, box, info tabs, designer, lab, booker, 2v2 fight, leave. `--hook` exits 2 on failure.
+- `.claude/settings.json` = PreToolUse hook runs the smoke test before every `git push` and blocks it on failure.
+- `.claude/skills/oktk/SKILL.md` = end-of-session routine triggered by "oktk".
 `style.css` is one long minified line — never `grep -n` it. The `.js` files are multi-line; `grep -n` is safe.
 
 ## Saved data
