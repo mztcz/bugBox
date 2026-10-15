@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo '{\"systemMessage\":\"Kontext je plny. Napis push: Claude aktualizuje ARCHITECTURE.md a pushne. Pak zaloz novou session.\"}'"
+            "command": "echo '{\"systemMessage\":\"Kontext je plný. Napiš push: Claude aktualizuje ARCHITECTURE.md a pushne. Pak založ novou session.\"}'"
           }
         ]
       }
