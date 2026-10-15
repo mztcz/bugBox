@@ -1,0 +1,14 @@
+{
+  "hooks": {
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '{\"systemMessage\":\"Kontext je plny. Napis push: Claude aktualizuje ARCHITECTURE.md a pushne. Pak zaloz novou session.\"}'"
+          }
+        ]
+      }
+    ]
+  }
+}
