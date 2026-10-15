@@ -12,7 +12,8 @@
 - Žádné redundance, duplicity ani mrtvý kód.
 - Upravuj existující funkce místo přidávání souborů. Čti jen nutné části souborů.
 - Při každé změně kódu zvyš verzi o +1 minor: `GAME_VERSION` v core.js, řádek 1. Změna jen .md souborů verzi nemění.
-- Změny souborů a symbolů pro ARCHITECTURE.md sbírej v chatu. Když je vhodné začít novou session, navrhni aktualizaci ARCHITECTURE.md a proveď ji až po schválení uživatelem.
+- ARCHITECTURE.md měň jen na pokyn uživatele. Změny souborů a symbolů pro něj sbírej v chatu.
+- Pokyn „push“ = konec session: aktualizuj ARCHITECTURE.md podle nasbíraných změn, commitni a pushni do main. Uživatel pak založí novou session.
 - Uživatele nikdy nežádej, aby četl nebo upravoval kód.
 
 ## Workflow
