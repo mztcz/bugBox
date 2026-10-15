@@ -36,10 +36,11 @@ drag.moved || achieve({ bug: "drag", obstacle: "dragObst" }[drag.kind]), drag.mo
 p.x = clamp(cx + drag.ox, drag.pad, boxLW - drag.pad);
 p.y = clamp(cy + drag.oy, drag.pad, boxLH - drag.pad);
 "bug" === drag.kind && (think(drag.e), p.dropStuck = p.top = 1);
-if ("obstacle" === drag.kind && hypot(cx - drag.sx, cy - drag.sy) > 6) {
+if ("food" !== drag.kind && hypot(cx - drag.sx, cy - drag.sy) > 6) {
 const a = atan2(cy - drag.sy, cx - drag.sx), d = drag.ha == null ? 0 : norm(a - drag.ha);
 drag.ha = a, drag.sx = cx, drag.sy = cy, abs(d) < 2 && (drag.turn = (drag.turn || 0) + d);
-abs(drag.turn) > 5.6 && (achieve("rotObst"), C.obstacle.get(drag.e).rot += sign(drag.turn) * PI / 4, drag.turn -= sign(drag.turn) * TAU)
+const s = sign(drag.turn);
+abs(drag.turn) > 5.6 && ("bug" === drag.kind ? p.dir = norm(p.dir + s * PI / 4) : (achieve("rotObst"), C.obstacle.get(drag.e).rot += s * PI / 4), drag.turn -= s * TAU)
 }
 e.preventDefault()
 }
