@@ -1,8 +1,8 @@
 # BUGBOX — file map
 
 Simple bug life simulator. Plain `<script src>` files, no modules. Everything shares one global scope.
-Load order = the order in `index.html`. `main.js` is last and holds every
-DOM event binding, so definition files never run DOM code at load time.
+Load order = the order in `index.html`. `main.js` is last and is the only file that runs DOM code at load time
+(static bindings, version tag). Other files bind handlers only to elements they build or open at runtime.
 
 ## Terms
 - One room, one box, one canvas. The global `combatState` decides everything:
@@ -11,8 +11,8 @@ DOM event binding, so definition files never run DOM code at load time.
 - **box** = the canvas and its bugs, in both combat states.
 - **Booker** = the screen where the player picks bugs, mode and tier. File `boo.js`, id `s-boo`.
 - **Market** = buying bugs. File `mkt.js`, id `s-mkt`. **Shop** is reserved for a future screen that sells box items.
-- **modes** (`fightMode`): `1 2 3 6` (NvN), `mayhem` (any count), `mc` (mortal combat: 1 bug, T1→T10 in a row), `boss` (1 bug, stat sum 5T−5..5T), `rb` raid boss and `wb` world boss (1–10 bugs).
-- **tier** (`enemyTier` 1–10): enemy stat sum 5T−2..5T, boss 5T; boss abilities 0 (T1–4), 2 (T5–6), 3 (T7–8), 4 (T9–10).
+- **modes** (`fightMode`): `1 2 3 6` (NvN), `mayhem` (any count), `mc` (mortal combat: 1 bug, T1→T5 in a row), `boss` (1 bug, stat sum 10T−9..10T), `rb` raid boss and `wb` world boss (1–10 bugs).
+- **tier** (`enemyTier` 1–5): enemy stat sum 10T−9..10T (T1: 5..10), boss 10T; boss abilities T−1.
 
 ## Routing table — "I want to change X" → open this file, look for this symbol
 
@@ -20,9 +20,9 @@ DOM event binding, so definition files never run DOM code at load time.
 |---|---|---|
 | Layout, screens, buttons, overlays (markup), crash reporter | `index.html` | `#s-terr` `#s-boo` `#s-lab` `#s-mkt`, `#terr-bar-row`, `#ov-set` |
 | Colours, fonts, sizes, spacing, screen shake | `style.css` | `#toast`, `.shake` |
-| Version number, math helpers, sound effects (bite pitch: 250 Hz enemy, 220 Hz player) | `core.js` | `GAME_VERSION` (line 1), `SFX`, `beep` |
-| Tutorial list, achievement list, unlock rules, toasts on unlock, record updates (saved `records` + this game's `run`, both via `RECS`) | `achievements.js` | `achSt`, `records`, `run`, `RECS` |
-| Starting money, tunables (walk timers), global variables, fight modes, act setter, turning | `state.js` | `bugsOwned`, `combatState`, `fightMode`, `MODES`, `enemyTier` (1–10), `WALK_MIN`, `WALK_MAX`, `setAct` (only act setter), `think` (pause, length by INT), `aiAct`, `newDir` (random walk direction, called only by `decide`), `turnToward`, `intMs` (INT pause base, also flee length) |
+| Version number (shown by `main.js`), math helpers, sound effects (bite pitch: 250 Hz enemy, 220 Hz player) | `core.js` | `GAME_VERSION` (line 1), `SFX`, `beep` |
+| Tutorial list, achievement list, unlock rules, toasts on unlock, record updates (saved `records` + this game's `run`, both via `RECS`) | `achievements.js` | `achSt`, `records`, `run`, `RECS`, `bugbox_records` |
+| Starting money, tunables (walk timers), global variables, fight modes, act setter, turning | `state.js` | `bugsOwned`, `fightMode`, `MODES`, `enemyTier` (1–5), `WALK_MIN`, `WALK_MAX`, `setAct` (only act setter), `think` (pause, length by INT), `aiAct`, `newDir` (random walk direction, called only by `decide`), `turnToward`, `intMs` (INT pause base, also flee length) |
 | Bug object, names, stat bars, max HP (boss HP multiplier) | `bug.js` | `maxHpOf`, `hpMul` |
 | Ability list, ability rules, bite damage, dodge, bite side shove, bite prep by AGI, flee, inheritance | `abilities.js` | `ABILITIES`, `applyBite`, `biteDodged`, `biteDone`, `bitePrepOf`, `flee`, `newCombat` |
 | Bug cards (Market/lab/Booker/result), HP bars, kill button (sets `run.end`), focus line, blocked-flash, toast text | `cards.js` | `makeBugCard`, `drawHpBar`, `inspectLine`, `toast`, `flashBlocked` |
@@ -31,22 +31,22 @@ DOM event binding, so definition files never run DOM code at load time.
 | Drawing one bug, card thumbnails | `drawbug.js` | `drawBugStyled` |
 | Box background art (random per fight, `#bt-bg` rerolls) | `bg.js` | `drawBg`, `bgPick` |
 | Obstacle types, shapes and variants (index = kind, `v` = variant) | `obst.js` | `OBST` |
-| Box canvas, Science HUD toggles (kept per combat state), obstacle and bug spawning, fight-only buttons, top-left title per mode, damage number spawn | `terr.js` | `bugsInTerrView`, `sciSt`, `genObstacles`, `spawnTerr`, `HUD_FIGHT_ONLY`, `syncHud`, `spawnDmgPop` |
+| Box canvas, `combatState` declaration, Science HUD toggles (kept per combat state), obstacle and bug spawning, fight-only buttons, top-left title per mode, damage number spawn | `terr.js` | `bugsInTerrView`, `sciSt`, `genObstacles`, `spawnTerr`, `HUD_FIGHT_ONLY`, `syncHud`, `spawnDmgPop` |
 | Market screen, game-over check | `mkt.js` | `openMkt`, `renderMkt`, `mktDone`, `armOverWatch` |
 | Entity system (rarely touched), draw order (dragged item on top, faster bug on top of a slower one it overlaps) | `ecs.js` | `ecsQuery`, `C`, `ecsFront` |
 | Act choice, walking, steering, wandering, feeding (rush to seen food), collisions, wall hit (slide along the glass, then `wallNext`), wall margin = bug radius, stuck manoeuvre, corpse slow-down (speed × `CORPSE_SLOW` = 0.5), busy bug skips walking, rare acts (INT 5+ picks equally from `RARE_ACT`), feeding also in fight, fight seek points, overlap layering (faster bug via `ecsFront`, speed = `p.v`) | `move.js` | `resolveBodies`, `decide` (only act chooser), `sysSteer`, `sysMove`, `sysSeek`, `SLIDE_K`, `wallNext`, `clampToBox`, `busy`, `sysRareAct`, `RARE_ACT`, `sysFeed`, `CORPSE_SLOW`, `sysRenderObstacles` (shadow pass, neon pass via `flatCol`) |
 | Mating (act `breeding`, needs full HP and both not `mated`), love bites (`loveBites`, also when a pair is `mated`), eggs, hatching, box capacity | `mate.js` | `interactEligible` |
 | Breeding lab (sorting: first tap `Nam` A→Z, all others highest first; selection, offspring) | `lab.js` | `BREED_SORT`, `setLabSort` |
-| Booker screen (modes, tier buttons 01–10, team picking, BOSS stat-sum filter) | `boo.js` | `openBoo`, `setMode`, `setTier`, `teamMax`, `bossFit` |
+| Booker screen (modes, tier buttons 01–05, team picking, BOSS stat-sum filter) | `boo.js` | `openBoo`, `setMode`, `setTier`, `teamMax`, `bossFit` |
 | Fight AI, targeting, ability firing, target switch to weakest attacker, panic burst (flee angle inside the bug's quadrant from box centre, first half of the turn on the spot), flee food pull (max 30 deg), combat timers, damage number motion | `combatai.js` | `sysCombatAI`, `panicAll`, `tickTimers` |
 | What is drawn each frame (food also in fight), bottom info line, red hit overlay, hit recoil 7 px and biter lunge 7/3 px, floating damage numbers (offset from the bitten bug's position), grey corpse fade | `render.js` | `drawHit`, `dmgPops` |
 | Hit-testing under the finger, dragging, obstacle rotation by circling | `input.js` | `nearest`, `obstacleAt`, `draggableAt`, `dragStart`, `dragMove`, `endDrag` |
-| All DOM `onclick` bindings, triple-tap panic, focus on corpses | `main.js` | `tapT` |
+| Static DOM bindings, version tag, triple-tap panic, focus on corpses | `main.js` | `tapT` |
 | Simulation loop, speed, box backdrop | `loop.js` | `tick(dt, fight)` = one simulation step, sole countdown of `actT` and `hitT`, `simLoop`, `drawBoxBackdrop` |
 | Enemy generation (stat sum by tier), bosses (BOSS 2×, RB 3× 10 HP, WB 3× 50 HP, kept per tier), prize $80×T×HP multiplier, fight start (salute toast + freeze), result screen, MC break (food + NEXT), fight-end and stalemate check, fight end removes all fight entities | `fight.js` | `statsOf`, `buildEnemies`, `BOSS`, `bosses`, `wbKeep`, `weekOf`, `checkFightEnd`, `endFight`, `showFightResult` |
 | Bug designer overlay | `dz.js` | |
 | Info / Morphology / Abilities texts | `wiki.js` | |
-| Records screen (columns this run / all games, `Last loss` = `run.end`) | `records.js` | `renderRecords`, `bugbox_records` |
+| Records screen (columns this run / all games, `Last loss` = `run.end`) | `records.js` | `renderRecords` |
 
 ## Naming rules
 - `SCREAMING_SNAKE_CASE` — constants that never change.
@@ -65,78 +65,13 @@ DOM event binding, so definition files never run DOM code at load time.
 Open `index.html`. All paths are relative, so it works from a local folder or from GitHub Pages with no build step. The `index.html` contains an on-screen crash reporter (red bar at the bottom). It prints missing files and JS errors (Android has no console).
 
 ## Workflow
+Workflow, delivery and answer rules: see `CLAUDE.md`.
+`style.css` is one long minified line — never `grep -n` it. The `.js` files are multi-line; `grep -n` is safe.
 
-**Repo**
-`https://github.com/mztcz/bugBox`
-Live: `https://mztcz.github.io/bugBox/`
-
-The user works in one of two modes. Detect which one you are in, then follow only that mode's delivery rules. Everything below `Work rules` applies to both.
-
-### Mode A — Claude chat
-You are in mode A when you have no write access to the repo.
-1. User analyzes and tests the live game, errors, goals.
-2. User instructs Claude to change or implement stuff.
-3. Claude clones the repo itself.
-4. Claude delivers the changed files as downloads.
-5. User saves them on his phone over his old set. Repeat.
-
-**Mode A delivery rules**
-- Never deliver a `.zip`.
-- Deliver **individual files**, one download link each.
-- Deliver **only the files that changed** — not the whole project.
-- Committing is the user's choice. He commits straight to `main`, no branches.
-- Every delivered file must be **cumulative**: original + all edits made earlier
-  in this session. He overwrites files, so a lost earlier edit is destroyed.
-- On request, build a single-file test build `bugbox-vXX.X.html` (all `.js` and
-  `.css` inlined into `index.html`) so he can run the game offline. Build it with
-  a script, never print it. ~600 tokens. Test copy, not for the repo.
-
-**Mode A session state**
-- Every new chat starts with an empty container. Clone `main` at once, without asking, and treat it as current.
-- If `GAME_VERSION` in the clone differs from the version the user names, say so in one line, then work on the clone.
-- If the clone vanishes mid-session, say so, clone again and redo this session's edits.
-- If cloning fails, ask him to upload only the files the task needs.
-
-### Mode B — Claude Code
-You are in mode B when the repo is checked out and you can commit.
-1. User analyzes and tests the live game, errors, goals.
-2. User submits a task from the Code tab.
-3. Claude edits the files in place, commits and pushes straight to `main`. No download links, no file contents in chat.
-4. GitHub Pages redeploys from `main`.
-5. Repeat.
-
-**Mode B delivery rules**
-- Commit **only the files that changed**.
-- Commit and push straight to `main`. No PR.
-- Commit message = one line, what changed, no version number.
-
-### Work rules
-- no dead code, no redundant code, no redundant names, less characters, smaller file size
-- saving tokens! reading only parts that are necessary, not the whole repo
-- Never deliver or edit `ARCHITECTURE.md` on your own. Keep a running list of
-  needed routing-table changes in chat instead. Touch the file only when the user
-  asks for it, then deliver it alone.
-- Always bump the version by +1 minor: `GAME_VERSION` in `core.js`, line 1.
-  Code changes only; editing this file alone does not bump it.
-
-### Saved data
+## Saved data
 - `bugbox_records` in localStorage = cross-game **records** (games, kills, fights,
   wins, best bug count, best stat sum, top killer, longest dynasty). Persists. Reset button only.
 - `bugbox_wb` in localStorage = World Bosses of the current week (lost HP kept until Sunday 23:59, killed WB is replaced). The only saved bugs.
 - Tutorial, achievements (`achSt`) and `run` (this game's records) are **one game each**. Never persist them.
 - `mated` resets for all bugs only in `showFightResult` (completed fight). Leave skips it.
 - Player bugs, money, eggs, BOSS and RB are never saved. Reloading the page starts a new game.
-
-### User info
-- Android phone only. No desktop, no build tools, no terminal.
-- **Not a programmer.** Never ask to read or edit code. LLM is the only one who looks at the code. Do not explain code, do not paste snippets in chat.
-- Has Asperger syndrome: answers must be terse, literal, bullet-pointed, exact. No vague qualifiers. "I don't know" is a valid and preferred answer.
-
-### Token budget
-Context is expensive and sessions run all day. Therefore:
-- Keep the codebase **small**. Prefer editing existing functions over adding new
-  files. Delete dead code when spotted.
-- Never print code, diffs, reasoning, or intermediate steps into the chat.
-- Chat output per code task = 2 short summary sentences + 1 improvement idea.
-- `style.css` is one long minified line — never `grep -n` it. The `.js` files are
-  normal multi-line files; `grep -n` is safe there.

@@ -239,7 +239,7 @@ if (t.rareE == null) {
 const tg = (fl ? [...ecsQuery("obstacle", "pos"), ...ecsQuery("food", "pos")] : ents.filter(o => o !== e)).find(o => seesPoint(b, p, C.pos.get(o).x, C.pos.get(o).y));
 if (tg == null) {
 const s = min(t.rareA, turningOf(b) * dtS);
-return void(p.dir = norm(p.dir + t.rareS * s), (t.rareA -= s) <= 0 && (t.act = "waiting"))
+return void(p.dir = norm(p.dir + t.rareS * s), (t.rareA -= s) <= 0 && setAct(e, "waiting", t.actT))
 }
 const op = C.pos.get(tg);
 t.rareE = tg, t.rareX = op.x, t.rareY = op.y, fl && (t.rareS = random() < .5 ? -1 : 1, t.rareR = 0, t.actT = 8e3)

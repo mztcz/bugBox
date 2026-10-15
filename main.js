@@ -1,3 +1,4 @@
+$("game-version-tag").textContent = "v" + GAME_VERSION;
 ! function() {
 const ctx = hidpi($("intro-art"), 200, 60), hues = [120, 30, 275].sort(() => random() - .5);
 ctx.fillStyle = "#0a0a12", ctx.fillRect(0, 0, 200, 60), [40, 100, 160].forEach((cx, i) => {
