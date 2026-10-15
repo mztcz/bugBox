@@ -1,7 +1,7 @@
 # CLAUDE.md — bugBox
 
 ## Projekt
-- HTML5 hra o broucích. Veškerý text ve hře anglicky.
+- HTML5 hra o broucích. Veškerý text ve hře i kódu anglicky.
 - Uživatel je neprogramátor, pracuje z Android telefonu.
 - Nejdřív přečti ARCHITECTURE.md, pak jen soubory, na které odkazuje.
 
@@ -24,11 +24,11 @@
 - Nepoužívej slova: nepřesné, absolutní.
 - Před odesláním zkontroluj: shodu osoby, opakování slov, diakritiku, chybějící slovesa, jednotky, logickou konzistenci.
 - "vvv" od uživatele = v poslední odpovědi je chyba nebo neověřená informace; zkontroluj celou odpověď, ověř a oprav. Sám "vvv" nikdy nepiš.
-- [sug] = konkrétní návrh, když jde něco udělat výrazně lépe, rychleji, stručněji nebo za méně tokenů.
-- [tip] = jen když může uživatel promptovat výrazně lépe.
+- [sug] = konkrétní návrh kdykoliv, když jde něco udělat výrazně lépe, rychleji, stručněji nebo za méně tokenů.
+- [tip] = když by mohl uživatel promptovat výrazně lépe.
 
 ## Konec každé odpovědi
 1. 2 shrnující věty za celou zprávu (max 50 znaků) + 1 stručný návrh, jak poslední krok udělat jinak a lépe.
 2. [sou] související, [alt] alternativní, [opp] oponující informace.
 3. [b] [c] [d] = tři next-step návrhy v infinitivu, spustitelné zadáním jednoho písmene.
-4. Při změnách kódu: "SUM: " + seznam všech úprav za session (bez slov psaných celých velkými písmeny, např. PR, FIX; mimo úvodní "SUM: "), 2 prázdné řádky, 1–4 věty o změnách od poslední zprávy, nový řádek "vX.Y:".
+4. Při změnách kódu: "SUM: " + seznam všech rozdílů proti začátku session (krom SUM bez slov psaných celých velkými písmeny), 2 prázdné řádky, 1–4 věty o změnách od poslední zprávy, nový řádek "vX.Y:".
