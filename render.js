@@ -136,17 +136,11 @@ sysRenderObstacles(!0), post.forEach(fn => fn());
 if (fow) {
 const fp = C.pos.get(fe), fb = C.bug.get(fe),
 fr = visRangeOf(fb), fh = fovHalfOf(fb), fhr = nearVisR(fb);
-boxCx.save();
-boxCx.beginPath(), boxCx.rect(0, 0, boxLW, boxLH);
-boxCx.moveTo(fp.x, fp.y), boxCx.arc(fp.x, fp.y, fr, fp.dir - fh, fp.dir + fh), boxCx.closePath();
-boxCx.clip("evenodd");
-boxCx.beginPath(), boxCx.rect(0, 0, boxLW, boxLH);
-boxCx.moveTo(fp.x + fhr, fp.y), boxCx.arc(fp.x, fp.y, fhr, 0, 7);
-boxCx.fillStyle = "#000", boxCx.fill("evenodd");
-boxCx.restore();
-boxCx.beginPath(), boxCx.moveTo(fp.x, fp.y), boxCx.arc(fp.x, fp.y, fr, fp.dir - fh, fp.dir + fh), boxCx.closePath();
-boxCx.moveTo(fp.x + fhr, fp.y), boxCx.arc(fp.x, fp.y, fhr, 0, 7);
-boxCx.strokeStyle = VIS_COL, boxCx.lineWidth = 1, boxCx.stroke()
+boxCx.save(), boxCx.beginPath(), boxCx.rect(-9, -9, boxLW + 18, boxLH + 18);
+boxCx.moveTo(fp.x + fhr * cos(fp.dir + fh), fp.y + fhr * sin(fp.dir + fh));
+boxCx.arc(fp.x, fp.y, fhr, fp.dir + fh, fp.dir - fh + TAU), boxCx.arc(fp.x, fp.y, fr, fp.dir - fh, fp.dir + fh), boxCx.closePath();
+boxCx.fillStyle = boxCx.shadowColor = "#000", boxCx.shadowBlur = 15, boxCx.fill("evenodd"), boxCx.restore();
+boxCx.strokeStyle = VIS_COL, boxCx.lineWidth = 1.5, boxCx.stroke()
 }
 if (inCombat && sci("dmg")) {
 boxCx.textAlign = "center", boxCx.font = "bold 9px 'Courier New'";
