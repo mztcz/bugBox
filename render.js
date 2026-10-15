@@ -139,7 +139,7 @@ fr = visRangeOf(fb), fh = fovHalfOf(fb), fhr = nearVisR(fb);
 boxCx.save(), boxCx.beginPath(), boxCx.rect(-9, -9, boxLW + 18, boxLH + 18);
 boxCx.moveTo(fp.x + fhr * cos(fp.dir + fh), fp.y + fhr * sin(fp.dir + fh));
 boxCx.arc(fp.x, fp.y, fhr, fp.dir + fh, fp.dir - fh + TAU), boxCx.arc(fp.x, fp.y, fr, fp.dir - fh, fp.dir + fh), boxCx.closePath();
-boxCx.fillStyle = boxCx.shadowColor = "#000", boxCx.shadowBlur = 15, boxCx.fill("evenodd"), boxCx.restore();
+boxCx.fillStyle = boxCx.shadowColor = "#000", boxCx.shadowBlur = 150, boxCx.fill("evenodd"), boxCx.restore();
 boxCx.strokeStyle = VIS_COL, boxCx.lineWidth = 1.5, boxCx.stroke()
 }
 if (inCombat && sci("dmg")) {
