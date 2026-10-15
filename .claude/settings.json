@@ -5,7 +5,21 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo '{\"systemMessage\":\"Kontext je plný. Napiš push: Claude aktualizuje ARCHITECTURE.md a pushne. Pak založ novou session.\"}'"
+            "command": "echo '{\"systemMessage\":\"Kontext je plný. Napiš oktk: Claude spustí smoke test, aktualizuje ARCHITECTURE.md, pushne a založí novou session.\"}'"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Bash(git push*)",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/smoke.cjs\" --hook",
+            "timeout": 120,
+            "statusMessage": "Smoke test before push..."
           }
         ]
       }

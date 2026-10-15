@@ -13,13 +13,15 @@
 - Upravuj existující funkce místo přidávání souborů. Čti jen nutné části souborů.
 - Při každé změně kódu zvyš verzi o +1 minor: `GAME_VERSION` v core.js, řádek 1. Změna jen .md souborů verzi nemění.
 - ARCHITECTURE.md měň jen na pokyn uživatele. Změny souborů a symbolů pro něj sbírej v chatu.
-- Pokyn „push“ = konec session: aktualizuj ARCHITECTURE.md podle nasbíraných změn, commitni a pushni do main. Uživatel pak založí novou session.
+- Pokyn „oktk“ (nebo „push“) = konec session: proveď skill oktk (.claude/skills/oktk/SKILL.md).
+- Smoke test: `node .claude/smoke.cjs`. Hook ho spouští před každým `git push` a při chybě push zablokuje.
 - Uživatele nikdy nežádej, aby četl nebo upravoval kód.
 
 ## Workflow
 - Repo: https://github.com/mztcz/bugBox
 - Režim B (Claude Code, zápis do repa): commituj jen změněné soubory, push přímo do main, žádný pull request. Commit zpráva = 1 řádek anglicky: "vX.Y: co se změnilo".
 - Po každém pushi do main napiš do odpovědi klikací testovací URL: https://mztcz.github.io/bugBox/
+- Testovací artefakt (aktualizuj jen změněné soubory, URL zůstává): https://claude.ai/artifact/DAGsKmWecR1uCaAMeUMhoB
 - Režim A (chat bez zápisu do repa): hned bez ptaní naklonuj main. Když se `GAME_VERSION` liší od verze, kterou uvede uživatel, napiš to 1 řádkem a pracuj na klonu. Když klon zmizí, naklonuj znovu a zopakuj úpravy session. Když klonování selže, požádej o nahrání jen potřebných souborů.
 - Režim A dodávka: jen změněné soubory, každý zvlášť, nikdy .zip. Každý soubor kumulativní = originál + všechny úpravy session.
 - Režim A na požádání: testovací build `bugbox-vXX.X.html` (všechny .js a .css vložené do index.html), vytvořený skriptem, ne do repa.
