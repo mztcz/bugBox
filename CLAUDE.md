@@ -67,14 +67,14 @@ Load order = the order in `index.html`. `main.js` is last and is the only file t
 | Colours, fonts, sizes, spacing, screen shake | `style.css` | `#toast`, `.shake` |
 | Version number (shown by `main.js`), math helpers, sound effects (bite pitch: 250 Hz enemy, 220 Hz player) | `core.js` | `GAME_VERSION` (line 1), `SFX`, `beep` |
 | Tutorial list, achievement list, unlock rules, toasts on unlock, record updates (saved `records` + this game's `run`, both via `RECS`) | `achievements.js` | `achSt`, `records`, `run`, `RECS`, `bugbox_records` |
-| Starting money, tunables (walk timers), global variables, fight modes, act setter, turning | `state.js` | `bugsOwned`, `fightMode`, `MODES`, `enemyTier` (1–5), `WALK_MIN`, `WALK_MAX`, `setAct` (only act setter), `think` (pause, length by INT), `aiAct`, `newDir` (random walk direction, called only by `decide`), `turnToward`, `intMs` (INT pause base, also flee length) |
+| Starting money, tunables (walk timers), global variables, fight modes, act setter, turning | `state.js` | `bugsOwned`, `fightMode`, `MODES`, `enemyTier` (1–5), `WALK_MIN`, `WALK_MAX`, `setAct` (only act setter), `think` (pause, length by INT), `aiAct`, `newDir` (random walk direction, called only by move.js decide), `turnToward`, `intMs` (INT pause base, also flee length) |
 | Bug object, names, stat bars, max HP (boss HP multiplier) | `bug.js` | `maxHpOf`, `hpMul` |
 | Ability list, ability rules, bite damage, dodge, bite side shove, bite prep by AGI, flee, inheritance | `abilities.js` | `ABILITIES`, `applyBite`, `biteDodged`, `biteDone`, `bitePrepOf`, `flee`, `newCombat` |
 | Bug cards (Market/lab/Booker/result), HP bars, kill button (sets `run.end`), focus line, blocked-flash, toast text | `cards.js` | `makeBugCard`, `drawHpBar`, `inspectLine`, `toast`, `flashBlocked` |
 | Screen switching, info overlay tabs, money display | `screens.js` | |
 | Bug body shapes, colour palette, walk style (gait), graphics theme, shadow (leg shadow = straight line from shifted leg root to foot), one-colour corpse | `morph.js` | `randomMorph`, `setPalette`, `setGait`, `setBugTheme`, `drawMorphBug` option `flat` |
 | Drawing one bug, card thumbnails | `drawbug.js` | `drawBugStyled` |
-| Box background art (random per fight, `#bt-bg` rerolls) | `bg.js` | `drawBg`, `bgPick` |
+| Box background art (random per fight, index.html #bt-bg rerolls) | `bg.js` | `drawBg`, `bgPick` |
 | Obstacle types, shapes and variants (index = kind, `v` = variant) | `obst.js` | `OBST` |
 | Box canvas, `combatState` declaration, Science HUD toggles (kept per combat state), obstacle and bug spawning, fight-only buttons, top-left title per mode, damage number spawn | `terr.js` | `bugsInTerrView`, `sciSt`, `genObstacles`, `spawnTerr`, `HUD_FIGHT_ONLY`, `syncHud`, `spawnDmgPop` |
 | Market screen, game-over check | `mkt.js` | `openMkt`, `renderMkt`, `mktDone`, `armOverWatch` |
@@ -110,7 +110,7 @@ Load order = the order in `index.html`. `main.js` is last and is the only file t
 Open `index.html`. All paths are relative, so it works from a local folder or from GitHub Pages with no build step. The `index.html` contains an on-screen crash reporter (red bar at the bottom). It prints missing files and JS errors (Android has no console).
 
 ### Tool files
-- `.claude/smoke.cjs` = smoke test: every `Symbol` column entry of the File map (outside parentheses) must exist in its file, then all scripts as one ES module (duplicate top-level names across files fail), then headless Chromium: market, box, info tabs, designer, lab, booker, 2v2 fight, leave. `--hook` exits 2 on failure.
+- `.claude/smoke.cjs` = smoke test: local files linked from `index.html` must exist, every backticked symbol in a routing table row (Area + Symbol columns, file names skipped) must exist in its file; external requests (Google Font) are stubbed so offline runs pass, then all scripts as one ES module (duplicate top-level names across files fail), then headless Chromium: market, box, info tabs, designer, lab, booker, 2v2 fight, leave. `--hook` exits 2 on failure.
 - `.claude/settings.json` = PreToolUse hook runs the smoke test before every `git push` and blocks it on failure.
 - `.claude/skills/oktk/SKILL.md` = end-of-session routine triggered by "oktk".
 `style.css` has few, very long lines — prefer `grep -o` with a short context over `grep -n`. The `.js` files are multi-line; `grep -n` is safe.
