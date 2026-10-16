@@ -5,6 +5,17 @@ const root = path.resolve(__dirname, ".."), hook = process.argv.includes("--hook
 const fail = msg => { (hook ? console.error : console.log)("SMOKE FAIL\n" + msg); process.exit(hook ? 2 : 1) };
 const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
 const scripts = [...html.matchAll(/<script src="([^"]+\.js)"><\/script>/g)].map(m => m[1]);
+// 0) CLAUDE.md File map: every `symbol` in the Symbol column (outside parentheses) must exist in its file
+const miss = [];
+for (const row of fs.readFileSync(path.join(root, "CLAUDE.md"), "utf8").split("\n")) {
+  const c = row.split("|").map(s => s.trim()), f = (c[2] || "").match(/^`([\w.-]+)`$/);
+  if (!f) continue;
+  const src = fs.existsSync(path.join(root, f[1])) ? fs.readFileSync(path.join(root, f[1]), "utf8") : null;
+  if (src === null) { miss.push(f[1] + ": file missing"); continue }
+  for (const [, s] of c[3].replace(/\([^)]*\)/g, "").matchAll(/`[#.]?([\w-]+)/g))
+    new RegExp(`(?<![\\w$-])${s}(?![\\w$-])`).test(src) || miss.push(f[1] + ": " + s);
+}
+miss.length && fail("file map symbols not found:\n" + miss.join("\n"));
 // 1) all scripts as one ES module: duplicate top-level names (function/const/let/class) across files = SyntaxError
 const mod = path.join(os.tmpdir(), "bugbox-smoke.mjs");
 fs.writeFileSync(mod, scripts.map(f => fs.readFileSync(path.join(root, f), "utf8")).join("\n;\n"));
