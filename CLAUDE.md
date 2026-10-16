@@ -110,7 +110,7 @@ Load order = the order in `index.html`. `main.js` is last and is the only file t
 Open `index.html`. All paths are relative, so it works from a local folder or from GitHub Pages with no build step. The `index.html` contains an on-screen crash reporter (red bar at the bottom). It prints missing files and JS errors (Android has no console).
 
 ### Tool files
-- `.claude/smoke.cjs` = smoke test: all scripts as one ES module (duplicate top-level names across files fail), then headless Chromium: market, box, info tabs, designer, lab, booker, 2v2 fight, leave. `--hook` exits 2 on failure.
+- `.claude/smoke.cjs` = smoke test: every `Symbol` column entry of the File map (outside parentheses) must exist in its file, then all scripts as one ES module (duplicate top-level names across files fail), then headless Chromium: market, box, info tabs, designer, lab, booker, 2v2 fight, leave. `--hook` exits 2 on failure.
 - `.claude/settings.json` = PreToolUse hook runs the smoke test before every `git push` and blocks it on failure.
 - `.claude/skills/oktk/SKILL.md` = end-of-session routine triggered by "oktk".
 `style.css` has few, very long lines — prefer `grep -o` with a short context over `grep -n`. The `.js` files are multi-line; `grep -n` is safe.
