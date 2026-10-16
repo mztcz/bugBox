@@ -9,7 +9,7 @@ Run the steps in order. Stop and report if a step fails and cannot be fixed.
 
 1. **Smoke test.** Run `node .claude/smoke.cjs` from the repo root.
 2. **Errors.** If it prints `SMOKE FAIL`, list each error in one line, fix the code, bump `GAME_VERSION` (core.js line 1, +1 minor) and rerun step 1. Repeat until `SMOKE OK`.
-3. **ARCHITECTURE.md.** Update it with the file and symbol changes collected during the session. Change nothing else in it.
+3. **File map.** Update the File map section of CLAUDE.md with the file and symbol changes collected during the session. Change nothing else in CLAUDE.md.
 4. **Commit.** Stage only the files changed in this session (`git add <files>`, never `git add -A`). Message is one English line: `vX.Y: <what changed>`, with X.Y = current `GAME_VERSION`.
 5. **Artifact.** The test artifact URL is in CLAUDE.md (section Workflow).
    - Read it first (`Artifact` action `read` with that `url`).
