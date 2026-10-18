@@ -14,8 +14,8 @@
 - Upravuj existující funkce místo přidávání souborů. Čti jen nutné části souborů.
 - Při každé změně kódu zvyš verzi o +1 minor: `GAME_VERSION` v core.js, řádek 1. Změna jen .md souborů verzi nemění.
 - Sekci File map měň jen při oktk. Změny souborů a symbolů do té doby sbírej v chatu.
-- Pokyn „oktk“ = samostatná zpráva uživatele „oktk“ = konec session: proveď skill oktk (.claude/skills/oktk/SKILL.md). Novou session nikdy nezakládej, uživatel si ji zakládá sám.
-- Smoke test (`node .claude/smoke.cjs`) se smí pouštět jenom když uživatel napíše oktk.
+- Pokyn „oktk“ = samostatná zpráva uživatele „oktk“ = konec session: proveď skill skill-oktk (.claude/skills/skill-oktk/SKILL.md). Novou session nikdy nezakládej, uživatel si ji zakládá sám.
+- Smoke test (`node .claude/tool-smoke-test.cjs`) se smí pouštět jenom když uživatel napíše oktk.
 - Uživatele nikdy nežádej, aby četl nebo upravoval kód.
 
 ## Workflow
@@ -83,7 +83,7 @@ Load order = the order in `index.html`. `main.js` is last and is the only file t
 | Market screen, game-over check | `mkt.js` | `openMkt`, `renderMkt`, `mktDone`, `armOverWatch` |
 | Entity system (rarely touched), draw order (dragged item on top, faster bug on top of a slower one it overlaps) | `ecs.js` | `ecsQuery`, `C`, `ecsFront` |
 | Act choice, walking, steering, wandering, feeding (rush to seen food), collisions, wall hit (slide along the glass, then `wallNext`), wall margin = bug radius, stuck manoeuvre, corpse slow-down (speed × `CORPSE_SLOW` = 0.5), busy bug skips walking, rare acts (INT 5+ picks equally from `RARE_ACT`), feeding also in fight, fight seek points, overlap layering (faster bug via `ecsFront`, speed = `v` in `vel`) | `move.js` | `resolveBodies`, `decide` (only act chooser), `sysSteer`, `sysMove`, `sysSeek`, `SLIDE_K`, `wallNext`, `clampToBox`, `busy`, `sysRareAct`, `RARE_ACT`, `sysFeed`, `CORPSE_SLOW`, `sysRenderObstacles` (shadow pass, neon pass via `flatCol`) |
-| Mating (act `breeding`, needs full HP and both not `mated`), love bites (`loveBites`, also when a pair is `mated`), eggs, hatching, box capacity | `mate.js` | `interactEligible` |
+| Mating (act `breeding`, needs full HP and both not `mated`), love bites (also when a pair is `mated`), one pair object shared by both bugs in `walk.pair` (mating pair has `phase`), touches of the last frame in `walk.touch`, eggs, hatching, box capacity | `mate.js` | `interactEligible`, `loveStep`, `mateStep`, `pairEnd`, `mateCancel` |
 | Breeding lab (sorting: first tap `Nam` A→Z, all others highest first; selection, offspring) | `lab.js` | `BREED_SORT`, `setLabSort` |
 | Booker screen (modes, tier buttons 01–05, team picking, BOSS stat-sum filter) | `boo.js` | `openBoo`, `setMode`, `setTier`, `teamMax`, `bossFit` |
 | Fight AI, targeting, ability firing, target switch to weakest attacker, panic burst (flee angle inside the bug's quadrant from box centre, first half of the turn on the spot), flee food pull (max 30 deg), combat timers, damage number motion | `combatai.js` | `sysCombatAI`, `panicAll`, `tickTimers` |
@@ -103,7 +103,7 @@ Load order = the order in `index.html`. `main.js` is last and is the only file t
   Cross-game totals are **records**. One game's unlocks are **achievements**.
 - ECS components: `bug pos vel walk team combat food obstacle`,
   read with `C.pos.get(entity)`, listed with `ecsQuery("bug","pos")`.
-  `pos` = only `x y dir`. `walk` also holds stuck, drag and leg-animation state (`stride`, `top`, `dropStuck`). `vel` also holds speed `v`, last position `lx ly` and turn factor `tk`.
+  `pos` = only `x y dir`. `walk` also holds stuck, drag and leg-animation state (`stride`, `top`, `dropStuck`), mating/love-bite pair `pair`, touches `touch`, love-bite prep `prepT prepMax` and hit flash `hitT`. The `bug` object holds no temporary timers. `vel` also holds speed `v`, last position `lx ly` and turn factor `tk`.
 - **act** = what a bug does now, one timer: `walk.act` + `walk.actT`.
   Set only with `setAct`. Values: `thinking walking turning rushing waiting observing stalking flankTraining breeding fighting fleeing`.
   `fighting` and `fleeing` = movement driven by `combatai.js` (`aiAct`). Wall slide = `walk.slide`, not an act.
@@ -114,10 +114,10 @@ Load order = the order in `index.html`. `main.js` is last and is the only file t
 Open `index.html`. All paths are relative, so it works from a local folder or from GitHub Pages with no build step. The `index.html` contains an on-screen crash reporter (red bar at the bottom). It prints missing files and JS errors (Android has no console).
 
 ### Tool files
-- **tool-smoke-test** `.claude/smoke.cjs` = smoke test: local files linked from `index.html` must exist, every backticked symbol in a routing table row (Area + Symbol columns, file names skipped) must exist in its file; external requests (Google Font) are stubbed so offline runs pass, then all scripts as one ES module (duplicate top-level names across files fail), then headless Chromium: market, box, info tabs, designer, lab, booker, 2v2 fight, leave.
-- `.claude/settings.json` = 3 hooks: **hook-context-compress** (PreCompact: full-context reminder), **hook-oktk-start** (UserPromptSubmit, `smoke.cjs --arm`: prompt oktk sets the token, any other prompt removes it), **hook-oktk-block** (PreToolUse on Skill, `smoke.cjs --gate`: skill oktk needs the token).
-- **skill-oktk** `.claude/skills/oktk/SKILL.md` = end-of-session routine triggered by "oktk".
-- **agent-skoukni-kod** `.claude/agents/skoukni-kod.md` = read-only review subagent; run only when the user writes "skoukniKod" (Agent tool, `subagent_type: skoukni-kod`).
+- **tool-smoke-test** `.claude/tool-smoke-test.cjs` = smoke test: local files linked from `index.html` must exist, every backticked symbol in a routing table row (Area + Symbol columns, file names skipped) must exist in its file; external requests (Google Font) are stubbed so offline runs pass, then all scripts as one ES module (duplicate top-level names across files fail), then headless Chromium: market, box, info tabs, designer, lab, booker, 2v2 fight, leave.
+- `.claude/settings.json` = 3 hooks: **hook-context-compress** (PreCompact: full-context reminder), **hook-oktk-start** (UserPromptSubmit, `tool-smoke-test.cjs --arm`: prompt oktk sets the token, any other prompt removes it), **hook-oktk-block** (PreToolUse on Skill, `tool-smoke-test.cjs --gate`: skill oktk needs the token).
+- **skill-oktk** `.claude/skills/skill-oktk/SKILL.md` = end-of-session routine triggered by "oktk".
+- **agent-skoukni-kod** `.claude/agents/agent-skoukni-kod.md` = read-only review subagent; run only when the user writes "skoukniKod" (Agent tool, `subagent_type: agent-skoukni-kod`).
 `style.css` has few, very long lines — prefer `grep -o` with a short context over `grep -n`. The `.js` files are multi-line; `grep -n` is safe.
 
 ### Saved data

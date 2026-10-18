@@ -1,7 +1,7 @@
 // BUGBOX smoke test: module check + headless run (box, fight, overlays). Exit 0 = OK.
-// Usage: node .claude/smoke.cjs         runs only after the user wrote oktk (token set by --arm)
-//        node .claude/smoke.cjs --arm   UserPromptSubmit hook: prompt oktk sets the token, any other prompt removes it
-//        node .claude/smoke.cjs --gate  PreToolUse hook on Skill: blocks skill oktk without the token
+// Usage: node .claude/tool-smoke-test.cjs         runs only after the user wrote oktk (token set by --arm)
+//        node .claude/tool-smoke-test.cjs --arm   UserPromptSubmit hook: prompt oktk sets the token, any other prompt removes it
+//        node .claude/tool-smoke-test.cjs --gate  PreToolUse hook on Skill: blocks skill oktk without the token
 const fs = require("fs"), path = require("path"), os = require("os"), { execFileSync } = require("child_process");
 const root = path.resolve(__dirname, "..");
 const token = path.join(os.tmpdir(), "bugbox-oktk");

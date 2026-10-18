@@ -1,5 +1,5 @@
 ---
-name: skoukni-kod
+name: agent-skoukni-kod
 description: Read-only code review of the whole bugBox repo (duplicates, dead code, ECS violations, needless variables and names). Run ONLY when the user explicitly writes "skoukniKod". Never run automatically or proactively.
 tools: Read, Grep, Glob
 ---

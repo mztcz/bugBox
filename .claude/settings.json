@@ -15,7 +15,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/smoke.cjs\" --arm"
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/tool-smoke-test.cjs\" --arm"
           }
         ]
       }
@@ -26,7 +26,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/smoke.cjs\" --gate"
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/tool-smoke-test.cjs\" --gate"
           }
         ]
       }
