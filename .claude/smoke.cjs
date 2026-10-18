@@ -1,10 +1,10 @@
 // BUGBOX smoke test: module check + headless run (box, fight, overlays). Exit 0 = OK.
 // Usage: node .claude/smoke.cjs        runs only after the user wrote oktk (token set by --arm, removed by SMOKE OK)
-//        node .claude/smoke.cjs --arm  UserPromptSubmit hook: sets the token when the prompt is oktk
+//        node .claude/smoke.cjs --arm  UserPromptSubmit hook: sets the token when the prompt is only oktk, removes it on any other prompt
 const fs = require("fs"), path = require("path"), os = require("os"), { execFileSync } = require("child_process");
 const root = path.resolve(__dirname, "..");
 const token = path.join(os.tmpdir(), "bugbox-oktk");
-if (process.argv.includes("--arm")) { /^\s*oktk\s*$/i.test(JSON.parse(fs.readFileSync(0, "utf8")).prompt || "") && fs.writeFileSync(token, ""); process.exit(0) }
+if (process.argv.includes("--arm")) { /^\s*oktk\s*$/i.test(JSON.parse(fs.readFileSync(0, "utf8")).prompt || "") ? fs.writeFileSync(token, "") : fs.rmSync(token, { force: true }); process.exit(0) }
 if (!fs.existsSync(token)) { console.log("SMOKE BLOCKED: runs only after the user writes oktk"); process.exit(1) }
 const fail = msg => { console.log("SMOKE FAIL\n" + msg); process.exit(1) };
 const html = fs.readFileSync(path.join(root, "index.html"), "utf8");

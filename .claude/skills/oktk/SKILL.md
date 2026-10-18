@@ -1,9 +1,11 @@
 ---
 name: oktk
-description: End-of-session routine for bugBox. Use when the user writes "oktk" ("ok, tady končím") or asks to finish the session, push, or ship the current changes.
+description: End-of-session routine for bugBox. Use ONLY when the user's whole message is "oktk" and nothing else. "oktk" inside a longer message, a request to finish, push or ship, or any other wording never triggers it.
 ---
 
 # oktk – end of session
+
+Trigger: only a user message that is exactly `oktk`. A longer message that mentions oktk is not the trigger: do its other tasks, skip oktk and say that oktk waits for a standalone message.
 
 Run the steps in order. Stop and report if a step fails and cannot be fixed.
 
