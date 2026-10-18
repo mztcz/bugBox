@@ -8,7 +8,7 @@ const CORPSE_SLOW = .5;
 const COMBAT_STEP_MS = 16, MAX_STEPS_PER_FRAME = 64;
 const wallNext = e => random() < (11 - intOf(C.bug.get(e))) / 20 && think(e) || decide(e);
 const facing = (p, a) => max(0, cos(a - p.dir));
-const busy = (b, t) => b.loveBite || t.dropStuck;
+const busy = t => t.pair || t.dropStuck;
 function decide(e) {
 const b = C.bug.get(e), t = C.walk.get(e);
 if (t.turnA != null) return setAct(e, "turning");
@@ -25,7 +25,7 @@ v = C.vel.get(e),
 tu = "turning" === t.act,
 ru = "rushing" === t.act;
 if (!tu && !ru && "walking" !== t.act || t.slide != null) return;
-if (busy(b, t)) return void(t.frzMs = 0, t.lastX = p.x, t.lastY = p.y);
+if (busy(t)) return void(t.frzMs = 0, t.lastX = p.x, t.lastY = p.y);
 if (tu) return void(turnToward(e, t.turnA, turningOf(b) * dtS) && (v.wanderAngle = p.dir, t.turnA = null, wallNext(e)));
 if ((t.frzMs = (t.frzMs || 0) + dt) >= STUCK_CHECK_MS) {
 const stuck = hypot(p.x - (t.lastX ?? p.x), p.y - (t.lastY ?? p.y)) < bugLen(b);
@@ -107,7 +107,7 @@ if (moved) clampToBox(e);
 return
 }
 const ru = "rushing" === t.act;
-if (busy(b, t) || !ru && "walking" !== t.act) return;
+if (busy(t) || !ru && "walking" !== t.act) return;
 const spd = spdOf(b) * slow * (ru ? t.rushK : 1);
 if (t.slide != null) {
 if ((abs(sin(t.slide)) > .5 ? (p.x < boxLW / 2 ? -1 : 1) * cos(p.dir) : (p.y < boxLH / 2 ? -1 : 1) * sin(p.dir)) > 0) {
@@ -227,7 +227,7 @@ function sysRareAct(dt, ents) {
 const dtS = dt / 1e3;
 ents.forEach(e => {
 const b = C.bug.get(e), p = C.pos.get(e), t = C.walk.get(e);
-if (RARE_ACT.indexOf(t.act) < 1 || b.loveBite) return;
+if (RARE_ACT.indexOf(t.act) < 1 || t.pair) return;
 if (hpFrac(b) < 1) return void think(e);
 const fl = "flankTraining" === t.act;
 if (t.rareE == null) {

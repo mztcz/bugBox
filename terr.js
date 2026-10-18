@@ -133,7 +133,7 @@ break
 }
 }
 function bugEntity(b, x, y, dir, tm) {
-return b.loveBite = b.prepT = 0, {
+return {
 bug: b,
 pos: { x: x, y: y, dir: dir },
 vel: { wanderAngle: dir, angVel: 0 },
@@ -160,7 +160,7 @@ function spawnTerr() {
 resizeBoxCV(), rescaleBox();
 if (combatState) {
 savedWorld = savedWorld || { obs: snapObstacles(), food: snapFood() };
-ecsClear(), inspected = null, mates = [], loveBites = [], mateTouch = new Set();
+ecsClear(), inspected = null;
 genObstacles(!0)
 } else {
 restoreTerrWorld();

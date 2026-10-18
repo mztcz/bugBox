@@ -214,7 +214,7 @@ cb.dashT = ABILITIES.dash.dur; abilFire(e, "dash"); cb.dashHitPend = 1; cb.airT 
 }
 if (cb.dashHitPend && minD <= attackReach) {
 cb.dashHitPend = 0; cb.dashT = 0; cb.airT = 0;
-biteDodged(b, p, tb, tp, tm.team) || (applyBite(cb, b, p, tcb, tb, tp, 1, tm.team, e), biteNoticed(target));
+biteDodged(b, p, tb, tp, tm.team) || (applyBite(cb, b, p, target, tb, tp, 1, tm.team, e), biteNoticed(target));
 biteDone(cb, b, tm.team);
 }
 let moveSpd = cb.dashT > 0 ? spd * 8 : minD > attackReach && seesPoint(b, p, tp.x, tp.y) ? spd * RUSH * facing(p, toT) : spd;
@@ -271,7 +271,7 @@ if (inRange && facingOK && cb.bitePrep <= 0 && !airT) {
 if (!biteDodged(b, p, tb, tp, tm.team)) {
 let strongMult = 1;
 if (cb.strongPend) { strongMult = 2; cb.strongPend = 0 }
-applyBite(cb, b, p, tcb, tb, tp, strongMult, tm.team, e), biteNoticed(target);
+applyBite(cb, b, p, target, tb, tp, strongMult, tm.team, e), biteNoticed(target);
 const braced = hasAbil(tb, "braced");
 if (abilReady(e, "kickback")) { const d = max(.25, 1.5 + .28 * (b.str - tb.con)) * (braced ? .5 : 1), kbDist = bugLen(tb) * d * (1 - KB_DAMP); tcb.kbX += cos(toT) * kbDist, tcb.kbY += sin(toT) * kbDist; if (!braced) { tcb.stunT = max(tcb.stunT, ABILITIES.kickback.dur); const sa = (min(PI, d * PI / 3) + (floor(random() * 5) - 2) * PI / 18) * rsign(); tcb.spinRemain = abs(sa); tcb.spinDir = sign(sa); tcb.regather = 1 } abilFire(e, "kickback") }
 if (abilReady(e, "knockout")) {

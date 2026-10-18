@@ -78,13 +78,13 @@ if (ocb && ocb.dead) return;
 seesPoint(C.bug.get(oe), C.pos.get(oe), tp.x, tp.y) && wakeToFight(oe)
 })
 }
-function applyBite(cb, ab, p, tcb, tb, tp, mult, atkTeam, atkE) {
-const fd = abs(norm(atan2(p.y - tp.y, p.x - tp.x) - tp.dir)),
+function applyBite(cb, ab, p, te, tb, tp, mult, atkTeam, atkE) {
+const tcb = C.combat.get(te), fd = abs(norm(atan2(p.y - tp.y, p.x - tp.x) - tp.dir)),
 flankMult = fd < PI / 3 ? 1 : fd < TAU / 3 ? 1.5 : 2;
 if (atkE != null && (tcb.flankA > 0 || fd >= PI / 3 && intOf(tb) < 5)) { tcb.avengeE = atkE, tcb.avengeA = atan2(p.y - tp.y, p.x - tp.x), tcb.flankA > 0 && flankEnd(tcb) }
 let dmg = ab.str * rollVar() * flankMult * mult;
 if (hasAbil(tb, "chitin")) dmg *= .5;
-tcb.curHp -= dmg, tb.hitT = 1;
+tcb.curHp -= dmg, C.walk.get(te).hitT = 1;
 const ha = atan2(tp.y - p.y, tp.x - p.x);
 tcb.hitDx = cos(ha), tcb.hitDy = sin(ha);
 const sh = bugLen(tb) * .15 * rsign();

@@ -45,7 +45,7 @@ boxCx.fillText(`${ABILITIES[id].name}${has?" "+(cd<=0?"\u2713":(cd/1000).toFixed
 })
 })
 }
-const drawHit = (b, x, y, dir) => b.hitT > 0 && drawMorphBug(boxCx, ensureMorph(b), "#ff2828", x, y, dir + HALF_PI, { alpha: b.hitT, shadow: !1 });
+const drawHit = (b, t, x, y, dir) => t.hitT > 0 && drawMorphBug(boxCx, ensureMorph(b), "#ff2828", x, y, dir + HALF_PI, { alpha: t.hitT, shadow: !1 });
 function sysRender(inCombat) {
 const fe = inspected && ecsQuery("bug", "pos").find(en => C.bug.get(en) === inspected || C.bug.get(en).id === inspected.id);
 fe == null && (inspected = null), syncFowBtn();
@@ -70,20 +70,20 @@ boxCx.restore()
 }
 const ents = inCombat ? ecsQuery("bug", "pos", "team", "combat") : ecsQuery("bug", "pos", "vel", "walk");
 const isGrey = e => { const c = C.combat.get(e); return c.dead || c.phoenixT > 0 || c.fakeT > 0 };
-const tops = new Set(mates.map(m => m.top)), rk = e => (tops.has(e) ? 1 : 0) + (C.walk.get(e).top ? 2 : 0);
+const rk = e => { const t = C.walk.get(e); return (t.pair?.phase && t.pair.b === e ? 1 : 0) + (t.top ? 2 : 0) };
 const drawOrder = inCombat ? [...ents].sort((a, bb) => (isGrey(a) ? 0 : 1) - (isGrey(bb) ? 0 : 1)) :
 [...ents].sort((a, bb) => rk(a) - rk(bb));
 const post = [];
 drawOrder.forEach(e => {
 const b = C.bug.get(e),
-p = C.pos.get(e);
+p = C.pos.get(e), t = C.walk.get(e);
 if (!inCombat) {
-drawBugStyled(boxCx, b, p.x, p.y, p.dir, 1, b === inspected, posPhase(C.walk.get(e)));
-drawHit(b, p.x, p.y, p.dir);
+drawBugStyled(boxCx, b, p.x, p.y, p.dir, 1, b === inspected, posPhase(t));
+drawHit(b, t, p.x, p.y, p.dir);
 const r = morphR(b);
 post.push(() => {
 (!fow && (b === inspected || scienceOn && sci("hp"))) && drawHpBar(p, hpFrac(b), r);
-b.prepT > 0 && sci("bite") && drawPrepBar(p, 1 - b.prepT / b.prepMax, r);
+t.prepT > 0 && sci("bite") && drawPrepBar(p, 1 - t.prepT / t.prepMax, r);
 scienceOn && sci("nam") && drawLabel(b.name, p.x, p.y - r - 11, "#4cf")
 });
 return;
@@ -99,7 +99,7 @@ drawMorphBug(boxCx, cfg, "#6e6e76", p.x, p.y, p.dir + HALF_PI, { alpha: k, flat:
 return;
 }
 cb.greyAt = 0;
-const hitFrac = b.hitT || 0;
+const hitFrac = t.hitT || 0;
 let offX = 7 * hitFrac * (cb.hitDx || 0) + 7 / 3 * cb.biteT * cos(p.dir),
 offY = 7 * hitFrac * (cb.hitDy || 0) + 7 / 3 * cb.biteT * sin(p.dir);
 if (cb.loudT > 0) { const amp = (cfg.legLen * 0.5 / 3) * sin(cb.loudT / 20), sa = p.dir + HALF_PI; offX += cos(sa) * amp, offY += sin(sa) * amp }
@@ -107,9 +107,9 @@ boxCx.globalAlpha = 1;
 const k = cb.airT > 0 ? sin(PI * (1 - cb.airT / cb.airMs)) * (cb.dashT > 0 ? .5 : 1) : 0, by = p.y + offY - bugLen(b) * k * (cb.dashT > 0 ? .5 : 1), s = 1 + .15 * k;
 k && (boxCx.fillStyle = "rgba(0,0,0,.45)", boxCx.beginPath(), boxCx.ellipse(p.x, p.y, r * (1 - .4 * k), r * .55 * (1 - .4 * k), p.dir, 0, TAU), boxCx.fill());
 boxCx.save(), boxCx.translate(p.x + offX, by), boxCx.scale(s, s);
-drawBugStyled(boxCx, b, 0, 0, p.dir, 1, b === inspected, k ? null : posPhase(C.walk.get(e)), sci("col") ? TEAM_HUE[tm.team] : null);
+drawBugStyled(boxCx, b, 0, 0, p.dir, 1, b === inspected, k ? null : posPhase(t), sci("col") ? TEAM_HUE[tm.team] : null);
 boxCx.restore();
-drawHit(b, p.x + offX, by, p.dir);
+drawHit(b, t, p.x + offX, by, p.dir);
 post.push(() => {
 if (cb.stunT > 0) drawLabel("\u2726", p.x, p.y - r - 13, "#fd4", 9)
 if (sci("hp")) {
