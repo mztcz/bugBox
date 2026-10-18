@@ -67,14 +67,14 @@ Load order = the order in `index.html`. `main.js` is last and is the only file t
 |---|---|---|
 | Layout, screens, buttons, overlays (markup), crash reporter | `index.html` | `#s-terr` `#s-boo` `#s-lab` `#s-mkt`, `#terr-bar-row`, `#ov-set` |
 | Colours, fonts, sizes, spacing, screen shake | `style.css` | `#toast`, `.shake` |
-| Version number (shown by `main.js`), math helpers, sound effects (bite pitch: 250 Hz enemy, 220 Hz player) | `core.js` | `GAME_VERSION` (line 1), `SFX`, `beep` |
-| Tutorial list, achievement list, unlock rules, toasts on unlock, record updates (saved `records` + this game's `run`, both via `RECS`) | `achievements.js` | `achSt`, `records`, `run`, `RECS`, `bugbox_records` |
-| Starting money, tunables (walk timers), global variables, fight modes, act setter, turning | `state.js` | `bugsOwned`, `fightMode`, `MODES`, `enemyTier` (1–5), `WALK_MIN`, `WALK_MAX`, `setAct` (only act setter), `think` (pause, length by INT), `aiAct`, `newDir` (random walk direction, called only by move.js decide), `turnToward`, `intMs` (INT pause base, also flee length) |
+| Version number (shown by `main.js`), math helpers, sound effects (bite pitch: 250 Hz enemy, 220 Hz player), polygon path helper | `core.js` | `GAME_VERSION` (line 1), `SFX`, `beep`, `pathPts` |
+| Tutorial list, achievement list, unlock rules, toasts on unlock, record updates (saved `records` + this game's `run`, both via `RECS`), threshold unlocks | `achievements.js` | `achSt`, `records`, `run`, `RECS`, `bugbox_records`, `achAt` |
+| Starting money, tunables (walk timers), global variables, fight modes, act setter, turning, random sign, owned bug by id, fresh lab state | `state.js` | `bugsOwned`, `fightMode`, `MODES`, `enemyTier` (1–5), `WALK_MIN`, `WALK_MAX`, `setAct` (only act setter), `think` (pause, length by INT), `aiAct`, `newDir` (random walk direction, called only by move.js decide), `turnToward`, `intMs` (INT pause base, also flee length), `rsign`, `ownedById`, `newLab` |
 | Bug object, names, stat bars, max HP (boss HP multiplier) | `bug.js` | `maxHpOf`, `hpMul` |
-| Ability list, ability rules, bite damage, dodge, bite side shove, bite prep by AGI, flee, inheritance | `abilities.js` | `ABILITIES`, `applyBite`, `biteDodged`, `biteDone`, `bitePrepOf`, `flee`, `newCombat` |
+| Ability list, ability rules, bite damage, dodge, bite side shove, bite prep by AGI, flee, inheritance, stat clamp 1–10 | `abilities.js` | `ABILITIES`, `applyBite`, `biteDodged`, `biteDone`, `bitePrepOf`, `flee`, `newCombat`, `statOf` |
 | Bug cards (Market/lab/Booker/result), HP bars, kill button (sets `run.end`), focus line, blocked-flash, toast text | `cards.js` | `makeBugCard`, `drawHpBar`, `inspectLine`, `toast`, `flashBlocked` |
 | Screen switching, info overlay tabs, money display | `screens.js` | |
-| Bug body shapes, colour palette, walk style (gait), graphics theme, shadow (leg shadow = straight line from shifted leg root to foot), one-colour corpse | `morph.js` | `randomMorph`, `setPalette`, `setGait`, `setBugTheme`, `drawMorphBug` option `flat` |
+| Bug body shapes, colour palette, walk style (gait), graphics theme, shadow (leg shadow = straight line from shifted leg root to foot), one-colour corpse, head-to-tail top | `morph.js` | `randomMorph`, `setPalette`, `setGait`, `setBugTheme`, `drawMorphBug` option `flat`, `morphTop` |
 | Drawing one bug, card thumbnails | `drawbug.js` | `drawBugStyled` |
 | Box background art (random per fight, index.html #bt-bg rerolls) | `bg.js` | `drawBg`, `bgPick` |
 | Obstacle types, shapes and variants (index = kind, `v` = variant) | `obst.js` | `OBST` |
@@ -86,12 +86,12 @@ Load order = the order in `index.html`. `main.js` is last and is the only file t
 | Breeding lab (sorting: first tap `Nam` A→Z, all others highest first; selection, offspring) | `lab.js` | `BREED_SORT`, `setLabSort` |
 | Booker screen (modes, tier buttons 01–05, team picking, BOSS stat-sum filter) | `boo.js` | `openBoo`, `setMode`, `setTier`, `teamMax`, `bossFit` |
 | Fight AI, targeting, ability firing, target switch to weakest attacker, panic burst (flee angle inside the bug's quadrant from box centre, first half of the turn on the spot), flee food pull (max 30 deg), combat timers, damage number motion | `combatai.js` | `sysCombatAI`, `panicAll`, `tickTimers` |
-| What is drawn each frame (food also in fight), bottom info line, red hit overlay, hit recoil 7 px and biter lunge 7/3 px, floating damage numbers (offset from the bitten bug's position), grey corpse fade | `render.js` | `drawHit`, `dmgPops` |
+| What is drawn each frame (food also in fight), bottom info line, red hit overlay, hit recoil 7 px and biter lunge 7/3 px, floating damage numbers (offset from the bitten bug's position), grey corpse fade, centred labels, call/noise rings | `render.js` | `drawHit`, `dmgPops`, `drawLabel`, `drawRing` |
 | Hit-testing under the finger, dragging, obstacle rotation by circling | `input.js` | `nearest`, `obstacleAt`, `draggableAt`, `dragStart`, `dragMove`, `endDrag` |
 | Static DOM bindings, version tag, triple-tap panic, focus on corpses | `main.js` | `tapT` |
 | Simulation loop, speed, box backdrop | `loop.js` | `tick(dt, fight)` = one simulation step, sole countdown of `actT` and `hitT`, `simLoop`, `drawBoxBackdrop` |
 | Enemy generation (stat sum by tier), bosses (BOSS 2×, RB 3× 10 HP, WB 3× 50 HP, kept per tier), prize $80×T×HP multiplier, fight start (salute toast + freeze), result screen, per-bug fight tally, MC break (food + NEXT), fight-end and stalemate check, fight end removes all fight entities | `fight.js` | `statsOf`, `buildEnemies`, `BOSS`, `bosses`, `wbKeep`, `weekOf`, `checkFightEnd`, `endFight`, `showFightResult`, `tallyFight` |
-| Bug designer overlay | `dz.js` | |
+| Bug designer overlay, stat-linked morph sync | `dz.js` | `dzSync` |
 | Info / Morphology / Abilities texts | `wiki.js` | |
 | Records screen (columns this run / all games, `Last loss` = `run.end`) | `records.js` | `renderRecords` |
 
@@ -112,8 +112,8 @@ Load order = the order in `index.html`. `main.js` is last and is the only file t
 Open `index.html`. All paths are relative, so it works from a local folder or from GitHub Pages with no build step. The `index.html` contains an on-screen crash reporter (red bar at the bottom). It prints missing files and JS errors (Android has no console).
 
 ### Tool files
-- `.claude/smoke.cjs` = smoke test: local files linked from `index.html` must exist, every backticked symbol in a routing table row (Area + Symbol columns, file names skipped) must exist in its file; external requests (Google Font) are stubbed so offline runs pass, then all scripts as one ES module (duplicate top-level names across files fail), then headless Chromium: market, box, info tabs, designer, lab, booker, 2v2 fight, leave. `--hook` exits 2 on failure.
-- `.claude/settings.json` = PreToolUse hook runs the smoke test before every `git push` and blocks it on failure.
+- `.claude/smoke.cjs` = smoke test: local files linked from `index.html` must exist, every backticked symbol in a routing table row (Area + Symbol columns, file names skipped) must exist in its file; external requests (Google Font) are stubbed so offline runs pass, then all scripts as one ES module (duplicate top-level names across files fail), then headless Chromium: market, box, info tabs, designer, lab, booker, 2v2 fight, leave.
+- `.claude/settings.json` = PreCompact hook only (full-context reminder). No hook runs the smoke test; it runs only in oktk step 1.
 - `.claude/skills/oktk/SKILL.md` = end-of-session routine triggered by "oktk".
 - `.claude/agents/skoukni-kod.md` = read-only review subagent; run only when the user writes "skoukniKod" (Agent tool, `subagent_type: skoukni-kod`).
 `style.css` has few, very long lines — prefer `grep -o` with a short context over `grep -n`. The `.js` files are multi-line; `grep -n` is safe.
