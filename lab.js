@@ -116,7 +116,7 @@ const BREED_SORT = [
 ["int", "Int", b => b.int],
 ["per", "Per", b => b.per],
 ["abi", "Abi", b => b.abilities.length + b.abilities.map(id => ABILITIES[id].name).join()],
-["pwr", "Pwr", b => SK.reduce((t, k) => t + b[k], 0)]
+["pwr", "Pwr", statSum]
 ];
 let labSort = "name", labDir = 1;
 function setLabSort(k) { labDir = labSort === k ? -labDir : "name" === k ? 1 : -1, labSort = k, renderLab() }
@@ -151,9 +151,9 @@ bar.innerHTML = '<button class="prim wide" disabled>Select Parent A and Parent B
 }
 }
 function closeKill() {
-if (!window.killPh) return;
-window.killPhClose && window.killPhClose();
-window.killPhClose = null, window.killPh = null
+if (!killPh) return;
+killPhClose && killPhClose();
+killPhClose = null, killPh = null
 }
 const HUE_OFF = [-40, -20, 20, 40];
 const mutQ4 = () => { const r = random(); return r < .25 ? -1 : r < .5 ? 0 : r < .75 ? 1 : 2 };

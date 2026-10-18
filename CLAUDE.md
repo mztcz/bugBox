@@ -88,7 +88,7 @@ Load order = the order in `index.html`. `main.js` is last and is the only file t
 | Hit-testing under the finger, dragging, obstacle rotation by circling | `input.js` | `nearest`, `obstacleAt`, `draggableAt`, `dragStart`, `dragMove`, `endDrag` |
 | Static DOM bindings, version tag, triple-tap panic, focus on corpses | `main.js` | `tapT` |
 | Simulation loop, speed, box backdrop | `loop.js` | `tick(dt, fight)` = one simulation step, sole countdown of `actT` and `hitT`, `simLoop`, `drawBoxBackdrop` |
-| Enemy generation (stat sum by tier), bosses (BOSS 2×, RB 3× 10 HP, WB 3× 50 HP, kept per tier), prize $80×T×HP multiplier, fight start (salute toast + freeze), result screen, MC break (food + NEXT), fight-end and stalemate check, fight end removes all fight entities | `fight.js` | `statsOf`, `buildEnemies`, `BOSS`, `bosses`, `wbKeep`, `weekOf`, `checkFightEnd`, `endFight`, `showFightResult` |
+| Enemy generation (stat sum by tier), bosses (BOSS 2×, RB 3× 10 HP, WB 3× 50 HP, kept per tier), prize $80×T×HP multiplier, fight start (salute toast + freeze), result screen, per-bug fight tally, MC break (food + NEXT), fight-end and stalemate check, fight end removes all fight entities | `fight.js` | `statsOf`, `buildEnemies`, `BOSS`, `bosses`, `wbKeep`, `weekOf`, `checkFightEnd`, `endFight`, `showFightResult`, `tallyFight` |
 | Bug designer overlay | `dz.js` | |
 | Info / Morphology / Abilities texts | `wiki.js` | |
 | Records screen (columns this run / all games, `Last loss` = `run.end`) | `records.js` | `renderRecords` |

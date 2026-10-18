@@ -145,7 +145,7 @@ p.kids = (p.kids || 0) + 1;
 }
 function achChild(b) {
 achieve("breed"), achStep("bred", [10, 50], "bred");
-const sum = SK.reduce((t, k) => t + b[k], 0),
+const sum = statSum(b),
 na = (b.abilities || []).length;
 [["con", "heavy"], ["str", "strong"], ["agi", "fast"], ["int", "clever"], ["per", "aware"]].forEach(([k, a]) => b[k] >= 5 && achieve(a));
 sum <= 5 && achieve("weak");

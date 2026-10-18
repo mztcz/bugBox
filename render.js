@@ -9,10 +9,9 @@ if (cb && cb.dead) return;
 const p = C.pos.get(e),
 b = C.bug.get(e);
 if (sci("zone")) {
-const zoneR = 34;
 for (const [a0, a1, col] of [[PI / 3, TAU / 3, "rgba(255,180,60,.10)"], [TAU / 3, PI, "rgba(255,60,60,.14)"]])
 for (const sg of [1, -1]) {
-boxCx.beginPath(), boxCx.moveTo(p.x, p.y), boxCx.arc(p.x, p.y, zoneR, p.dir + sg * a0, p.dir + sg * a1, sg < 0), boxCx.closePath();
+boxCx.beginPath(), boxCx.moveTo(p.x, p.y), boxCx.arc(p.x, p.y, 34, p.dir + sg * a0, p.dir + sg * a1, sg < 0), boxCx.closePath();
 boxCx.fillStyle = col, boxCx.fill()
 }
 boxCx.beginPath(), boxCx.arc(p.x, p.y, engageDistOf(b), 0, 7), boxCx.strokeStyle = "rgba(120,200,255,.25)", boxCx.lineWidth = 1, boxCx.stroke()

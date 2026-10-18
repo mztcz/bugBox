@@ -56,9 +56,8 @@ sciShown().map(([k, lbl, tip]) => sciBtn(k, lbl, tip, sciCur()[k])).join("")
 let hudWas = null;
 const HUD_FIGHT_ONLY = ["bt-leave", "bt-pause", "bt-bg"],
 HUD_BOX_ONLY = ["bt-lab", "bt-boo", "bt-terr-mkt"];
-function hudCombat() { return combatState }
 function syncHud(force) {
-const c = hudCombat();
+const c = combatState;
 if (c === hudWas && !force) return;
 hudWas = c;
 HUD_FIGHT_ONLY.forEach(id => $(id).style.display = c ? "" : "none");
@@ -67,7 +66,6 @@ $("terr-title").style.color = c ? "#fa4" : "#4f8", $("terr-title").textContent =
 boxCv.style.borderColor = c ? "#fa4" : "#4cf";
 syncSciHud()
 }
-function canDrag(kind) { return !hudCombat() }
 const MAX_FOOD = 30;
 function canPlaceFood() { return combatState ? foodLeft > 0 && !fightDone : ecsQuery("food").length < MAX_FOOD }
 function spawnDmgPop(p, amount, team, a) { dmgPops.push({ p, x: 0, y: 0, amount, team, a, t: 1 }) }
@@ -121,13 +119,13 @@ killsThis: cb.killsThis || 0
 })
 }
 function genObstacles(inCombat) {
-const lw = boxLW, lh = boxLH, n = 8 + ri(5), placed = [];
+const n = 8 + ri(5), placed = [];
 for (let i = 0; i < n; i++) {
 const k = ri(OBST.length), t = OBST[k], v = t[0][ri(t[0].length)], r = (12 + ri(10)) * (t[2] || 1);
 for (let a = 0; a < 30; a++) {
-const x = 40 + random() * (lw - 80), y = 40 + random() * (lh - 80);
+const x = 40 + random() * (boxLW - 80), y = 40 + random() * (boxLH - 80);
 if (placed.some(o => hypot(o.x - x, o.y - y) < o.r + r + 18)) continue;
-if (inCombat && (abs(x - .18 * lw) < r + 26 || abs(x - .82 * lw) < r + 26)) continue;
+if (inCombat && (abs(x - .18 * boxLW) < r + 26 || abs(x - .82 * boxLW) < r + 26)) continue;
 placed.push({ x, y, r });
 ecsSpawn({ obstacle: { r, kind: k, v, rot: (45 * ri(8) + rf(10, 35)) * PI / 180 }, pos: { x, y, dir: 0 } });
 break
@@ -168,8 +166,6 @@ genObstacles(!0)
 restoreTerrWorld();
 ecsQuery("obstacle").length || genObstacles(!1)
 }
-const lw = boxLW,
-lh = boxLH;
 if (!combatState) {
 const have = new Map();
 ecsQuery("bug").forEach(e => {
@@ -179,14 +175,14 @@ bugsOwned.includes(b) ? have.set(b, e) : ecsKill(e)
 bugsOwned.forEach(b => {
 if (have.has(b)) return;
 const dir = random() * TAU;
-think(ecsSpawn(bugEntity(b, 30 + random() * (lw - 60), 30 + random() * (lh - 60), dir, -1)))
+think(ecsSpawn(bugEntity(b, 30 + random() * (boxLW - 60), 30 + random() * (boxLH - 60), dir, -1)))
 });
 return void syncHud(!0)
 }
 const side = (arr, tm) => {
-const gap = lh / (arr.length + 1);
+const gap = boxLH / (arr.length + 1);
 arr.forEach((b, i) => {
-const c = bugEntity(b, (0 === tm ? .18 : .82) * lw + rf(-.04, .04) * lw, gap * (i + 1 + rf(-.25, .25)), (0 === tm ? 0 : PI) + rf(-.35, .35), tm);
+const c = bugEntity(b, (0 === tm ? .18 : .82) * boxLW + rf(-.04, .04) * boxLW, gap * (i + 1 + rf(-.25, .25)), (0 === tm ? 0 : PI) + rf(-.35, .35), tm);
 const mhp = maxHpOf(b);
 c.combat = newCombat(b, max(1, min(b.curHp, mhp)), mhp);
 think(ecsSpawn(c))
@@ -194,7 +190,3 @@ think(ecsSpawn(c))
 };
 side(fightTeam, 0), side(enemies, 1), syncHud(!0)
 }
-Object.defineProperty(window, "bugsInTerr", {
-get: bugsInTerrView,
-configurable: !0
-});

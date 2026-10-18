@@ -216,7 +216,7 @@ const BG_COLOR = [
   { c: "#5a6a3a", op: "color", a: .4 }
 ];
 function bgPick() {
-bgM = ri(3), bgT = ri(BG_METHODS[bgM].t.length), bgV = ri(2), bgC = ri(BG_COLOR.length), bgS = ri(1e9), bgKey = ""
+bgM = ri(3), bgT = ri(BG_METHODS[bgM].t.length), bgV = ri(2), bgC = ri(BG_COLOR.length), bgS = ri(1e9)
 }
 function drawBg() {
 const key = [bgM, bgT, bgV, bgC, bgS, boxLW, boxLH].join(",");

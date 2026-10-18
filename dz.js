@@ -40,8 +40,7 @@ $("dz-abils").innerHTML =
 SK.forEach(bindRange);
 [0, 1, 2, 3].forEach(i => {
 $("dz-abil-" + i).onchange = ev => {
-dz.abils[i] = ev.target.value;
-const id = ev.target.value;
+const id = dz.abils[i] = ev.target.value;
 if (id) { const k = ABILITIES[id].stat; dz[k] = max(dz[k], 5) }
 dz.link && Object.assign(dz, statMorph(dz)), dzExtras(), dzRefresh()
 }
@@ -108,8 +107,7 @@ nb = makeBug({ hue: hue, morph: { ...m }, con: con, str: str, agi: agi, int: int
 if (link || Object.assign(nb.morph, m), !combatState) return bugsOwned.push(nb), achOwn(1), void updateMoney();
 const mhp = maxHpOf(nb);
 nb.curHp = mhp;
-const lw = boxLW, lh = boxLH,
-c = bugEntity(nb, 0 === dzSide ? .18 * lw : .82 * lw, 30 + random() * (lh - 60), 0 === dzSide ? 0 : PI, dzSide);
+const c = bugEntity(nb, 0 === dzSide ? .18 * boxLW : .82 * boxLW, 30 + random() * (boxLH - 60), 0 === dzSide ? 0 : PI, dzSide);
 c.vel.wanderAngle = 0;
 c.combat = newCombat(nb, mhp, mhp);
 think(ecsSpawn(c));

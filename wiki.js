@@ -3,7 +3,7 @@ const el = $("itab-abil");
 if (el.dataset.done) return;
 el.dataset.done = "1";
 el.innerHTML = SK.map(k =>
-`<div class="mw-title">${STAT_FULL[k]}</div>` + ABIL_IDS.filter(id => ABILITIES[id].stat === k).map(id => {
+`<div class="mw-title">${STAT_FULL[k]}</div>` + ABIL_BY_STAT[k].map(id => {
 const a = ABILITIES[id],
 cd = a.cd > 0 ? ` &middot; cd ${(a.cd/1000).toFixed(0)}s` : " &middot; passive";
 return `<div class="panel"><b style="color:#c8f;">\u2b22 ${a.name}</b> <span style="color:#556;">\u2014 req ${k.toUpperCase()}&ge;5${cd}</span><br>

@@ -2,7 +2,6 @@ const INTERACT_CHANCE = .10, BOX_CAP = 100;
 const boxFull = () => bugsOwned.length + boxEggs.length >= BOX_CAP;
 const MATE_HOLD_MIN = 3000, MATE_HOLD_MAX = 7000, MATE_TURN_MAX = 8000;
 let boxEggs = [], mates = [], loveBites = [], mateTouch = new Set();
-function eggRadius(a, b) { return max(bugLen(a), bugLen(b)) * .25 }
 const LOVE_BITE_REACH = 2.5, LOVE_BITE_CONE = 1;
 const mateOdds = () => bugsOwned.length <= 3 ? 1 : bugsOwned.length <= 10 ? .5 : .25;
 const nibble = (a, t) => (t.hitT = 1, t.curHp = max(1, (t.curHp == null ? maxHpOf(t) : t.curHp) - a.str * rollVar()));
@@ -66,12 +65,12 @@ turnToward(sp, away, turningOf(sb) * dtS) & turnToward(tp, away, turningOf(tb) *
 (tp.x -= dx / d * step * sign(rem), tp.y -= dy / d * step * sign(rem), step === abs(rem) && (m.phase = "hold", m.hold = MATE_HOLD_MIN + random() * (MATE_HOLD_MAX - MATE_HOLD_MIN)));
 continue
 }
-mateSnap(m, sp.dir), m.hold -= dt;
+mateSnap(m), m.hold -= dt;
 if (m.hold <= 0) {
 const bug = boxFull() || makeBug({ ...computeOffspring(sb, tb) });
 !1 === bug.dead && (boxEggs.push({
 x: (sp.x + tp.x) / 2, y: (sp.y + tp.y) / 2,
-r: eggRadius(sb, tb),
+r: max(bugLen(sb), bugLen(tb)) * .25,
 bug,
 ready: 0
 }), achKids(sb, tb), achieve("mate"));
@@ -80,9 +79,9 @@ mateEnd(m, !0), mates.splice(k, 1)
 }
 }
 function mateGap(m) { return bugLen(C.bug.get(m.sub)) * .55 }
-function mateSnap(m, away) {
+function mateSnap(m) {
 const sp = C.pos.get(m.sub), tp = C.pos.get(m.top), g = mateGap(m);
-sp.dir = away, tp.dir = away, tp.x = sp.x - cos(away) * g, tp.y = sp.y - sin(away) * g
+tp.dir = sp.dir, tp.x = sp.x - cos(sp.dir) * g, tp.y = sp.y - sin(sp.dir) * g
 }
 function loveBiteEnd(s) {
 [s.a, s.b].forEach(en => {

@@ -21,7 +21,7 @@ return e == null ? null : { e: e, kind: "obstacle", pad: C.obstacle.get(e).r }
 function dragStart(e) {
 const [cx, cy] = boxPt(e), t = draggableAt(cx, cy);
 suppressClick = !1, t || hold(HOLD_MS, () => canPlaceFood() && (ecsSpawn({ food: {}, pos: { x: cx, y: cy, dir: 0 } }), SFX.feed(), combatState && foodLeft--, suppressClick = !0));
-if (!t || !canDrag(t.kind)) return;
+if (!t || combatState) return;
 const op = C.pos.get(t.e);
 "bug" === t.kind && mateCancel(t.e);
 drag = { ...t, ox: op.x - cx, oy: op.y - cy, sx: cx, sy: cy, moved: !1 }, ecsFront(t.e);

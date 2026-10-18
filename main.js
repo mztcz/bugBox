@@ -19,15 +19,9 @@ boxCv.addEventListener("pointercancel", endDrag);
 let tapT = [];
 const TAP_R = 29, TAP_MS = 1000;
 boxCv.onclick = e => {
-const r = boxCv.getBoundingClientRect(),
-cx = e.clientX - r.left,
-cy = e.clientY - r.top;
+const [cx, cy] = boxPt(e);
 if (suppressClick) { suppressClick = !1; return }
-let hit = null, best = 999;
-ecsQuery("bug", "pos").forEach(en => {
-const p = C.pos.get(en), d = hypot(p.x - cx, p.y - cy);
-d < bugLen(C.bug.get(en)) && d < best && (best = d, hit = C.bug.get(en))
-});
+const hitE = nearest(["bug", "pos"], cx, cy, en => bugLen(C.bug.get(en))), hit = hitE != null && C.bug.get(hitE);
 if (hit) { inspected = hit === inspected ? null : hit, inspected && achieve("inspect"); return }
 if (combatState) {
 const now = performance.now();
@@ -53,7 +47,7 @@ simSpd === 0 ? simSpd = speedBeforePause : (speedBeforePause = simSpd, simSpd = 
 tickDebt = 0, syncSpeedLabel()
 }, $("bt-leave").onclick = () => {
 achieve("abandon");
-const survivors = bugsInTerr.filter(f => 0 === f.team && !f.dead).map(f => f.b);
+const survivors = bugsInTerrView().filter(f => 0 === f.team && !f.dead).map(f => f.b);
 endFight(), spawnTerr(), openBoo(!0, survivors), showScreen("s-boo"), toast("Fight abandoned. Your bugs are safe.")
 }, updateMoney();
 $("bt-des").onclick = openDz, $("bt-bg").onclick = bgPick;

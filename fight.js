@@ -26,32 +26,34 @@ function endFight() {
 resultTimer && (clearTimeout(resultTimer), resultTimer = null);
 combatState = !1, tickDebt = 0, simSpd = speedBeforePause, ecsQuery("team").forEach(ecsKill), restoreTerrWorld(), ov("ov-res", 0), syncHud(!0)
 }
+const tallyFight = (lb, f) => (lb.fights = (lb.fights || 0) + 1, lb.killsTotal = (lb.killsTotal || 0) + (f.killsThis || 0));
 function showFightResult() {
 resultTimer = null;
 if (!combatState) return;
 wbKeep();
-const alive0 = bugsInTerr.filter(f => 0 === f.team && !f.dead),
-dead0 = bugsInTerr.filter(f => 0 === f.team && f.dead),
-alive1 = bugsInTerr.filter(f => 1 === f.team && !f.dead),
+const all = bugsInTerrView(),
+alive0 = all.filter(f => 0 === f.team && !f.dead),
+dead0 = all.filter(f => 0 === f.team && f.dead),
+alive1 = all.filter(f => 1 === f.team && !f.dead),
 won = alive0.length > 0 && 0 === alive1.length,
-allPlayer = bugsInTerr.filter(f => 0 === f.team),
-allEnemy = bugsInTerr.filter(f => 1 === f.team);
+allPlayer = all.filter(f => 0 === f.team),
+allEnemy = all.filter(f => 1 === f.team);
 lastSurvivors = alive0.length ? alive0.map(f => f.b) : null;
 alive0.forEach(f => { const lb = bugsOwned.find(b => b.id === f.b.id); lb && (lb.curHp = max(1, round(f.curHp))) });
 dead0.length && achStep("lost", [1, 10], "lost", dead0.length);
-addKills(bugsInTerr.filter(f => 0 === f.team).reduce((s, f) => s + (f.killsThis || 0), 0));
+addKills(allPlayer.reduce((s, f) => s + (f.killsThis || 0), 0));
 const rt = $("res-title"),
 rb = $("res-body");
 rt.textContent = won ? "VICTORY!" : "DEFEAT", rt.style.color = won ? "#44ff88" : "#ff4444", won && SFX.win(), dead0.forEach(f => {
 const lb = bugsOwned.find(b => b.id === f.b.id);
-lb && (lb.losses++, lb.fights = (lb.fights || 0) + 1, lb.killsTotal = (lb.killsTotal || 0) + (f.killsThis || 0), bugsOwned = bugsOwned.filter(b => b.id !== f.b.id), run.end = `${lb.name} died in fight T${enemyTier}`)
+lb && (lb.losses++, tallyFight(lb, f), bugsOwned = bugsOwned.filter(b => b.id !== f.b.id), run.end = `${lb.name} died in fight T${enemyTier}`)
 });
 let html = "";
 if (won) {
 const prize = 80 * enemyTier * (BOSS[fightMode] || [0, 1])[1];
 money += prize, alive0.forEach(f => {
 const lb = bugsOwned.find(b => b.id === f.b.id);
-lb && (lb.wins++, lb.fights = (lb.fights || 0) + 1, lb.killsTotal = (lb.killsTotal || 0) + (f.killsThis || 0), achSurvive(lb))
+lb && (lb.wins++, tallyFight(lb, f), achSurvive(lb))
 }), updateMoney(), html += `<p style="color:#44ff88;font-size:10px;margin-bottom:8px;">+${prize}</p>`
 } else updateMoney();
 scienceOn && (html += `<p style="color:#888;font-size:10px;margin-bottom:8px;">Time ${fmtT(fightMs)}</p>`);

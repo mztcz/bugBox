@@ -65,16 +65,16 @@ if (phEl) {
 phEl.style.cursor = "pointer";
 const bc = phEl.firstChild;
 bc.onclick = ev => {
-if (ev.stopPropagation(), window.killPh === phEl) return closeKill(), void flashBlocked(div);
-closeKill(), window.killPh = phEl, flashBlocked(div);
+if (ev.stopPropagation(), killPh === phEl) return closeKill(), void flashBlocked(div);
+closeKill(), killPh = phEl, flashBlocked(div);
 infoKids().forEach(k => k.style.visibility = "hidden"), skullWrap.style.display = "flex";
-window.killPhClose = () => { infoKids().forEach(k => k.style.visibility = ""), skullWrap.style.display = "none" };
+killPhClose = () => { infoKids().forEach(k => k.style.visibility = ""), skullWrap.style.display = "none" };
 opts.onImgTap && opts.onImgTap(div)
 }
 }
 skullWrap.onclick = e2 => {
 e2.stopPropagation(), flashBlocked(div), achieve("cull"), achieve("kill"), run.end = bug.name + " culled", setTimeout(() => {
-window.killPh = null, window.killPhClose = null;
+killPh = null, killPhClose = null;
 opts.onKill && opts.onKill(div)
 }, 150)
 };
@@ -89,7 +89,7 @@ div.style.width = fixedW + "px", div.style.height = fixedH + "px", div.style.box
 div.innerHTML = '<div style="font-size:9px;color:#445;text-align:center;padding:' + max(0, (fixedH - 20) / 2) + 'px 0;">— gone —</div>'
 }
 function gkfLine(b) { return `Gen ${b.gen} \u00b7 K${b.killsTotal||0}/F${b.fights||0}${b.mated?'<br><span style="color:#c8f;">mated</span>':""}` }
-let fow = 0;
+let fow = 0, killPh = null, killPhClose = null;
 function toggleFow() { fow = fow ? 0 : 1, syncFowBtn(), syncHud(!0) }
 function syncFowBtn() {
 inspected == null && (fow = 0);

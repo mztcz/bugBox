@@ -84,9 +84,7 @@ if (d < rr) { const f = ROCK_FORCE * (rr - d) / rr; vx += dx / d * f, vy += dy /
 return [vx, vy]
 }
 function sysMove(dtS, ents) {
-const lw = boxLW,
-lh = boxLH,
-corpses = ents.filter(en => { const c = C.combat.get(en); return c && c.dead });
+const corpses = ents.filter(en => { const c = C.combat.get(en); return c && c.dead });
 const slowOf = (e, p) => corpses.some(oe => oe !== e && hypot(C.pos.get(oe).x - p.x, C.pos.get(oe).y - p.y) < bugRadius(C.bug.get(oe))) ? CORPSE_SLOW : 1;
 ents.forEach(e => {
 const t = C.walk.get(e),
@@ -100,8 +98,8 @@ let moved = 0;
 if (cb.mvSpd) {
 const step = cb.mvSpd * dtS * slow;
 let ax = cos(cb.mvA), ay = sin(cb.mvA), wk = cb.backflipT > 0 ? 0 : -1;
-(p.x <= m && ax < 0 || p.x >= lw - m && ax > 0) && (ax *= wk);
-(p.y <= m && ay < 0 || p.y >= lh - m && ay > 0) && (ay *= wk);
+(p.x <= m && ax < 0 || p.x >= boxLW - m && ax > 0) && (ax *= wk);
+(p.y <= m && ay < 0 || p.y >= boxLH - m && ay > 0) && (ay *= wk);
 p.x += ax * step, p.y += ay * step, moved = 1
 }
 if (cb.imX || cb.imY) { const lim = bugLen(b) * 2; p.x += clamp(cb.imX || 0, -lim, lim), p.y += clamp(cb.imY || 0, -lim, lim), cb.imX = 0, cb.imY = 0, moved = 1 }
@@ -113,7 +111,7 @@ const ru = "rushing" === t.act;
 if (busy(b, p) || !ru && "walking" !== t.act) return;
 const spd = spdOf(b) * slow * (ru ? t.rushK : 1);
 if (t.slide != null) {
-if ((abs(sin(t.slide)) > .5 ? (p.x < lw / 2 ? -1 : 1) * cos(p.dir) : (p.y < lh / 2 ? -1 : 1) * sin(p.dir)) > 0) {
+if ((abs(sin(t.slide)) > .5 ? (p.x < boxLW / 2 ? -1 : 1) * cos(p.dir) : (p.y < boxLH / 2 ? -1 : 1) * sin(p.dir)) > 0) {
 const st = spd * dtS * cos(p.dir - t.slide);
 p.x += cos(t.slide) * st, p.y += sin(t.slide) * st, clampToBox(e)
 } else wallNext(e);
@@ -121,8 +119,8 @@ return
 }
 const nx = p.x + cos(p.dir) * spd * dtS,
 ny = p.y + sin(p.dir) * spd * dtS,
-hitX = nx < m || nx > lw - m,
-hitY = ny < m || ny > lh - m;
+hitX = nx < m || nx > boxLW - m,
+hitY = ny < m || ny > boxLH - m;
 if (!ru && (hitX || hitY)) {
 const sx = hitX && (!hitY || random() < .5), n = sx ? nx < m ? 0 : PI : ny < m ? HALF_PI : -HALF_PI;
 t.slide = sx ? sin(p.dir) >= 0 ? HALF_PI : -HALF_PI : cos(p.dir) >= 0 ? 0 : PI;
@@ -132,11 +130,10 @@ return
 p.x = nx, p.y = ny, clampToBox(e)
 });
 }
-const sepBase = (a, b) => bugRadius(C.bug.get(a)) + bugRadius(C.bug.get(b));
 function sepPair(a, b) {
 const ca = C.combat.get(a), cb = C.combat.get(b);
 if (ca && cb && (ca.grabTarget === b || cb.grabTarget === a)) return 0;
-return sepBase(a, b)
+return bugRadius(C.bug.get(a)) + bugRadius(C.bug.get(b))
 }
 const RESOLVE_MAX = 60;
 const SEP_FIGHT_MULT = 4;
@@ -265,16 +262,15 @@ clampToBox(e)
 })
 }
 const SEEK_REACH = 40, SEEK_CROSS = .45;
-function seekPick(t, p, lw, lh) {
-const far = p.x < lw / 2;
-t.seekX = far ? lw * (1 - SEEK_CROSS) + random() * (lw * SEEK_CROSS - 40) : 40 + random() * (lw * SEEK_CROSS - 40);
-t.seekY = 40 + random() * (lh - 80)
+function seekPick(t, p) {
+const far = p.x < boxLW / 2;
+t.seekX = far ? boxLW * (1 - SEEK_CROSS) + random() * (boxLW * SEEK_CROSS - 40) : 40 + random() * (boxLW * SEEK_CROSS - 40);
+t.seekY = 40 + random() * (boxLH - 80)
 }
 function sysSeek(ents) {
-const lw = boxLW, lh = boxLH;
 ents.forEach(e => {
 const p = C.pos.get(e), v = C.vel.get(e), t = C.walk.get(e);
-(t.seekX == null || hypot(t.seekX - p.x, t.seekY - p.y) < SEEK_REACH) && seekPick(t, p, lw, lh);
+(t.seekX == null || hypot(t.seekX - p.x, t.seekY - p.y) < SEEK_REACH) && seekPick(t, p);
 v.wanderAngle = atan2(t.seekY - p.y, t.seekX - p.x), v.angVel = 0
 })
 }

@@ -1,7 +1,7 @@
 const INFO_TABS = ["info", "tut", "ach", "morph", "abil", "rec"];
 function openInfoTab(t) { ov("ov-inf", 1), infoTab(t) }
 function infoTab(t) {
-document.querySelectorAll(".info-tab").forEach(b => b.classList.toggle("active", b.dataset.tab === t));
+document.querySelectorAll(".info-tab").forEach(b => b.classList.toggle("prim", b.dataset.tab === t));
 INFO_TABS.forEach(k => $("itab-" + k).style.display = k === t ? "" : "none");
 t === "tut" && renderTutorial();
 t === "ach" && renderAchievements();
