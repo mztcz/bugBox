@@ -40,7 +40,7 @@
 - [tip] = když by mohl uživatel promptovat výrazně lépe.
 
 ## Konec každé odpovědi
-1. 2 shrnující věty za celou zprávu (max 50 znaků) + [proc] = 1 stručný návrh, jak poslední krok udělat jinak a lépe.
+1. 2 shrnující věty za celou zprávu (max 50 znaků) + [proc] = 1 stručný návrh, jak poslední krok udělat jinak a lépe; jen když jde výrazně lépe, jinak vynech.
 2. [sou] související, [alt] alternativní, [opp] oponující informace.
 3. [b] [c] [d] = tři next-step návrhy v infinitivu, spustitelné zadáním jednoho písmene.
 4. Při změnách kódu: nový řádek "vX.Y:".
