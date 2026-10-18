@@ -1,8 +1,8 @@
 // BUGBOX smoke test: module check + headless run (box, fight, overlays). Exit 0 = OK.
-// Usage: node .claude/smoke.cjs [--hook]   (--hook: exit 2 on failure so a PreToolUse hook blocks git push)
+// Usage: node .claude/smoke.cjs (run only in oktk step 1)
 const fs = require("fs"), path = require("path"), os = require("os"), { execFileSync } = require("child_process");
-const root = path.resolve(__dirname, ".."), hook = process.argv.includes("--hook");
-const fail = msg => { (hook ? console.error : console.log)("SMOKE FAIL\n" + msg); process.exit(hook ? 2 : 1) };
+const root = path.resolve(__dirname, "..");
+const fail = msg => { console.log("SMOKE FAIL\n" + msg); process.exit(1) };
 const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
 const scripts = [...html.matchAll(/<script src="([^"]+\.js)"><\/script>/g)].map(m => m[1]);
 const lost = [...html.matchAll(/(?:src|href)="(?!https?:|#|data:)([^"]+)"/g)].map(m => m[1]).filter(f => !fs.existsSync(path.join(root, f)));

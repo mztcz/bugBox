@@ -9,20 +9,6 @@
           }
         ]
       }
-    ],
-    "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "if": "Bash(git push*)",
-            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/smoke.cjs\" --hook",
-            "timeout": 120,
-            "statusMessage": "Smoke test before push..."
-          }
-        ]
-      }
     ]
   }
 }
