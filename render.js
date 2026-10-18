@@ -70,7 +70,7 @@ boxCx.restore()
 }
 const ents = inCombat ? ecsQuery("bug", "pos", "team", "combat") : ecsQuery("bug", "pos", "vel", "walk");
 const isGrey = e => { const c = C.combat.get(e); return c.dead || c.phoenixT > 0 || c.fakeT > 0 };
-const tops = new Set(mates.map(m => m.top)), rk = e => (tops.has(e) ? 1 : 0) + (C.pos.get(e).top ? 2 : 0);
+const tops = new Set(mates.map(m => m.top)), rk = e => (tops.has(e) ? 1 : 0) + (C.walk.get(e).top ? 2 : 0);
 const drawOrder = inCombat ? [...ents].sort((a, bb) => (isGrey(a) ? 0 : 1) - (isGrey(bb) ? 0 : 1)) :
 [...ents].sort((a, bb) => rk(a) - rk(bb));
 const post = [];
@@ -78,7 +78,7 @@ drawOrder.forEach(e => {
 const b = C.bug.get(e),
 p = C.pos.get(e);
 if (!inCombat) {
-drawBugStyled(boxCx, b, p.x, p.y, p.dir, 1, b === inspected, posPhase(p));
+drawBugStyled(boxCx, b, p.x, p.y, p.dir, 1, b === inspected, posPhase(C.walk.get(e)));
 drawHit(b, p.x, p.y, p.dir);
 const r = morphR(b);
 post.push(() => {
@@ -107,7 +107,7 @@ boxCx.globalAlpha = 1;
 const k = cb.airT > 0 ? sin(PI * (1 - cb.airT / cb.airMs)) * (cb.dashT > 0 ? .5 : 1) : 0, by = p.y + offY - bugLen(b) * k * (cb.dashT > 0 ? .5 : 1), s = 1 + .15 * k;
 k && (boxCx.fillStyle = "rgba(0,0,0,.45)", boxCx.beginPath(), boxCx.ellipse(p.x, p.y, r * (1 - .4 * k), r * .55 * (1 - .4 * k), p.dir, 0, TAU), boxCx.fill());
 boxCx.save(), boxCx.translate(p.x + offX, by), boxCx.scale(s, s);
-drawBugStyled(boxCx, b, 0, 0, p.dir, 1, b === inspected, k ? null : posPhase(p), sci("col") ? TEAM_HUE[tm.team] : null);
+drawBugStyled(boxCx, b, 0, 0, p.dir, 1, b === inspected, k ? null : posPhase(C.walk.get(e)), sci("col") ? TEAM_HUE[tm.team] : null);
 boxCx.restore();
 drawHit(b, p.x + offX, by, p.dir);
 post.push(() => {

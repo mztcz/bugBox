@@ -7,13 +7,13 @@ walkL: phase ? phase.wL : null, walkR: phase ? phase.wR : null,
 glow: highlighted ? `hsl(${hue},80%,60%)` : null
 })
 }
-function posPhase(p) { return { wL: (p.walk || 0) + 2.2 * (p.turnAcc || 0), wR: (p.walk || 0) - 2.2 * (p.turnAcc || 0) } }
+function posPhase(t) { return { wL: (t.stride || 0) + 2.2 * (t.turnAcc || 0), wR: (t.stride || 0) - 2.2 * (t.turnAcc || 0) } }
 function sysAnimPhase() {
 ecsQuery("bug", "pos").forEach(e => {
-const p = C.pos.get(e), dx = p.x - (p._px ?? p.x), dy = p.y - (p._py ?? p.y);
-const dd = norm(p.dir - (p._pd ?? p.dir));
-p.walk = (p.walk || 0) + .32 * hypot(dx, dy), p.turnAcc = (p.turnAcc || 0) + dd;
-p._px = p.x, p._py = p.y, p._pd = p.dir
+const p = C.pos.get(e), t = C.walk.get(e), dx = p.x - (t._px ?? p.x), dy = p.y - (t._py ?? p.y);
+const dd = norm(p.dir - (t._pd ?? p.dir));
+t.stride = (t.stride || 0) + .32 * hypot(dx, dy), t.turnAcc = (t.turnAcc || 0) + dd;
+t._px = p.x, t._py = p.y, t._pd = p.dir
 })
 }
 function bugCardH(b, w = 54, h = 54) {

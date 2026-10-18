@@ -43,7 +43,7 @@ if (hypot(pb.x - pa.x, pb.y - pa.y) <= sepPair(s.a, s.b) * LOVE_BITE_REACH) {
 for (const [x, y, k2] of [[s.a, s.b, "ta"], [s.b, s.a, "tb"]]) {
 if (!s[k2]) continue;
 const px = C.pos.get(x), py = C.pos.get(y), bx = C.bug.get(x), a = atan2(py.y - px.y, py.x - px.x);
-C.vel.get(x).wanderAngle = a, turnToward(px, a, turningOf(bx) * dtS);
+C.vel.get(x).wanderAngle = a, turnToward(x, a, turningOf(bx) * dtS);
 abs(norm(a - px.dir)) < LOVE_BITE_CONE && (bx.prepT = (bx.prepT || (bx.prepMax = bitePrepOf(bx))) - dt) <= 0 && (s[k2] = bx.prepT = 0, nibble(bx, C.bug.get(y)), SFX.bite())
 }
 if (s.ta || s.tb) continue
@@ -61,7 +61,7 @@ const away = atan2(sp.y - tp.y, sp.x - tp.x),
 dx = tp.x - sp.x, dy = tp.y - sp.y, d = hypot(dx, dy) || .001,
 rem = d - mateGap(m), step = min(abs(rem), spdOf(tb) * dtS);
 if ((m.t += dt) >= MATE_TURN_MAX) { mateEnd(m, !1), mates.splice(k, 1); continue }
-turnToward(sp, away, turningOf(sb) * dtS) & turnToward(tp, away, turningOf(tb) * dtS) &&
+turnToward(m.sub, away, turningOf(sb) * dtS) & turnToward(m.top, away, turningOf(tb) * dtS) &&
 (tp.x -= dx / d * step * sign(rem), tp.y -= dy / d * step * sign(rem), step === abs(rem) && (m.phase = "hold", m.hold = MATE_HOLD_MIN + random() * (MATE_HOLD_MAX - MATE_HOLD_MIN)));
 continue
 }

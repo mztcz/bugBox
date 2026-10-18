@@ -8,7 +8,7 @@ const CORPSE_SLOW = .5;
 const COMBAT_STEP_MS = 16, MAX_STEPS_PER_FRAME = 64;
 const wallNext = e => random() < (11 - intOf(C.bug.get(e))) / 20 && think(e) || decide(e);
 const facing = (p, a) => max(0, cos(a - p.dir));
-const busy = (b, p) => b.loveBite || p.dropStuck;
+const busy = (b, t) => b.loveBite || t.dropStuck;
 function decide(e) {
 const b = C.bug.get(e), t = C.walk.get(e);
 if (t.turnA != null) return setAct(e, "turning");
@@ -25,18 +25,18 @@ v = C.vel.get(e),
 tu = "turning" === t.act,
 ru = "rushing" === t.act;
 if (!tu && !ru && "walking" !== t.act || t.slide != null) return;
-if (busy(b, p)) return void(p.frzMs = 0, p.lastX = p.x, p.lastY = p.y);
-if (tu) return void(turnToward(p, t.turnA, turningOf(b) * dtS) && (v.wanderAngle = p.dir, t.turnA = null, wallNext(e)));
-if ((p.frzMs = (p.frzMs || 0) + dt) >= STUCK_CHECK_MS) {
-const stuck = hypot(p.x - (p.lastX ?? p.x), p.y - (p.lastY ?? p.y)) < bugLen(b);
-p.frzMs = 0, p.lastX = p.x, p.lastY = p.y;
-if (stuck) return p.frzSide = p.frzSide || rsign(), t.turnA = norm(p.dir + p.frzSide * rf(HALF_PI, PI)), void setAct(e, "turning");
-p.frzSide = 0
+if (busy(b, t)) return void(t.frzMs = 0, t.lastX = p.x, t.lastY = p.y);
+if (tu) return void(turnToward(e, t.turnA, turningOf(b) * dtS) && (v.wanderAngle = p.dir, t.turnA = null, wallNext(e)));
+if ((t.frzMs = (t.frzMs || 0) + dt) >= STUCK_CHECK_MS) {
+const stuck = hypot(p.x - (t.lastX ?? p.x), p.y - (t.lastY ?? p.y)) < bugLen(b);
+t.frzMs = 0, t.lastX = p.x, t.lastY = p.y;
+if (stuck) return t.frzSide = t.frzSide || rsign(), t.turnA = norm(p.dir + t.frzSide * rf(HALF_PI, PI)), void setAct(e, "turning");
+t.frzSide = 0
 }
 const fT = hungry(e) ? seenFood(b, p, foods) : null;
 if (fT) {
 const want = atan2(fT.y - p.y, fT.x - p.x);
-ru || setAct(e, "rushing"), turnToward(p, want, turningOf(b) * dtS), (t.rushK = RUSH * facing(p, want)) || (p.frzMs = 0);
+ru || setAct(e, "rushing"), turnToward(e, want, turningOf(b) * dtS), (t.rushK = RUSH * facing(p, want)) || (t.frzMs = 0);
 return
 }
 if (ru) return void decide(e);
@@ -44,7 +44,7 @@ v.angVel += .9 * (random() - .5) * dtS, v.angVel *= .95, v.wanderAngle += v.angV
 let vx = cos(v.wanderAngle),
 vy = sin(v.wanderAngle);
 [vx, vy] = rockAvoid(p, vx, vy, obs);
-turnToward(p, atan2(vy, vx), turningOf(b) * dtS)
+turnToward(e, atan2(vy, vx), turningOf(b) * dtS)
 })
 }
 const hurt = e => { const b = C.bug.get(e), c = C.combat.get(e); return !(c && c.dead) && (c || b).curHp < maxHpOf(b) };
@@ -107,7 +107,7 @@ if (moved) clampToBox(e);
 return
 }
 const ru = "rushing" === t.act;
-if (busy(b, p) || !ru && "walking" !== t.act) return;
+if (busy(b, t) || !ru && "walking" !== t.act) return;
 const spd = spdOf(b) * slow * (ru ? t.rushK : 1);
 if (t.slide != null) {
 if ((abs(sin(t.slide)) > .5 ? (p.x < boxLW / 2 ? -1 : 1) * cos(p.dir) : (p.y < boxLH / 2 ? -1 : 1) * sin(p.dir)) > 0) {
@@ -153,7 +153,7 @@ dy = c.y - a.y,
 dist = hypot(dx, dy) || .001,
 ba = C.bug.get(ents[i]),
 bb = C.bug.get(ents[j]);
-a.v > c.v * 1.2 && dist < morphR(ba) + morphR(bb) && ecsFront(ents[i]);
+C.vel.get(ents[i]).v > C.vel.get(ents[j]).v * 1.2 && dist < morphR(ba) + morphR(bb) && ecsFront(ents[i]);
 if (minD <= 0 || dist >= minD) continue;
 const ov = minD - dist,
 nx = dx / dist,
@@ -169,7 +169,7 @@ ents.forEach(e => {
 if (drag && drag.e === e) return;
 const dcb = C.combat.get(e);
 if (dcb && dcb.dead) return;
-const p = C.pos.get(e);
+const p = C.pos.get(e), t = C.walk.get(e);
 let ox = 0, oy = 0, deep = 0;
 obs.forEach(oe => {
 const op = C.pos.get(oe), o = C.obstacle.get(oe),
@@ -177,12 +177,12 @@ dx = p.x - op.x, dy = p.y - op.y, d = hypot(dx, dy) || .001, minD = o.r + bugLen
 if (d >= minD) return;
 ox += dx / d, oy += dy / d, deep = max(deep, minD - d)
 });
-if (deep <= 0) return void(p.pushV = 0, p.dropStuck = 0, p.stuckMs = 0);
-p.dropStuck && (p.stuckMs = (p.stuckMs || 0) + 1e3 * dtS) > STUCK_GIVE_UP && (p.dropStuck = 0);
+if (deep <= 0) return void(t.pushV = 0, t.dropStuck = 0, t.stuckMs = 0);
+t.dropStuck && (t.stuckMs = (t.stuckMs || 0) + 1e3 * dtS) > STUCK_GIVE_UP && (t.dropStuck = 0);
 let len = hypot(ox, oy);
 if (len < .001) ox = cos(p.dir), oy = sin(p.dir), len = 1;
-p.pushV = min(RESOLVE_MAX, (p.pushV || 0) + UNSTICK_ACC * dtS);
-const st = min(deep, p.pushV * dtS);
+t.pushV = min(RESOLVE_MAX, (t.pushV || 0) + UNSTICK_ACC * dtS);
+const st = min(deep, t.pushV * dtS);
 p.x += ox / len * st, p.y += oy / len * st;
 const wx = p.x, wy = p.y;
 clampToBox(e);
@@ -190,8 +190,8 @@ clampToBox(e);
 })
 }
 function clampToBox(e) {
-const p = C.pos.get(e), m = bugRadius(C.bug.get(e));
-isFinite(p.x + p.y) || (p.x = p.lx ?? m, p.y = p.ly ?? m);
+const p = C.pos.get(e), v = C.vel.get(e), m = bugRadius(C.bug.get(e));
+isFinite(p.x + p.y) || (p.x = v.lx ?? m, p.y = v.ly ?? m);
 p.x = clamp(p.x, m, boxLW - m), p.y = clamp(p.y, m, boxLH - m)
 }
 function sysResolve(ents, dtS) {
@@ -200,9 +200,9 @@ resolveBodies(ents, step);
 resolveObstacles(ents, dtS);
 ents.forEach(e => {
 clampToBox(e);
-const p = C.pos.get(e);
-p.v = hypot(p.x - (p.lx ?? p.x), p.y - (p.ly ?? p.y)), p.lx = p.x, p.ly = p.y;
-p.top && drag?.e !== e && !ents.some(o => o !== e && hypot(C.pos.get(o).x - p.x, C.pos.get(o).y - p.y) < engageDistOf(C.bug.get(o)) + bugRadius(C.bug.get(e))) && (p.top = 0)
+const p = C.pos.get(e), v = C.vel.get(e), t = C.walk.get(e);
+v.v = hypot(p.x - (v.lx ?? p.x), p.y - (v.ly ?? p.y)), v.lx = p.x, v.ly = p.y;
+t.top && drag?.e !== e && !ents.some(o => o !== e && hypot(C.pos.get(o).x - p.x, C.pos.get(o).y - p.y) < engageDistOf(C.bug.get(o)) + bugRadius(C.bug.get(e))) && (t.top = 0)
 })
 }
 const SHADE_FLAT = "rgba(0,0,0,.35)";
@@ -241,7 +241,7 @@ t.rareE = tg, t.rareX = op.x, t.rareY = op.y, fl && (t.rareS = rsign(), t.rareR 
 }
 if (!C.pos.has(t.rareE)) return void think(e);
 const op = C.pos.get(t.rareE), a = atan2(op.y - p.y, op.x - p.x), d = hypot(op.x - p.x, op.y - p.y);
-turnToward(p, a, turningOf(b) * dtS);
+turnToward(e, a, turningOf(b) * dtS);
 if (fl) {
 if (hypot(op.x - t.rareX, op.y - t.rareY) > 2) return void think(e);
 if (t.rareR) {

@@ -25,10 +25,10 @@ clamp = (v, a, b) => max(a, min(b, v)),
 rsign = () => random() < .5 ? -1 : 1,
 ownedById = id => bugsOwned.find(b => b.id === id),
 fmtT = ms => { const d = floor(ms / 100), p = n => String(n).padStart(2, "0"); return p(floor(d / 600)) + ":" + p(floor(d / 10) % 60) + "." + d % 10 };
-function turnToward(p, want, step) {
-const d = norm(want - p.dir);
-step *= p.tk ||= rf(.9, 1.1);
-return abs(d) <= step ? (p.dir = norm(want), p.tk = 0, !0) : (p.dir = norm(p.dir + sign(d) * step), !1)
+function turnToward(e, want, step) {
+const p = C.pos.get(e), v = C.vel.get(e), d = norm(want - p.dir);
+step *= v.tk ||= rf(.9, 1.1);
+return abs(d) <= step ? (p.dir = norm(want), v.tk = 0, !0) : (p.dir = norm(p.dir + sign(d) * step), !1)
 }
 function norm(a) { a %= TAU; return a > PI ? a - TAU : a < -PI ? a + TAU : a }
 function hidpi(canvas, w, h) {
