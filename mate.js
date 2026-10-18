@@ -37,7 +37,7 @@ mateTouch = seen
 
 for (let k = loveBites.length - 1; k >= 0; k--) {
 const s = loveBites[k];
-if (!combatState && ECS.pos.has(s.a) && ECS.pos.has(s.b)) {
+if (!combatState && C.pos.has(s.a) && C.pos.has(s.b)) {
 const pa = C.pos.get(s.a), pb = C.pos.get(s.b);
 if (hypot(pb.x - pa.x, pb.y - pa.y) <= sepPair(s.a, s.b) * LOVE_BITE_REACH) {
 for (const [x, y, k2] of [[s.a, s.b, "ta"], [s.b, s.a, "tb"]]) {
@@ -53,7 +53,7 @@ loveBiteEnd(s), loveBites.splice(k, 1)
 }
 for (let k = mates.length - 1; k >= 0; k--) {
 const m = mates[k];
-if (combatState || !ECS.pos.has(m.sub) || !ECS.pos.has(m.top)) { mateEnd(m, !1), mates.splice(k, 1); continue }
+if (combatState || !C.pos.has(m.sub) || !C.pos.has(m.top)) { mateEnd(m, !1), mates.splice(k, 1); continue }
 const sp = C.pos.get(m.sub), tp = C.pos.get(m.top),
 sb = C.bug.get(m.sub), tb = C.bug.get(m.top);
 if ("turn" === m.phase) {
@@ -85,7 +85,7 @@ tp.dir = sp.dir, tp.x = sp.x - cos(sp.dir) * g, tp.y = sp.y - sin(sp.dir) * g
 }
 function loveBiteEnd(s) {
 [s.a, s.b].forEach(en => {
-if (!ECS.bug.has(en)) return;
+if (!C.bug.has(en)) return;
 const b = C.bug.get(en);
 b.loveBite = b.prepT = 0, think(en)
 })
@@ -98,7 +98,7 @@ for (let k = mates.length - 1; k >= 0; k--)
 }
 function mateEnd(m, ok) {
 [m.sub, m.top].forEach(en => {
-if (!ECS.bug.has(en)) return;
+if (!C.bug.has(en)) return;
 const b = C.bug.get(en);
 ok && (b.mated = 1), think(en, ok && en === m.sub ? 2 : 1)
 })

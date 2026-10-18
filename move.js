@@ -239,7 +239,7 @@ return void(p.dir = norm(p.dir + t.rareS * s), (t.rareA -= s) <= 0 && setAct(e, 
 const op = C.pos.get(tg);
 t.rareE = tg, t.rareX = op.x, t.rareY = op.y, fl && (t.rareS = rsign(), t.rareR = 0, t.actT = 8e3)
 }
-if (!ECS.pos.has(t.rareE)) return void think(e);
+if (!C.pos.has(t.rareE)) return void think(e);
 const op = C.pos.get(t.rareE), a = atan2(op.y - p.y, op.x - p.x), d = hypot(op.x - p.x, op.y - p.y);
 turnToward(p, a, turningOf(b) * dtS);
 if (fl) {

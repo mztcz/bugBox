@@ -1,5 +1,5 @@
 let nextEid = 1;
-const ECS = {
+const C = {
 entities: new Set,
 bug: new Map,
 pos: new Map,
@@ -10,25 +10,24 @@ combat: new Map,
 food: new Map,
 obstacle: new Map
 };
-const C = ECS;
 function ecsClear() {
-ECS.entities.clear();
-for (const k in ECS) ECS[k] instanceof Map && ECS[k].clear();
+C.entities.clear();
+for (const k in C) C[k] instanceof Map && C[k].clear();
 nextEid = 1
 }
 function ecsSpawn(comps) {
 const e = nextEid++;
-ECS.entities.add(e);
-for (const k in comps) ECS[k].set(e, comps[k]);
+C.entities.add(e);
+for (const k in comps) C[k].set(e, comps[k]);
 return e
 }
-function ecsFront(e) { ECS.entities.delete(e), ECS.entities.add(e) }
+function ecsFront(e) { C.entities.delete(e), C.entities.add(e) }
 function ecsKill(e) {
-ECS.entities.delete(e);
-for (const k in ECS) ECS[k] instanceof Map && ECS[k].delete(e)
+C.entities.delete(e);
+for (const k in C) C[k] instanceof Map && C[k].delete(e)
 }
 function ecsQuery(...comps) {
 const out = [];
-for (const e of ECS.entities) comps.every(c => ECS[c].has(e)) && out.push(e);
+for (const e of C.entities) comps.every(c => C[c].has(e)) && out.push(e);
 return out
 }
