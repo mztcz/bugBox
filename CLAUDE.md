@@ -4,6 +4,7 @@
 - HTML5 hra o broucích. Veškerý text ve hře i kódu anglicky.
 - Uživatel je neprogramátor, pracuje z Android telefonu.
 - Sekce File map níže určuje, které soubory číst; čti jen ty.
+- Nástroje v `.claude/` nazývej jmény z Tool files (hook-…, skill-…, agent-…, tool-…). Soubory ani spouštěcí slova se nepřejmenovávají.
 
 ## Kód
 - Vždy ECS architektura, efektivní kód.
@@ -113,10 +114,10 @@ Load order = the order in `index.html`. `main.js` is last and is the only file t
 Open `index.html`. All paths are relative, so it works from a local folder or from GitHub Pages with no build step. The `index.html` contains an on-screen crash reporter (red bar at the bottom). It prints missing files and JS errors (Android has no console).
 
 ### Tool files
-- `.claude/smoke.cjs` = smoke test: local files linked from `index.html` must exist, every backticked symbol in a routing table row (Area + Symbol columns, file names skipped) must exist in its file; external requests (Google Font) are stubbed so offline runs pass, then all scripts as one ES module (duplicate top-level names across files fail), then headless Chromium: market, box, info tabs, designer, lab, booker, 2v2 fight, leave.
-- `.claude/settings.json` = PreCompact hook (full-context reminder), UserPromptSubmit hook (`smoke.cjs --arm`: prompt oktk sets the token, any other prompt removes it) and PreToolUse hook (`smoke.cjs --gate`: skill oktk needs the token).
-- `.claude/skills/oktk/SKILL.md` = end-of-session routine triggered by "oktk".
-- `.claude/agents/skoukni-kod.md` = read-only review subagent; run only when the user writes "skoukniKod" (Agent tool, `subagent_type: skoukni-kod`).
+- **tool-smoke-test** `.claude/smoke.cjs` = smoke test: local files linked from `index.html` must exist, every backticked symbol in a routing table row (Area + Symbol columns, file names skipped) must exist in its file; external requests (Google Font) are stubbed so offline runs pass, then all scripts as one ES module (duplicate top-level names across files fail), then headless Chromium: market, box, info tabs, designer, lab, booker, 2v2 fight, leave.
+- `.claude/settings.json` = 3 hooks: **hook-context-compress** (PreCompact: full-context reminder), **hook-oktk-start** (UserPromptSubmit, `smoke.cjs --arm`: prompt oktk sets the token, any other prompt removes it), **hook-oktk-block** (PreToolUse on Skill, `smoke.cjs --gate`: skill oktk needs the token).
+- **skill-oktk** `.claude/skills/oktk/SKILL.md` = end-of-session routine triggered by "oktk".
+- **agent-skoukni-kod** `.claude/agents/skoukni-kod.md` = read-only review subagent; run only when the user writes "skoukniKod" (Agent tool, `subagent_type: skoukni-kod`).
 `style.css` has few, very long lines — prefer `grep -o` with a short context over `grep -n`. The `.js` files are multi-line; `grep -n` is safe.
 
 ### Saved data
