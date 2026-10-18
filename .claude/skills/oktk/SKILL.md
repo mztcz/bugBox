@@ -9,7 +9,7 @@ Trigger: only a user message that is exactly `oktk`. A longer message that menti
 
 Run the steps in order. Stop and report if a step fails and cannot be fixed.
 
-1. **Smoke test.** Run `node .claude/smoke.cjs` from the repo root. Never run it outside oktk. It runs only after the user writes oktk (a UserPromptSubmit hook sets a token, `SMOKE OK` removes it); `SMOKE BLOCKED` means no oktk was written: stop and report.
+1. **Smoke test.** Run `node .claude/smoke.cjs` from the repo root. It may run only when the user writes oktk. `SMOKE BLOCKED` means no oktk was written: stop and report.
 2. **Errors.** If it prints `SMOKE FAIL`, list each error in one line, fix the code, bump `GAME_VERSION` (core.js line 1, +1 minor) and rerun step 1. Repeat until `SMOKE OK`.
 3. **File map.** Update the File map section of CLAUDE.md with the file and symbol changes collected during the session. Change nothing else in CLAUDE.md.
 4. **Commit.** Stage only the files changed in this session (`git add <files>`, never `git add -A`). Message is one English line: `vX.Y: <what changed>`, with X.Y = current `GAME_VERSION`.
