@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo '{\"systemMessage\":\"Kontext je plný. Napiš oktk: Claude spustí smoke test, aktualizuje mapu souborů v CLAUDE.md, pushne a založí novou session.\"}'"
+            "command": "echo '{\"systemMessage\":\"Kontext je plný. Napiš oktk: Claude spustí smoke test, aktualizuje mapu souborů v CLAUDE.md a pushne. Novou session si založ sám.\"}'"
           }
         ]
       }
