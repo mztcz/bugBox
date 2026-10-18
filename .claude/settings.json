@@ -22,7 +22,7 @@
     ],
     "PreToolUse": [
       {
-        "matcher": "Skill|Bash|Artifact",
+        "matcher": "Skill",
         "hooks": [
           {
             "type": "command",

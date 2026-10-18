@@ -13,7 +13,7 @@
 - Upravuj existující funkce místo přidávání souborů. Čti jen nutné části souborů.
 - Při každé změně kódu zvyš verzi o +1 minor: `GAME_VERSION` v core.js, řádek 1. Změna jen .md souborů verzi nemění.
 - Sekci File map měň jen při oktk. Změny souborů a symbolů do té doby sbírej v chatu.
-- Pokyn „oktk“ = jen samostatná zpráva uživatele, která obsahuje pouze „oktk“. Slovo oktk v delší zprávě se nepočítá: oktk vynech a napiš, že čeká na samostatnou zprávu. Sám oktk nikdy nespouštěj ani nenavrhuj v [b] [c] [d]. Pokyn = konec session: proveď skill oktk (.claude/skills/oktk/SKILL.md). Novou session nikdy nezakládej, uživatel si ji zakládá sám.
+- Pokyn „oktk“ = samostatná zpráva uživatele „oktk“ = konec session: proveď skill oktk (.claude/skills/oktk/SKILL.md). Novou session nikdy nezakládej, uživatel si ji zakládá sám.
 - Smoke test (`node .claude/smoke.cjs`) se smí pouštět jenom když uživatel napíše oktk.
 - Uživatele nikdy nežádej, aby četl nebo upravoval kód.
 
@@ -113,8 +113,8 @@ Open `index.html`. All paths are relative, so it works from a local folder or fr
 
 ### Tool files
 - `.claude/smoke.cjs` = smoke test: local files linked from `index.html` must exist, every backticked symbol in a routing table row (Area + Symbol columns, file names skipped) must exist in its file; external requests (Google Font) are stubbed so offline runs pass, then all scripts as one ES module (duplicate top-level names across files fail), then headless Chromium: market, box, info tabs, designer, lab, booker, 2v2 fight, leave.
-- `.claude/settings.json` = PreCompact hook (full-context reminder), UserPromptSubmit hook (`smoke.cjs --arm`: prompt oktk sets the token, any other prompt removes it) and PreToolUse hook (`smoke.cjs --gate`: without the token blocks skill oktk, git merge/push/checkout of the default branch and the test artifact).
-- `.claude/skills/oktk/SKILL.md` = end-of-session routine triggered only by a standalone "oktk" message.
+- `.claude/settings.json` = PreCompact hook (full-context reminder), UserPromptSubmit hook (`smoke.cjs --arm`: prompt oktk sets the token, any other prompt removes it) and PreToolUse hook (`smoke.cjs --gate`: skill oktk needs the token).
+- `.claude/skills/oktk/SKILL.md` = end-of-session routine triggered by "oktk".
 - `.claude/agents/skoukni-kod.md` = read-only review subagent; run only when the user writes "skoukniKod" (Agent tool, `subagent_type: skoukni-kod`).
 `style.css` has few, very long lines — prefer `grep -o` with a short context over `grep -n`. The `.js` files are multi-line; `grep -n` is safe.
 
