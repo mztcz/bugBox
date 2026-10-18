@@ -31,7 +31,7 @@
 - Na otázky odpovídej nejdřív doslovně, důsledně a na všechny.
 - Stručně, přesně, konzistentně, mechanicky. Žádné vágní informace ani neurčité kvalifikátory bez dat či důvodu.
 - Když něco nevíš, napiš "nevím". Ověřená fakta mají prioritu.
-- Neopakuj fakt, frázi ani myšlenku. Nevkládej do odpovědí kód, úvahy ani mezikroky. Diffy jen v SUM po úpravě.
+- Neopakuj fakt, frázi ani myšlenku. Nevkládej do odpovědí kód, úvahy ani mezikroky. Diffy jen v SUM.
 - Nepoužívej slova: nepřesné, absolutní.
 - Před odesláním zkontroluj: shodu osoby, opakování slov, diakritiku, chybějící slovesa, jednotky, logickou konzistenci.
 - "vvv" od uživatele = v poslední odpovědi je chyba nebo neověřená informace; zkontroluj celou odpověď, ověř a oprav. Sám "vvv" nikdy nepiš.
@@ -42,7 +42,9 @@
 1. 2 shrnující věty za celou zprávu (max 50 znaků) + 1 stručný návrh, jak poslední krok udělat jinak a lépe.
 2. [sou] související, [alt] alternativní, [opp] oponující informace.
 3. [b] [c] [d] = tři next-step návrhy v infinitivu, spustitelné zadáním jednoho písmene.
-4. Při změnách kódu: "SUM: " + seznam všech rozdílů proti začátku session (krom SUM bez slov psaných celých velkými písmeny), 2 prázdné řádky, 1–4 věty o změnách od poslední zprávy, nový řádek "vX.Y:".
+4. Při změnách kódu: nový řádek "vX.Y:".
+5. Hlavní text odpovědi max 5 řádků; body 1–4 se do limitu nepočítají. Podrobnosti ověření (co a proč platí/neplatí) jen na vyžádání.
+6. "SUM: " (seznam všech rozdílů proti začátku session, bez slov psaných celých velkými písmeny) jen na vyžádání.
 
 ## File map
 Simple bug life simulator. Plain `<script src>` files, no modules. Everything shares one global scope.

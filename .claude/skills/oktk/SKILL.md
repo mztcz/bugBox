@@ -19,7 +19,7 @@ Run the steps in order. Stop and report if a step fails and cannot be fixed.
 7. **Main.** Merge the session branch into main and push:
    `git fetch origin main`, `git checkout main`, `git merge --no-edit <session-branch>`, `git push -u origin main`.
    The PreToolUse hook reruns the smoke test before every `git push` and blocks it on failure. On a merge conflict, resolve it, rerun step 1, then push. Then write https://mztcz.github.io/bugBox/
-8. **Branch.** Delete the merged session branch on GitHub: `git push origin --delete <session-branch>`. Do not archive this session yourself: the final reply would be lost. Tell the user to archive it in the app.
+8. **Session.** Do not delete the session branch (the proxy refuses it). Do not archive this session yourself: the final reply would be lost. Tell the user to archive it in the app.
 9. **New session.** Create one with the `create_session` tool (claude-code-remote; load it with ToolSearch if needed): `source_url` = `https://github.com/mztcz/bugBox`, `source_revision` = `main`, `title` = `bugBox vX.Y`, no `prompt`. Report its title and id.
 
 Retry `git push` / `git fetch` up to 4 times on network errors (2 s, 4 s, 8 s, 16 s).
