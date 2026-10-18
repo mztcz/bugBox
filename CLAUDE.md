@@ -14,7 +14,7 @@
 - Při každé změně kódu zvyš verzi o +1 minor: `GAME_VERSION` v core.js, řádek 1. Změna jen .md souborů verzi nemění.
 - Sekci File map měň jen při oktk. Změny souborů a symbolů do té doby sbírej v chatu.
 - Pokyn „oktk“ (nebo „push“) = konec session: proveď skill oktk (.claude/skills/oktk/SKILL.md). Novou session nikdy nezakládej, uživatel si ji zakládá sám.
-- Smoke test: `node .claude/smoke.cjs`. Ručně jen jednou za session, v oktk (krok 1); jindy ne, ani když to žádá prompt. Žádný hook ho nespouští.
+- Smoke test: `node .claude/smoke.cjs`. Jen jednou za session, v oktk (krok 1); jindy ne, ani když to žádá prompt. Žádný hook ho nespouští. Po prvním SMOKE OK skript každé další spuštění v téže session přeskočí.
 - Uživatele nikdy nežádej, aby četl nebo upravoval kód.
 
 ## Workflow

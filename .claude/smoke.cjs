@@ -1,7 +1,9 @@
 // BUGBOX smoke test: module check + headless run (box, fight, overlays). Exit 0 = OK.
-// Usage: node .claude/smoke.cjs (run only in oktk step 1)
+// Usage: node .claude/smoke.cjs (run only in oktk step 1; after one SMOKE OK every further run in the same container is skipped)
 const fs = require("fs"), path = require("path"), os = require("os"), { execFileSync } = require("child_process");
 const root = path.resolve(__dirname, "..");
+const done = path.join(os.tmpdir(), "bugbox-smoke-ok");
+if (fs.existsSync(done)) { console.log("SMOKE SKIPPED: already passed once in this session"); process.exit(0) }
 const fail = msg => { console.log("SMOKE FAIL\n" + msg); process.exit(1) };
 const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
 const scripts = [...html.matchAll(/<script src="([^"]+\.js)"><\/script>/g)].map(m => m[1]);
@@ -42,5 +44,5 @@ try { pw = require("playwright") } catch { try { pw = require("/opt/node-tools/n
   await step("leave fight", "$('bt-leave').click()", 800);
   st.bar && errs.push("err-bar: " + st.bar.trim());
   await b.close();
-  errs.length ? fail(errs.join("\n")) : console.log(`SMOKE OK v${st.v}: ${scripts.length} scripts, fight ${st.ms} ms, done=${st.done}, bugs=${st.bugs}`);
+  errs.length ? fail(errs.join("\n")) : (fs.writeFileSync(done, st.v), console.log(`SMOKE OK v${st.v}: ${scripts.length} scripts, fight ${st.ms} ms, done=${st.done}, bugs=${st.bugs}`));
 })().catch(e => fail("runner: " + e.message));
