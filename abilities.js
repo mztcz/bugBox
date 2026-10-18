@@ -33,13 +33,12 @@ const ABIL_ROLL_CHANCE = [.5, .5, .25, .25, 0];
 const ABIL_BY_STAT = {};
 SK.forEach(k => ABIL_BY_STAT[k] = ABIL_IDS.filter(id => ABILITIES[id].stat === k));
 const shuf = a => a.sort(() => random() - .5);
-const bitePrepOf = (b, k = 1) => (BITE_PREP_MAX - (BITE_PREP_MAX - BITE_PREP_MIN) * (clamp(b.agi || 5, 1, 10) - 1) / 9) * k + rf(-125, 125),
+const bitePrepOf = (b, k = 1) => (BITE_PREP_MAX - (BITE_PREP_MAX - BITE_PREP_MIN) * (agiOf(b) - 1) / 9) * k + rf(-125, 125),
 biteDone = (cb, b, t, k) => (SFX.bite(t), cb.biteT = 1, cb.bitePrep = cb.bitePrepMax = bitePrepOf(b, k));
 const FOV_MIN_DEG = 90, FOV_MAX_DEG = 94.5;
 function engageDistOf(b) { const m = ensureMorph(b); return m.bodyLength / 2 + m.headSize * 2 }
 function bugRadius(b) { const m = ensureMorph(b); return m.bodyLength / 2 + m.headSize }
-const perOf = b => clamp(b.per || 5, 1, 10);
-const intOf = b => clamp(b.int || 5, 1, 10);
+const statOf = (b, k) => clamp(b[k] || 5, 1, 10), agiOf = b => statOf(b, "agi"), perOf = b => statOf(b, "per"), intOf = b => statOf(b, "int");
 const visRangeOf = b => 25 * perOf(b) + 50;
 const fovHalfOf = b => (FOV_MIN_DEG + (FOV_MAX_DEG - FOV_MIN_DEG) * (perOf(b) - 1) / 9) * PI / 360;
 function seesPoint(b, p, x, y) {
@@ -88,7 +87,7 @@ if (hasAbil(tb, "chitin")) dmg *= .5;
 tcb.curHp -= dmg, tb.hitT = 1;
 const ha = atan2(tp.y - p.y, tp.x - p.x);
 tcb.hitDx = cos(ha), tcb.hitDy = sin(ha);
-const sh = bugLen(tb) * .15 * (random() < .5 ? -1 : 1);
+const sh = bugLen(tb) * .15 * rsign();
 tcb.imX -= tcb.hitDy * sh, tcb.imY += tcb.hitDx * sh;
 spawnDmgPop(tp, dmg, atkTeam, ha);
 hasAbil(tb, "cry") && (tcb.callT = ABILITIES.cry.dur, tcb.callR = callRadius(tb), tcb.callTeam = atkTeam ? 0 : 1, tcb.callCry = 1, tcb.callX = tp.x, tcb.callY = tp.y);

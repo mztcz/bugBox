@@ -1,6 +1,7 @@
 let dz = Object.assign({ hue: 120, con: 5, str: 5, agi: 5, int: 5, per: 5, link: 1, abils: ["", "", "", ""] }, randomMorph()),
 dzSide = 0, dzZoom = 1;
-Object.assign(dz, statMorph(dz));
+dzSync();
+function dzSync() { dz.link && Object.assign(dz, statMorph(dz)) }
 const DZ_ROWS = [["hue", "Hue", 0, 340, 20], ["bodySegments", "Segments"], ["segmentGradient", "Gradient"],
 ["headGear", "Gear type", 0, GEAR_KEYS.length - 1], ["bodyLength", "Length"], ["bodyWidth", "Width"],
 ["legLen", "Legs"], ["headSize", "Head"], ["headGearSize", "Gear size"]],
@@ -42,7 +43,7 @@ SK.forEach(bindRange);
 $("dz-abil-" + i).onchange = ev => {
 const id = dz.abils[i] = ev.target.value;
 if (id) { const k = ABILITIES[id].stat; dz[k] = max(dz[k], 5) }
-dz.link && Object.assign(dz, statMorph(dz)), dzExtras(), dzRefresh()
+dzSync(), dzExtras(), dzRefresh()
 }
 });
 const sideBtn = $("bt-des-side");
@@ -53,7 +54,7 @@ const el = $("dz-" + k);
 el.oninput = () => {
 const v = parseInt(el.value);
 k === "headGear" ? dz.headGear = GEAR_KEYS[v] : dz[k] = v;
-SK.includes(k) && dz.link && Object.assign(dz, statMorph(dz)), dzRefresh()
+SK.includes(k) && dzSync(), dzRefresh()
 }
 }
 function openDz() {
@@ -68,7 +69,7 @@ DZ_ROWS.map(r => `<div class="dz-row"><span class="dz-lbl">${r[1]} <b id="dz-val
 DZ_ROWS.forEach(r => bindRange(r[0]));
 $("dz-link").onchange = e => {
 dz.link = e.target.checked ? 1 : 0;
-dz.link && Object.assign(dz, statMorph(dz)), dzRefresh()
+dzSync(), dzRefresh()
 };
 $("bt-des-rnd-m").onclick = () => {
 const m = randomMorph();
@@ -77,7 +78,7 @@ Object.assign(dz, { hue: 20 * ri(18) }, m), dzRefresh(), dzExtras()
 };
 $("bt-des-rnd-s").onclick = () => {
 SK.forEach(k => dz[k] = 1 + ri(10));
-dz.link && Object.assign(dz, statMorph(dz)), dzRefresh(), dzExtras()
+dzSync(), dzRefresh(), dzExtras()
 };
 $("dz-zoom").oninput = ev => dzZoom = (500 - ev.target.value) / 100;
 $("bt-des-spawn").onclick = dzSpawn

@@ -58,7 +58,7 @@ return vol < .05 ? { base: hsl3(hue, 62, 38), over: null } :
 }
 function hexPath(t, cy, rx, ry) {
 t.beginPath();
-for (let k = 0; k < 6; k++) { const a = -HALF_PI + k * PI / 3, x = sin(a) * rx, y = cy + cos(a) * ry; k ? t.lineTo(x, y) : t.moveTo(x, y) }
+pathPts(t, 6, k => { const a = -HALF_PI + k * PI / 3; return [sin(a) * rx, cy + cos(a) * ry] });
 t.closePath()
 }
 function backPattern(t, gk, cy, rx, ry) {
@@ -112,15 +112,10 @@ nl ? (t.lineTo(s * (hs + p * g.sweep) * .6, hy - hs - p * .5), t.lineTo(s * hs *
 t.bezierCurveTo(s * (hs + p * g.sweep), hy - hs - p, s * hs * g.tip, hy - hs - p, s * hs * g.tip, hy - hs - p * .95);
 t.stroke()
 }, 2, .9)
-} else if (gk === "ant") for (const s of [-1, 1]) dual(() => {
-t.beginPath(), t.moveTo(s * hs * .3, hy - hs * .8);
-const ax = s * hs * g.spread, ay = hy - hs * 1.4;
-t.lineTo(ax, ay), t.lineTo(ax + s, ay - hs * 1.1), t.stroke()
-}, 1.6, .7);
-else if (gk === "antb") for (const s of [-1, 1]) dual(() => {
-t.beginPath(), t.moveTo(s * hs * .3, hy - hs * .8);
-const ax = s * hs * g.spread, ay = hy - hs * 1.2;
-t.lineTo(ax, ay), t.lineTo(ax - s * hs * g.len, ay + hs * g.len * 2), t.stroke()
+} else if (gk === "ant" || gk === "antb") for (const s of [-1, 1]) dual(() => {
+const bw = gk === "antb", ax = s * hs * g.spread, ay = hy - hs * (bw ? 1.2 : 1.4);
+t.beginPath(), t.moveTo(s * hs * .3, hy - hs * .8), t.lineTo(ax, ay);
+t.lineTo(ax + (bw ? -s * hs * g.len : s), ay + (bw ? hs * g.len * 2 : -hs * 1.1)), t.stroke()
 }, 1.6, .7);
 else for (const s of [-1, 1]) {
 const ex = s * hs * g.spread, ey = hy - hs * g.fwd, er = hs * g.sizeMult;
@@ -143,14 +138,15 @@ function setBugTheme(v) { bugTheme = +v }
 function setPalette(v) { palette = +v }
 function setGait(v) { gait = +v }
 function morphColor(hue) { return 3 === bugTheme ? `hsl(${hue},95%,62%)` : 1 === palette ? `hsl(${15+hue%60},${15+hue%40}%,${8+hue*7%28}%)` : 2 === palette ? `hsl(${20+hue%40},30%,${18+hue%12}%)` : `hsl(${hue},70%,45%)` }
-function morphR(b) { const m = ensureMorph(b); return max(m.bodyWidth / 2 + .733 * m.legLen, m.bodyLength / 2 + 3.4 * m.headSize) }
+function morphR(b) { const m = ensureMorph(b); return max(m.bodyWidth / 2 + .733 * m.legLen, morphTop(m)) }
+function morphTop(m) { return m.bodyLength / 2 + 3.4 * m.headSize }
 function morphFitScale(cfg, w, h) {
-const bl = cfg.bodyLength + 3.4 * cfg.headSize,
+const bl = morphTop(cfg) + cfg.bodyLength / 2,
 bw = max(cfg.bodyWidth + 1.47 * cfg.legLen, 2.2 * cfg.bodyWidth, 4 * cfg.headSize);
 return min(w / bw, h / bl) * .9
 }
 function drawMorphCentered(ctx, b, w, h, rot) {
-const cfg = ensureMorph(b), top = cfg.bodyLength / 2 + 3.4 * cfg.headSize, tot = cfg.bodyLength + 3.4 * cfg.headSize;
+const cfg = ensureMorph(b), top = morphTop(cfg), tot = top + cfg.bodyLength / 2;
 if (rot) { const d = 1.7 * cfg.headSize; return void drawMorphBug(ctx, cfg, morphColor(b.hue), w / 2 - d * sin(rot), h / 2 + d * cos(rot), rot, { shadow: !1, hue: b.hue }) }
 drawMorphBug(ctx, cfg, morphColor(b.hue), w / 2, max(2, (h - tot) / 2) + top, 0, { shadow: !1, hue: b.hue })
 }

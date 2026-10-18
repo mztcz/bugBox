@@ -1,10 +1,5 @@
 function openLab() {
-labSt = {
-phase: "pick",
-pA: null,
-pB: null,
-larva: null
-}, showScreen("s-lab"), renderLab();
+labSt = newLab(), showScreen("s-lab"), renderLab();
 const lay = $("lab-layout");
 lay && (lay.scrollTop = 0)
 }

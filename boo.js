@@ -1,7 +1,7 @@
 const teamMax = () => ({ mayhem: 1 / 0, rb: 10, wb: 10 })[fightMode] || +fightMode || 1,
 bossFit = b => { const d = 10 * enemyTier - round(statSum(b)); return d >= 0 && d < 10 };
 function openBoo(keepMode, keepTeam) {
-fightTeam = keepTeam ? keepTeam.filter(f => bugsOwned.find(b => b.id === f.id)).map(f => bugsOwned.find(b => b.id === f.id)) : [], keepMode || (fightMode = 1, enemyTier = 1), renderBooGrid(), updateBooUI()
+fightTeam = keepTeam ? keepTeam.map(f => ownedById(f.id)).filter(Boolean) : [], keepMode || (fightMode = 1, enemyTier = 1), renderBooGrid(), updateBooUI()
 }
 function setMode(n) {
 fightMode = n, fightTeam = "boss" === n ? [] : fightTeam.slice(0, teamMax()), updateBooUI(), renderBooGrid()

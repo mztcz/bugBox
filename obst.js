@@ -30,7 +30,7 @@ tip && (g.strokeStyle = "#3a2a12", g.lineWidth = 2.4, g.lineCap = "round", g.beg
 [[0,1,2,3,4], (g, r, v) => {
 const sides = [5, 5, 8, 6, 3][v], grooves = [2, 0, 2, 0, 0][v], rough = [.2, .25, .15, .28, .07][v];
 g.fillStyle = "#3a2a1a", g.beginPath();
-for (let i = 0; i < sides; i++) { const a = i / sides * 7, d = r * (1 - rough * ((i * 7 % 5) / 5)); i ? g.lineTo(cos(a) * d, sin(a) * d * .8) : g.moveTo(cos(a) * d, sin(a) * d * .8) }
+pathPts(g, sides, i => { const a = i / sides * 7, d = r * (1 - rough * ((i * 7 % 5) / 5)); return [cos(a) * d, sin(a) * d * .8] });
 g.closePath(), g.fill();
 g.strokeStyle = "#251a10", g.lineWidth = 1.4;
 for (let i = 0; i < grooves; i++) { const y = (i + 1) / (grooves + 1) * r * 1.4 - r * .7; g.beginPath(), g.moveTo(-r * .6, y), g.lineTo(r * .6, y + r * .12), g.stroke() }
@@ -81,7 +81,7 @@ const spokes = [6, 8, 7, 9, 11][v], rings = [3, 4, 2, 3, 7][v], part = [1, .75, 
 g.strokeStyle = "rgba(210,215,225,.45)", g.lineWidth = .8;
 for (let i = 0; i < spokes; i++) { const a = i / spokes * 7 * part; g.beginPath(), g.moveTo(0, 0), g.lineTo(cos(a) * r, sin(a) * r), g.stroke() }
 for (let k = 1; k <= rings; k++) { const d = r * k / rings; g.beginPath();
-for (let i = 0; i <= spokes * part; i++) { const a = i / spokes * 7; i ? g.lineTo(cos(a) * d, sin(a) * d) : g.moveTo(cos(a) * d, sin(a) * d) }
+pathPts(g, floor(spokes * part) + 1, i => { const a = i / spokes * 7; return [cos(a) * d, sin(a) * d] });
 g.stroke() }
 }],
 [[0,1], (g, r, v) => {
@@ -109,8 +109,7 @@ const turns = [2.5, 2, 1.17][v], tight = [1, .85, .49][v], band = [1, 0, 0][v];
 g.fillStyle = "#9a7a4a", g.beginPath(), g.arc(0, 0, r * .92, 0, 7), g.fill();
 g.strokeStyle = band ? "#5a3a18" : "#7a5a30", g.lineWidth = 2.2, g.lineCap = "round";
 g.beginPath();
-for (let i = 0; i <= 80; i++) { const t = i / 80, a = t * turns * 6.283, d = r * .92 * Math.pow(1 - t, tight);
-i ? g.lineTo(cos(a) * d, sin(a) * d) : g.moveTo(cos(a) * d, sin(a) * d) }
+pathPts(g, 81, i => { const t = i / 80, a = t * turns * 6.283, d = r * .92 * Math.pow(1 - t, tight); return [cos(a) * d, sin(a) * d] });
 g.stroke();
 }],
 [[0,1,2], (g, r, v) => {
@@ -153,8 +152,7 @@ head && (g.fillStyle = burnt ? "#2a2420" : "#c03020", g.beginPath(), g.arc(r * l
 [[0,1,2,3,4], (g, r, v) => {
 const corners = [4, 4, 7, 6, 5][v], tear = [.4, .1, .35, .39, .35][v], lines = [0, 1, 0, 0, 1][v];
 g.fillStyle = "#e0dcd0", g.beginPath();
-for (let i = 0; i < corners; i++) { const a = i / corners * 7, d = r * (1 - tear * ((i * 5 % 4) / 4));
-i ? g.lineTo(cos(a) * d, sin(a) * d * .85) : g.moveTo(cos(a) * d, sin(a) * d * .85) }
+pathPts(g, corners, i => { const a = i / corners * 7, d = r * (1 - tear * ((i * 5 % 4) / 4)); return [cos(a) * d, sin(a) * d * .85] });
 g.closePath(), g.fill();
 g.strokeStyle = "#9a968c", g.lineWidth = 1;
 for (let i = 1; i <= lines; i++) { const y = -r * .5 + r * i / (lines + 1) * 1.4; g.beginPath(), g.moveTo(-r * .5, y), g.lineTo(r * .5, y), g.stroke() }
@@ -163,8 +161,7 @@ for (let i = 1; i <= lines; i++) { const y = -r * .5 + r * i / (lines + 1) * 1.4
 const lobes = pick([4, 6, 4, 3, 8], v), dep = pick([.22, .18, .5, .12, .65], v), col = pick(["#5a7a30", "#7a6a28", "#4a6a28", "#32320d", "#a5a446"], v);
 g.rotate(pick([.4, .2, -.6, .9, 2.6], v));
 g.fillStyle = col, g.beginPath();
-for (let i = 0; i <= 60; i++) { const t = i / 60, a = -1.57 + t * TAU, w = 1 - dep * abs(sin(lobes * t * 3.14));
-const x = sin(a) * r * .62 * w, y = -cos(a) * r * .95 * w; i ? g.lineTo(x, y) : g.moveTo(x, y) }
+pathPts(g, 61, i => { const t = i / 60, a = -1.57 + t * TAU, w = 1 - dep * abs(sin(lobes * t * 3.14)); return [sin(a) * r * .62 * w, -cos(a) * r * .95 * w] });
 g.closePath(), g.fill();
 g.strokeStyle = "#2a3a14", g.lineWidth = 1.2, g.beginPath(), g.moveTo(0, r * .95), g.lineTo(0, -r * .8), g.stroke();
 }],
@@ -172,8 +169,7 @@ g.strokeStyle = "#2a3a14", g.lineWidth = 1.2, g.beginPath(), g.moveTo(0, r * .95
 const pts = pick([5, 7, 6, 11, 3], v), sharp = pick([.55, .7, .73, .91, .91], v), col = pick(["#a03a18", "#b04a1a", "#73230d", "#e88d65", "#a09c18"], v);
 g.rotate(pick([0, 1.4, 1.35, 2.6, -.7], v));
 g.fillStyle = col, g.beginPath();
-for (let i = 0; i <= pts * 2; i++) { const a = -1.57 + i / (pts * 2) * TAU, d = r * (i % 2 ? sharp : 1);
-i ? g.lineTo(sin(a) * d * .9, -cos(a) * d) : g.moveTo(sin(a) * d * .9, -cos(a) * d) }
+pathPts(g, pts * 2 + 1, i => { const a = -1.57 + i / (pts * 2) * TAU, d = r * (i % 2 ? sharp : 1); return [sin(a) * d * .9, -cos(a) * d] });
 g.closePath(), g.fill();
 g.strokeStyle = "rgba(0,0,0,.3)", g.lineWidth = 1;
 for (let i = 0; i < pts; i++) { const a = -1.57 + i / pts * TAU; g.beginPath(), g.moveTo(0, 0), g.lineTo(sin(a) * r * .8, -cos(a) * r * .85), g.stroke() }
@@ -254,8 +250,7 @@ for (let i = 1; i <= grain; i++) { const y = -r * h + 2 * r * h * i / (grain + 1
 [[0,1,2,3,4], (g, r, v) => {
 const sides = pick([5, 6, 7, 9, 10], v), rough = pick([.25, .15, .3, .09, .59], v), glow = pick([0, 0, 0, 1, 1], v);
 g.fillStyle = "#1a1816", g.beginPath();
-for (let i = 0; i < sides; i++) { const a = i / sides * TAU, d = r * (1 - rough * ((i * 3 % 4) / 4));
-i ? g.lineTo(cos(a) * d, sin(a) * d * .8) : g.moveTo(cos(a) * d, sin(a) * d * .8) }
+pathPts(g, sides, i => { const a = i / sides * TAU, d = r * (1 - rough * ((i * 3 % 4) / 4)); return [cos(a) * d, sin(a) * d * .8] });
 g.closePath(), g.fill();
 glow && (g.fillStyle = "#c04010", g.globalAlpha = .5, g.beginPath(), g.arc(r * .15, 0, r * .3, 0, 7), g.fill(), g.globalAlpha = 1);
 }],
@@ -263,14 +258,14 @@ glow && (g.fillStyle = "#c04010", g.globalAlpha = .5, g.beginPath(), g.arc(r * .
 const facets = pick([3, 3, 4, 8], v), sharp = pick([.5, .8, .7, 1.1], v);
 const pts = [];
 for (let i = 0; i < facets + 2; i++) { const a = i / (facets + 2) * TAU, d = r * (i % 2 ? sharp : 1); pts.push([cos(a) * d, sin(a) * d * .85]) }
-g.fillStyle = "#6a6a62", g.beginPath(), pts.forEach(([x, y], i) => i ? g.lineTo(x, y) : g.moveTo(x, y)), g.closePath(), g.fill();
+g.fillStyle = "#6a6a62", g.beginPath(), pathPts(g, pts.length, i => pts[i]), g.closePath(), g.fill();
 g.fillStyle = "#8a8a80";
 for (let i = 0; i < pts.length; i += 2) { g.beginPath(), g.moveTo(0, 0), g.lineTo(...pts[i]), g.lineTo(...pts[(i + 1) % pts.length]), g.closePath(), g.fill() }
 }],
 [[0,1,2,3], (g, r, v) => {
 const sides = pick([5, 6, 7, 3], v), flat = pick([.65, .55, .6, .23], v), layers = pick([1, 0, 1, 0], v);
 g.fillStyle = "#3a4048", g.beginPath();
-for (let i = 0; i < sides; i++) { const a = i / sides * TAU; i ? g.lineTo(cos(a) * r, sin(a) * r * flat) : g.moveTo(cos(a) * r, sin(a) * r * flat) }
+pathPts(g, sides, i => { const a = i / sides * TAU; return [cos(a) * r, sin(a) * r * flat] });
 g.closePath(), g.fill();
 g.strokeStyle = "#4a525c", g.lineWidth = 1;
 for (let i = 1; i <= layers; i++) { const y = -r * flat + 2 * r * flat * i / (layers + 1); g.beginPath(), g.moveTo(-r * .8, y), g.lineTo(r * .8, y), g.stroke() }

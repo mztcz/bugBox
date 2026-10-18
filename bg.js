@@ -111,10 +111,7 @@ function drawM1(g, w, h, t, R, vRaw) {
         g.strokeStyle = pick(); g.globalAlpha = .3 + R() * .55;
         g.lineWidth = .5 + R() * 1.9;
         g.beginPath();
-        for (let x = 0; x <= w; x += 6) {
-          const y = j + sin(x * fr + ph + j * .02) * amp;
-          x ? g.lineTo(x, y) : g.moveTo(x, y)
-        }
+        pathPts(g, floor(w / 6) + 1, i => [i * 6, j + sin(i * 6 * fr + ph + j * .02) * amp]);
         g.stroke()
       }
       g.globalAlpha = 1; break

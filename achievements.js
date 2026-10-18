@@ -114,8 +114,9 @@ function achieve(k) {
 if (!ACH_TEXT[k] || achSt.done[k]) return;
 achSt.done[k] = 1, TUT_K.has(k) || toast("Achieved: " + ACH_TEXT[k])
 }
+function achAt(x, marks, pre) { marks.forEach(m => { const [v, a] = pre ? [m, pre + m] : m; x >= v && achieve(a) }) }
 function achStep(field, marks, prefix, add) {
-achSt[field] += add == null ? 1 : add; marks.forEach(m => achSt[field] >= m && achieve(prefix + m))
+achSt[field] += add == null ? 1 : add; achAt(achSt[field], marks, prefix)
 }
 function achOwn(added) {
 added && (achSt.own += added), achSt.ownMax = max(achSt.ownMax, bugsOwned.length);
@@ -128,7 +129,7 @@ s > r.bestSum && (r.bestSum = s, r.bestSumName = b.name)
 })
 }), saveRecords();
 bugsOwned.length && achieve("own"), achSt.ownMax >= 10 && achieve("own10"),
-[50, 75, 100].forEach(m => achSt.own >= m && achieve("own" + m));
+achAt(achSt.own, [50, 75, 100], "own");
 const kinds = new Set;
 bugsOwned.forEach(b => (b.abilities || []).forEach(a => kinds.add(a)));
 kinds.size >= 10 && achieve("breeder10"), kinds.size >= ABIL_IDS.length && achieve("breeder20");
@@ -140,7 +141,7 @@ function achKids(...parents) {
 parents.forEach(p => {
 if (!p) return;
 p.kids = (p.kids || 0) + 1;
-[[5, "playboy"], [10, "familyMan"], [15, "rabbit"], [20, "genghisKhan"]].forEach(([v, a]) => p.kids >= v && achieve(a))
+achAt(p.kids, [[5, "playboy"], [10, "familyMan"], [15, "rabbit"], [20, "genghisKhan"]])
 })
 }
 function achChild(b) {
@@ -149,19 +150,19 @@ const sum = statSum(b),
 na = (b.abilities || []).length;
 [["con", "heavy"], ["str", "strong"], ["agi", "fast"], ["int", "clever"], ["per", "aware"]].forEach(([k, a]) => b[k] >= 5 && achieve(a));
 sum <= 5 && achieve("weak");
-[[20, "powerful"], [30, "superior"], [40, "elite"], [50, "godlike"]].forEach(([v, a]) => sum >= v && achieve(a));
-[[1, "skilled"], [2, "skilful"], [3, "expert"], [4, "master"]].forEach(([v, a]) => na >= v && achieve(a));
+achAt(sum, [[20, "powerful"], [30, "superior"], [40, "elite"], [50, "godlike"]]);
+achAt(na, [[1, "skilled"], [2, "skilful"], [3, "expert"], [4, "master"]]);
 SK.every(k => b[k] >= 5) && achieve("allFive"),
 SK.some(k => b[k] >= 10) && achieve("statTen"),
 SK.every(k => b[k] >= 10) && achieve("perfect")
 }
 function achSurvive(b) {
-[[5, "tough"], [10, "rough"], [15, "veteran"], [20, "hero"], [30, "legendary"]].forEach(([v, a]) => (b.fights || 0) >= v && achieve(a))
+achAt(b.fights || 0, [[5, "tough"], [10, "rough"], [15, "veteran"], [20, "hero"], [30, "legendary"]])
 }
 function achFight(won, lost, alive) {
 achieve("fight");
 lost && achStep("lost", [1, 5, 10, 25, 50], "lost", lost);
-[3, 6, 9, 15, 20].forEach(m => lost >= m && achieve("lostM" + m));
+achAt(lost, [3, 6, 9, 15, 20], "lostM");
 RECS.forEach(r => (r.fMin = r.fN++ ? min(r.fMin, fightMs) : fightMs, r.fMax = max(r.fMax, fightMs), r.fSum += fightMs, r.fights++, won && r.wins++)), saveRecords();
 if (!won) return void (achSt.streak = 0);
 achieve("tier" + enemyTier), achieve("win" + fightMode), achieve(fightMode + enemyTier);
@@ -178,5 +179,5 @@ $("itab-ach").innerHTML = `<div style="color:#ffdd44;margin-bottom:6px;">${ACHIE
 function addKills(n) { n > 0 && (RECS.forEach(r => r.kills += n), saveRecords(), achStep("kills", [10, 50, 100], "kill", n)) }
 function trackDynasty(gen) {
 RECS.forEach(r => r.longestDynasty = max(r.longestDynasty, gen)), saveRecords();
-[5, 10, 15, 20, 25, 30, 33].forEach(m => gen >= m && achieve("gen" + m))
+achAt(gen, [5, 10, 15, 20, 25, 30, 33], "gen")
 }

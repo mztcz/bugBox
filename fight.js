@@ -39,20 +39,20 @@ won = alive0.length > 0 && 0 === alive1.length,
 allPlayer = all.filter(f => 0 === f.team),
 allEnemy = all.filter(f => 1 === f.team);
 lastSurvivors = alive0.length ? alive0.map(f => f.b) : null;
-alive0.forEach(f => { const lb = bugsOwned.find(b => b.id === f.b.id); lb && (lb.curHp = max(1, round(f.curHp))) });
+alive0.forEach(f => { const lb = ownedById(f.b.id); lb && (lb.curHp = max(1, round(f.curHp))) });
 dead0.length && achStep("lost", [1, 10], "lost", dead0.length);
 addKills(allPlayer.reduce((s, f) => s + (f.killsThis || 0), 0));
 const rt = $("res-title"),
 rb = $("res-body");
 rt.textContent = won ? "VICTORY!" : "DEFEAT", rt.style.color = won ? "#44ff88" : "#ff4444", won && SFX.win(), dead0.forEach(f => {
-const lb = bugsOwned.find(b => b.id === f.b.id);
+const lb = ownedById(f.b.id);
 lb && (lb.losses++, tallyFight(lb, f), bugsOwned = bugsOwned.filter(b => b.id !== f.b.id), run.end = `${lb.name} died in fight T${enemyTier}`)
 });
 let html = "";
 if (won) {
 const prize = 80 * enemyTier * (BOSS[fightMode] || [0, 1])[1];
 money += prize, alive0.forEach(f => {
-const lb = bugsOwned.find(b => b.id === f.b.id);
+const lb = ownedById(f.b.id);
 lb && (lb.wins++, tallyFight(lb, f), achSurvive(lb))
 }), updateMoney(), html += `<p style="color:#44ff88;font-size:10px;margin-bottom:8px;">+${prize}</p>`
 } else updateMoney();
@@ -68,7 +68,7 @@ enemyScale = scaleMaxOf(allEnemy.map(f => f.b));
 const buildCard = (f, isPlayer) => {
 const b = f.b,
 isDead = f.dead,
-lb = isPlayer ? bugsOwned.find(x => x.id === b.id) : null,
+lb = isPlayer ? ownedById(b.id) : null,
 killsThis = f.killsThis || 0,
 killsTot = isPlayer && lb ? lb.killsTotal || 0 : killsThis,
 fightCount = isPlayer && lb ? lb.fights || 0 : 1,
@@ -110,8 +110,8 @@ allEnemy.forEach(f => enemyCol.appendChild(buildCard(f, !1)));
 ov("ov-res", 1)
 }
 function leaveFight() {
-if (labSt.larva) { const l = labSt.larva; l.dead || bugsOwned.some(x => x.id === l.id) || bugsOwned.push(l), labSt.larva = null }
-wbKeep(), endFight(), fightTeam = fightTeam.filter(b => bugsOwned.find(s => s.id === b.id)), openTerr()
+if (labSt.larva) { const l = labSt.larva; l.dead || ownedById(l.id) || bugsOwned.push(l), labSt.larva = null }
+wbKeep(), endFight(), fightTeam = fightTeam.filter(b => ownedById(b.id)), openTerr()
 }
 function checkFightEnd() {
 const ents = ecsQuery("team", "combat");

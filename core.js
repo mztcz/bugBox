@@ -1,7 +1,8 @@
-const GAME_VERSION = "74.20";
+const GAME_VERSION = "74.21";
 const {PI,random,max,min,hypot,sin,cos,atan2,round,abs,sign,pow,floor}=Math;
 const TAU=2*PI, HALF_PI=PI/2;
 const $ = id => document.getElementById(id);
+function pathPts(g, n, fn) { for (let i = 0; i < n; i++) { const [x, y] = fn(i); i ? g.lineTo(x, y) : g.moveTo(x, y) } }
 const SK = ["con", "str", "agi", "int", "per"];
 const sound = { on: !0, ctx: null };
 function actx() { return sound.ctx || (sound.ctx = new(window.AudioContext || window.webkitAudioContext)) }

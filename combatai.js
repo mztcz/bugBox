@@ -171,7 +171,7 @@ const frac = cb.curHp / (cb.maxHp || 1),
 lvl = frac < .25 ? 2 : frac < .5 ? 1 : 0;
 if (lvl && !(cb.fledLvl >= lvl)) {
 cb.fledLvl = cb.fledLvl + 1;
-flee(e, p.dir + rf(45, 110) * PI / 180 * (random() < .5 ? -1 : 1)), cb.aimLock = 0, cb.aimTarget = -1, abilFire(e, "flee")
+flee(e, p.dir + rf(45, 110) * PI / 180 * rsign()), cb.aimLock = 0, cb.aimTarget = -1, abilFire(e, "flee")
 }
 }
 if ("fleeing" === t.act) {
@@ -273,7 +273,7 @@ let strongMult = 1;
 if (cb.strongPend) { strongMult = 2; cb.strongPend = 0 }
 applyBite(cb, b, p, tcb, tb, tp, strongMult, tm.team, e), biteNoticed(target);
 const braced = hasAbil(tb, "braced");
-if (abilReady(e, "kickback")) { const d = max(.25, 1.5 + .28 * (b.str - tb.con)) * (braced ? .5 : 1), kbDist = bugLen(tb) * d * (1 - KB_DAMP); tcb.kbX += cos(toT) * kbDist, tcb.kbY += sin(toT) * kbDist; if (!braced) { tcb.stunT = max(tcb.stunT, ABILITIES.kickback.dur); const sa = (min(PI, d * PI / 3) + (floor(random() * 5) - 2) * PI / 18) * (random() < .5 ? -1 : 1); tcb.spinRemain = abs(sa); tcb.spinDir = sign(sa); tcb.regather = 1 } abilFire(e, "kickback") }
+if (abilReady(e, "kickback")) { const d = max(.25, 1.5 + .28 * (b.str - tb.con)) * (braced ? .5 : 1), kbDist = bugLen(tb) * d * (1 - KB_DAMP); tcb.kbX += cos(toT) * kbDist, tcb.kbY += sin(toT) * kbDist; if (!braced) { tcb.stunT = max(tcb.stunT, ABILITIES.kickback.dur); const sa = (min(PI, d * PI / 3) + (floor(random() * 5) - 2) * PI / 18) * rsign(); tcb.spinRemain = abs(sa); tcb.spinDir = sign(sa); tcb.regather = 1 } abilFire(e, "kickback") }
 if (abilReady(e, "knockout")) {
 if (!braced) { tcb.stunT = max(200, ABILITIES.knockout.dur + 200 * (b.str - tb.con)); tcb.regather = 1 }
 abilFire(e, "knockout");
@@ -305,7 +305,7 @@ turnToward(p, atan2(dyc, dxc), turn) && (cb.mvA = p.dir, cb.mvSpd = spd);
 return
 }
 cb.goOn = 0, cb.callDoneX = cb.goX, cb.callDoneY = cb.goY, cb.memT = 0;
-cb.searchPhase = 2, t.scanRemain = scanOf(b), cb.lostSide = random() < .5 ? -1 : 1
+cb.searchPhase = 2, t.scanRemain = scanOf(b), cb.lostSide = rsign()
 }
 if (cb.memT > 0 && tier < 4 && cb.searchPhase === 0) {
 const dxm = cb.memX - p.x, dym = cb.memY - p.y, dm = hypot(dxm, dym);
@@ -316,7 +316,7 @@ return
 if (tier === 1) { cb.memT = 0, decide(e); return }
 cb.searchPhase = tier === 3 ? 1 : 2;
 t.scanRemain = scanOf(b);
-cb.lostSide = random() < .5 ? -1 : 1
+cb.lostSide = rsign()
 }
 if (cb.searchPhase === 1) {
 if (!turnToward(p, cb.memA, turn)) return

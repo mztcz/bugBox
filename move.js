@@ -1,5 +1,4 @@
 const BASE_WALK = 20, RUSH = 1.25;
-const agiOf     = b => clamp(b.agi || 5, 1, 10);
 const sf        = b => hasAbil(b, "steadfast") ? 2 : 1;
 const spdOf     = b => BASE_WALK * agiOf(b) * sf(b);
 const turningOf = b => TAU / (6.6 - .61 * agiOf(b)) * sf(b);
@@ -14,7 +13,7 @@ function decide(e) {
 const b = C.bug.get(e), t = C.walk.get(e);
 if (t.turnA != null) return setAct(e, "turning");
 if (combatState || hpFrac(b) < 1 || random() < .7) return setAct(e, "walking", rf(WALK_MIN, WALK_MAX)), newDir(e);
-setAct(e, RARE_ACT[intOf(b) > 4 ? ri(hasAbil(b, "flanking") ? 4 : 3) : 0], RARE_MIN + random() * RARE_SPAN), t.rareA = PI / 3, t.rareS = random() < .5 ? -1 : 1, t.rareE = null
+setAct(e, RARE_ACT[intOf(b) > 4 ? ri(hasAbil(b, "flanking") ? 4 : 3) : 0], RARE_MIN + random() * RARE_SPAN), t.rareA = PI / 3, t.rareS = rsign(), t.rareE = null
 }
 function sysSteer(dt, ents) {
 const dtS = dt / 1e3, foods = ecsQuery("food", "pos"), obs = ecsQuery("obstacle", "pos");
@@ -31,7 +30,7 @@ if (tu) return void(turnToward(p, t.turnA, turningOf(b) * dtS) && (v.wanderAngle
 if ((p.frzMs = (p.frzMs || 0) + dt) >= STUCK_CHECK_MS) {
 const stuck = hypot(p.x - (p.lastX ?? p.x), p.y - (p.lastY ?? p.y)) < bugLen(b);
 p.frzMs = 0, p.lastX = p.x, p.lastY = p.y;
-if (stuck) return p.frzSide = p.frzSide || (random() < .5 ? -1 : 1), t.turnA = norm(p.dir + p.frzSide * rf(HALF_PI, PI)), void setAct(e, "turning");
+if (stuck) return p.frzSide = p.frzSide || rsign(), t.turnA = norm(p.dir + p.frzSide * rf(HALF_PI, PI)), void setAct(e, "turning");
 p.frzSide = 0
 }
 const fT = hungry(e) ? seenFood(b, p, foods) : null;
@@ -238,7 +237,7 @@ const s = min(t.rareA, turningOf(b) * dtS);
 return void(p.dir = norm(p.dir + t.rareS * s), (t.rareA -= s) <= 0 && setAct(e, "waiting", t.actT))
 }
 const op = C.pos.get(tg);
-t.rareE = tg, t.rareX = op.x, t.rareY = op.y, fl && (t.rareS = random() < .5 ? -1 : 1, t.rareR = 0, t.actT = 8e3)
+t.rareE = tg, t.rareX = op.x, t.rareY = op.y, fl && (t.rareS = rsign(), t.rareR = 0, t.actT = 8e3)
 }
 if (!ECS.pos.has(t.rareE)) return void think(e);
 const op = C.pos.get(t.rareE), a = atan2(op.y - p.y, op.x - p.x), d = hypot(op.x - p.x, op.y - p.y);

@@ -16,16 +16,14 @@ fightTeam = [],
 fightMode = 1,
 enemyTier = 1,
 lastSurvivors = null,
-labSt = {
-phase: "pick",
-pA: null,
-pB: null,
-larva: null
-};
+labSt = newLab();
+function newLab() { return { phase: "pick", pA: null, pB: null, larva: null } }
 const MODES = [1, 2, 3, 6, "mayhem", "mc", "boss", "rb", "wb"],
 ri = n => floor(random() * n),
 rf = (a, b) => a + random() * (b - a),
 clamp = (v, a, b) => max(a, min(b, v)),
+rsign = () => random() < .5 ? -1 : 1,
+ownedById = id => bugsOwned.find(b => b.id === id),
 fmtT = ms => { const d = floor(ms / 100), p = n => String(n).padStart(2, "0"); return p(floor(d / 600)) + ":" + p(floor(d / 10) % 60) + "." + d % 10 };
 function turnToward(p, want, step) {
 const d = norm(want - p.dir);

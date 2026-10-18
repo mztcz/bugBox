@@ -1,6 +1,8 @@
 const TEAM_HUE = [210, 30];
 const VIS_COL = "rgba(180,255,120,.35)";
 const nearVisR = b => max(morphR(b) + 2, hasAbil(b, "v360") ? visRangeOf(b) * .25 : 0);
+const drawLabel = (txt, x, y, col, px = 7) => (boxCx.fillStyle = col, boxCx.font = px + "px Courier New", boxCx.textAlign = "center", boxCx.fillText(txt, x, y));
+const drawRing = (p, r, col) => (boxCx.save(), boxCx.strokeStyle = col, boxCx.globalAlpha = .4, boxCx.lineWidth = 1, boxCx.beginPath(), boxCx.arc(p.x, p.y, r, 0, 7), boxCx.stroke(), boxCx.restore());
 function drawZoneVisOverlay() {
 if (!sci("zone") && !sci("vis") && !sci("vis1") && !sci("vis2")) return;
 ecsQuery("bug", "pos").forEach(e => {
@@ -82,7 +84,7 @@ const r = morphR(b);
 post.push(() => {
 (!fow && (b === inspected || scienceOn && sci("hp"))) && drawHpBar(p, hpFrac(b), r);
 b.prepT > 0 && sci("bite") && drawPrepBar(p, 1 - b.prepT / b.prepMax, r);
-scienceOn && sci("nam") && (boxCx.fillStyle = "#4cf", boxCx.font = "7px Courier New", boxCx.textAlign = "center", boxCx.fillText(b.name, p.x, p.y - r - 11))
+scienceOn && sci("nam") && drawLabel(b.name, p.x, p.y - r - 11, "#4cf")
 });
 return;
 }
@@ -109,20 +111,20 @@ drawBugStyled(boxCx, b, 0, 0, p.dir, 1, b === inspected, k ? null : posPhase(p),
 boxCx.restore();
 drawHit(b, p.x + offX, by, p.dir);
 post.push(() => {
-if (cb.stunT > 0) { boxCx.save(), boxCx.fillStyle = "#fd4", boxCx.font = "9px Courier New", boxCx.textAlign = "center", boxCx.fillText("\u2726", p.x, p.y - r - 13), boxCx.restore() }
+if (cb.stunT > 0) drawLabel("\u2726", p.x, p.y - r - 13, "#fd4", 9)
 if (sci("hp")) {
 const f = max(0, cb.curHp / cb.maxHp);
 drawHpBar(p, f, r, sci("col") ? `hsl(${TEAM_HUE[tm.team]},85%,55%)` : f >= 1 ? "#00ff66" : null)
 }
-if (sci("nam")) { boxCx.fillStyle = 0 === tm.team ? "#44ccff" : "#ffaa44", boxCx.font = "7px Courier New", boxCx.textAlign = "center", boxCx.fillText(b.name, p.x, p.y - r - 11) }
-if (cb.abT > 0) { boxCx.fillStyle = "#c8f", boxCx.font = "7px Courier New", boxCx.textAlign = "center", boxCx.fillText(cb.abTxt, p.x, p.y - r - 19) }
+if (sci("nam")) drawLabel(b.name, p.x, p.y - r - 11, 0 === tm.team ? "#44ccff" : "#ffaa44")
+if (cb.abT > 0) drawLabel(cb.abTxt, p.x, p.y - r - 19, "#c8f")
 if (sci("bite") && cb.prepVisT > 0) {
 const prepR = max(0, min(1, 1 - cb.bitePrep / cb.bitePrepMax));
 prepR > 0 && drawPrepBar(p, prepR, r)
 }
 });
-if (cb.callT > 0 && sci("visr")) { boxCx.save(), boxCx.strokeStyle = cb.callCry ? "#f88" : "#8f8", boxCx.globalAlpha = .4, boxCx.lineWidth = 1, boxCx.beginPath(), boxCx.arc(p.x, p.y, cb.callR, 0, 7), boxCx.stroke(), boxCx.restore() }
-if (cb.loudT > 0 && sci("visr")) { boxCx.save(), boxCx.strokeStyle = "#ff8", boxCx.globalAlpha = .4, boxCx.lineWidth = 1, boxCx.beginPath(), boxCx.arc(p.x, p.y, loudRadius(b), 0, 7), boxCx.stroke(), boxCx.restore() }
+if (cb.callT > 0 && sci("visr")) drawRing(p, cb.callR, cb.callCry ? "#f88" : "#8f8")
+if (cb.loudT > 0 && sci("visr")) drawRing(p, loudRadius(b), "#ff8")
 if (cb.callT > 0 && !cb.callCry && sci("visr")) {
 boxCx.save(), boxCx.strokeStyle = "#8f8", boxCx.globalAlpha = .8, boxCx.lineWidth = 1.5, boxCx.beginPath();
 boxCx.moveTo(cb.callX - 4, cb.callY - 4), boxCx.lineTo(cb.callX + 4, cb.callY + 4);
