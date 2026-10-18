@@ -1,10 +1,17 @@
 // BUGBOX smoke test: module check + headless run (box, fight, overlays). Exit 0 = OK.
 // Usage: node .claude/smoke.cjs        runs only after the user wrote oktk (token set by --arm, removed by SMOKE OK)
-//        node .claude/smoke.cjs --arm  UserPromptSubmit hook: sets the token when the prompt is only oktk, removes it on any other prompt
+//        node .claude/smoke.cjs --arm  UserPromptSubmit hook: a prompt that is only oktk sets both tokens, any other prompt removes both
+//        node .claude/smoke.cjs --gate PreToolUse hook: without the turn token blocks skill oktk, git merge/push/checkout of main, test artifact publish
 const fs = require("fs"), path = require("path"), os = require("os"), { execFileSync } = require("child_process");
 const root = path.resolve(__dirname, "..");
-const token = path.join(os.tmpdir(), "bugbox-oktk");
-if (process.argv.includes("--arm")) { /^\s*oktk\s*$/i.test(JSON.parse(fs.readFileSync(0, "utf8")).prompt || "") ? fs.writeFileSync(token, "") : fs.rmSync(token, { force: true }); process.exit(0) }
+const token = path.join(os.tmpdir(), "bugbox-oktk"), turn = token + "-turn";
+if (process.argv.includes("--arm")) { const ok = /^\s*oktk\s*$/i.test(JSON.parse(fs.readFileSync(0, "utf8")).prompt || ""); [token, turn].forEach(t => ok ? fs.writeFileSync(t, "") : fs.rmSync(t, { force: true })); process.exit(0) }
+if (process.argv.includes("--gate")) {
+  const { tool_name: n, tool_input: i = {} } = JSON.parse(fs.readFileSync(0, "utf8"));
+  const hit = n === "Skill" ? /oktk/i.test(i.skill || "") : n === "Bash" ? /git\b[^;&|]*\b(merge|push|checkout|switch)\b[^;&|]*\bmain\b/.test(i.command || "") : n === "Artifact" && /DAGsKmWecR1uCaAMeUMhoB/.test(i.url || "");
+  hit && !fs.existsSync(turn) && (console.error("OKTK BLOCKED: oktk steps run only after the user's standalone message oktk"), process.exit(2));
+  process.exit(0)
+}
 if (!fs.existsSync(token)) { console.log("SMOKE BLOCKED: runs only after the user writes oktk"); process.exit(1) }
 const fail = msg => { console.log("SMOKE FAIL\n" + msg); process.exit(1) };
 const html = fs.readFileSync(path.join(root, "index.html"), "utf8");

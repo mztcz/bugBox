@@ -113,7 +113,7 @@ Open `index.html`. All paths are relative, so it works from a local folder or fr
 
 ### Tool files
 - `.claude/smoke.cjs` = smoke test: local files linked from `index.html` must exist, every backticked symbol in a routing table row (Area + Symbol columns, file names skipped) must exist in its file; external requests (Google Font) are stubbed so offline runs pass, then all scripts as one ES module (duplicate top-level names across files fail), then headless Chromium: market, box, info tabs, designer, lab, booker, 2v2 fight, leave.
-- `.claude/settings.json` = PreCompact hook (full-context reminder) and UserPromptSubmit hook (`smoke.cjs --arm`: a prompt that is only oktk allows one smoke run in that turn, any other prompt removes the token).
+- `.claude/settings.json` = PreCompact hook (full-context reminder), UserPromptSubmit hook (`smoke.cjs --arm`: a prompt that is only oktk allows one smoke run and the oktk steps in that turn, any other prompt removes both tokens) and PreToolUse hook (`smoke.cjs --gate`: without that prompt blocks skill oktk, git merge/push/checkout of main and the test artifact publish).
 - `.claude/skills/oktk/SKILL.md` = end-of-session routine triggered only by a standalone "oktk" message.
 - `.claude/agents/skoukni-kod.md` = read-only review subagent; run only when the user writes "skoukniKod" (Agent tool, `subagent_type: skoukni-kod`).
 `style.css` has few, very long lines — prefer `grep -o` with a short context over `grep -n`. The `.js` files are multi-line; `grep -n` is safe.
