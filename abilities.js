@@ -32,7 +32,7 @@ const ABIL_MAX = 4, ABIL_INHERIT_ONE = .5, ABIL_INHERIT_BOTH = .75;
 const ABIL_ROLL_CHANCE = [.5, .5, .25, .25, 0];
 const ABIL_BY_STAT = {};
 SK.forEach(k => ABIL_BY_STAT[k] = ABIL_IDS.filter(id => ABILITIES[id].stat === k));
-const shuf = a => a.sort(() => random() - .5);
+const shuf = a => { for (let i = a.length - 1; i > 0; i--) { const j = floor(random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]] } return a };
 const bitePrepOf = (b, k = 1) => (BITE_PREP_MAX - (BITE_PREP_MAX - BITE_PREP_MIN) * (agiOf(b) - 1) / 9) * k + rf(-125, 125),
 biteDone = (cb, b, t, k) => (SFX.bite(t), cb.biteT = 1, cb.bitePrep = cb.bitePrepMax = bitePrepOf(b, k));
 const FOV_MIN_DEG = 90, FOV_MAX_DEG = 94.5;

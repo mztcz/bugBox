@@ -1,6 +1,6 @@
 $("game-version-tag").textContent = "v" + GAME_VERSION;
 ! function() {
-const ctx = hidpi($("intro-art"), 200, 60), hues = [120, 30, 275].sort(() => random() - .5);
+const ctx = hidpi($("intro-art"), 200, 60), hues = shuf([120, 30, 275]);
 ctx.fillStyle = "#0a0a12", ctx.fillRect(0, 0, 200, 60), [40, 100, 160].forEach((cx, i) => {
 const m = randomMorph();
 drawMorphBug(ctx, m, morphColor(hues[i]), cx, 32, 0, { scale: morphFitScale(m, 52, 48), shadow: !1, hue: hues[i] })

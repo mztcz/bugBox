@@ -58,7 +58,7 @@ const dtS = dt / 1e3;
 const ents = ecsQuery("bug", "pos", "team", "combat");
 const snap = new Map();
 ents.forEach(e => { const p = C.pos.get(e); snap.set(e, { x: p.x, y: p.y, dir: p.dir }) });
-for (let i = ents.length - 1; i > 0; i--) { const j = floor(random() * (i + 1)); [ents[i], ents[j]] = [ents[j], ents[i]] }
+shuf(ents);
 ents.forEach(e => {
 const b = C.bug.get(e),
 p = C.pos.get(e),
