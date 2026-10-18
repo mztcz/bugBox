@@ -113,7 +113,7 @@ Open `index.html`. All paths are relative, so it works from a local folder or fr
 - `.claude/smoke.cjs` = smoke test: local files linked from `index.html` must exist, every backticked symbol in a routing table row (Area + Symbol columns, file names skipped) must exist in its file; external requests (Google Font) are stubbed so offline runs pass, then all scripts as one ES module (duplicate top-level names across files fail), then headless Chromium: market, box, info tabs, designer, lab, booker, 2v2 fight, leave. `--hook` exits 2 on failure.
 - `.claude/settings.json` = PreToolUse hook runs the smoke test before every `git push` and blocks it on failure.
 - `.claude/skills/oktk/SKILL.md` = end-of-session routine triggered by "oktk".
-- `.claude/agents/reviewer.md` = read-only subagent (Read, Grep, Glob) listing duplicates, dead code, ECS violations, needless names as `path:line` + proposal. Run only when the user writes "review" (Agent tool, `subagent_type: reviewer`).
+- `.claude/agents/skoukni-kod.md` = read-only review subagent; run only when the user writes "skoukniKod" (Agent tool, `subagent_type: skoukni-kod`).
 `style.css` has few, very long lines — prefer `grep -o` with a short context over `grep -n`. The `.js` files are multi-line; `grep -n` is safe.
 
 ### Saved data
