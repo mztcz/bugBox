@@ -21,24 +21,17 @@ el.parentNode.className = "dz-row" + (DZ_RED.includes(k) ? " dzr" : "") + (lock 
 });
 SK.forEach(k => { const e = $("dz-val-" + k); e && (e.textContent = dz[k]) })
 }
-function dzDefaults() {
-dz.abils || (dz.abils = ["", "", "", ""]);
-SK.forEach(k => dz[k] == null && (dz[k] = 5))
-}
 function dzAbils(slot) {
-dzDefaults();
 const taken = dz.abils.filter((a, i) => a && i !== slot);
 return `<option value="">Ability ${slot + 1}</option>` + ABIL_IDS.filter(id => !taken.includes(id))
 .sort((a, b) => SK.indexOf(ABILITIES[a].stat) - SK.indexOf(ABILITIES[b].stat) || ABILITIES[a].name.localeCompare(ABILITIES[b].name))
 .map(id => `<option value="${id}"${dz.abils[slot] === id ? " selected" : ""}>(${ABILITIES[id].stat.toUpperCase()}) ${ABILITIES[id].name}</option>`).join("")
 }
 function dzStatRows() {
-dzDefaults();
 return SK.map(k => `<div class="dz-row"><span class="dz-lbl">${k.toUpperCase()} <b id="dz-val-${k}">${dz[k]}</b></span>
      <input type="range" id="dz-${k}" min="1" max="10" value="${dz[k]}"></div>`).join("")
 }
 function dzExtras() {
-dzDefaults();
 $("dz-extras").innerHTML = dzStatRows();
 $("dz-abils").innerHTML =
 [0, 1, 2, 3].map(i => `<div class="dz-row"><select id="dz-abil-${i}">${dzAbils(i)}</select></div>`).join("") +
@@ -84,7 +77,7 @@ dz.link && Object.keys(MORPH_STAT).forEach(k => delete m[k]);
 Object.assign(dz, { hue: 20 * ri(18) }, m), dzRefresh(), dzExtras()
 };
 $("bt-des-rnd-s").onclick = () => {
-dzDefaults(), SK.forEach(k => dz[k] = 1 + ri(10));
+SK.forEach(k => dz[k] = 1 + ri(10));
 dz.link && Object.assign(dz, statMorph(dz)), dzRefresh(), dzExtras()
 };
 $("dz-zoom").oninput = ev => dzZoom = (500 - ev.target.value) / 100;
@@ -109,7 +102,6 @@ fr.style.maxHeight = (r.height - 8) + "px";
 fr.style.marginTop = max(4, r.top + (r.height - fr.offsetHeight) / 2) + "px"
 }
 function dzSpawn() {
-dzDefaults();
 const { hue, con, str, agi, int: intel, per, abils, link, ...m } = dz,
 picked = abils.filter(a => a),
 nb = makeBug({ hue: hue, morph: { ...m }, con: con, str: str, agi: agi, int: intel, per: per, abilities: picked });

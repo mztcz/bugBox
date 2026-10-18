@@ -23,8 +23,8 @@ flee(e, (floor(atan2(p.y - boxLH / 2, p.x - boxLW / 2) / HALF_PI) + random()) * 
 const abilReady = (e, id) => { const cb = C.combat.get(e); return !cb.muted && hasAbil(C.bug.get(e), id) && !(cb.cd[id] > 0) };
 const abilFire = (e, id) => { const cb = C.combat.get(e); cb.cd[id] = ABILITIES[id].cd, cb.abTxt = ABILITIES[id].name, cb.abT = 2000 };
 const ACTION_KEYS = ["flyT", "airT", "dashT", "spinRemain", "dashHitPend",
-"backflipT", "preppingBite", "grabTarget", "grabbedBy", "grabDragLeft",
-"grabTimeLeft", "mvSpd", "mvOn", "imX", "imY", "aimLock", "aimTarget"];
+"backflipT", "grabTarget", "grabbedBy", "grabDragLeft",
+"grabTimeLeft", "mvSpd", "imX", "imY", "aimLock", "aimTarget"];
 const clearActionState = cb => ACTION_KEYS.forEach(k => cb[k] = COMBAT_DEFAULTS[k]);
 function tickTimers(cb, p, dt) {
 const ticks = dt / COMBAT_STEP_MS;
@@ -65,7 +65,7 @@ p = C.pos.get(e),
 tm = C.team.get(e),
 cb = C.combat.get(e),
 t = C.walk.get(e);
-const bodyL = bugLen(b), engageDist = engageDistOf(b), spd = spdOf(b), turn = turningOf(b), tier = huntTierOf(b), go = a => (turnToward(p, a, turn * dtS), cb.mvA = p.dir, cb.mvSpd = spd, cb.mvOn = 1);
+const bodyL = bugLen(b), engageDist = engageDistOf(b), spd = spdOf(b), turn = turningOf(b), tier = huntTierOf(b), go = a => (turnToward(p, a, turn * dtS), cb.mvA = p.dir, cb.mvSpd = spd);
 if (cb.dead && !(cb.phoenixT > 0)) { clearActionState(cb); return }
 tickTimers(cb, p, dt);
 cb.muted = ents.some(oe => { const ocb = C.combat.get(oe), op = C.pos.get(oe); return ocb.loudT > 0 && !ocb.dead && C.team.get(oe).team !== tm.team && hypot(op.x - p.x, op.y - p.y) < loudRadius(C.bug.get(oe)) });
@@ -80,12 +80,12 @@ if (abilReady(e, "fake") && cb.fakeUsed < 2 && !cb.fakeT && cb.curHp < cb.maxHp 
 cb.fakeUsed++; cb.fakeT = ABILITIES.fake.dur; clearActionState(cb); abilFire(e, "fake"); return;
 }
 if (cb.grabbedBy >= 0) {
-const hcb = ECS.combat.has(cb.grabbedBy) ? C.combat.get(cb.grabbedBy) : null;
+const hcb = C.combat.get(cb.grabbedBy);
 if (!hcb || hcb.dead || hcb.grabTarget !== e || hcb.grabDragLeft <= 0) { cb.grabbedBy = -1; cb.stunT = 0; if (hcb && hcb.grabTarget === e) hcb.grabTarget = -1 }
-else { cb.mvSpd = cb.mvOn = cb.preppingBite = 0; return }
+else { cb.mvSpd = 0; return }
 }
 if (cb.grabTarget >= 0) {
-const gcb = ECS.combat.has(cb.grabTarget) ? C.combat.get(cb.grabTarget) : null;
+const gcb = C.combat.get(cb.grabTarget);
 if (!gcb || gcb.dead || gcb.grabbedBy !== e || cb.grabDragLeft <= 0 || (cb.grabTimeLeft || 0) <= 0) {
 if (gcb && gcb.grabbedBy === e) { gcb.grabbedBy = -1; gcb.stunT = 0 }
 cb.grabTarget = -1; cb.grabDragLeft = 0; cb.grabTimeLeft = 0;
@@ -269,12 +269,10 @@ const inRange = minD <= attackReach * (cb.wasInRange ? 1.1 : 1);
 cb.wasInRange = inRange ? 1 : 0;
 if (inRange && facingOK && !airT) {
 if (cb.bitePrep > 0) cb.bitePrep -= dt;
-cb.preppingBite = 1;
 cb.prepVisT = 20;
 } else if (!inRange) {
 cb.bitePrep = max(cb.bitePrep, 0);
-cb.preppingBite = 0;
-} else { cb.preppingBite = 0 }
+}
 if (inRange && facingOK && cb.bitePrep <= 0 && !airT) {
 if (!biteDodged(b, p, tb, tp, tm.team)) {
 let strongMult = 1;
@@ -302,7 +300,6 @@ const stp = turn * dtS;
 cb.memT > 0 && (cb.memT -= dt);
 if (cb.avengeE >= 0) {
 turnToward(p, cb.avengeA, stp) && (cb.avengeE = -1);
-cb.mvOn = 1;
 return
 }
 if (!cb.goOn) {
@@ -313,7 +310,6 @@ if (cb.goOn) {
 const dxc = cb.goX - p.x, dyc = cb.goY - p.y;
 if (hypot(dxc, dyc) > bugLen(b)) {
 turnToward(p, atan2(dyc, dxc), stp) && (cb.mvA = p.dir, cb.mvSpd = spd);
-cb.mvOn = 1;
 return
 }
 cb.goOn = 0, cb.callDoneX = cb.goX, cb.callDoneY = cb.goY, cb.memT = 0;
@@ -323,16 +319,15 @@ if (cb.memT > 0 && tier < 4 && cb.searchPhase === 0) {
 const dxm = cb.memX - p.x, dym = cb.memY - p.y, dm = hypot(dxm, dym);
 if (dm > 12) {
 turnToward(p, atan2(dym, dxm), stp) && (cb.mvA = p.dir, cb.mvSpd = spd * .5);
-cb.mvOn = 1;
 return
 }
-if (tier === 1) { cb.memT = 0, decide(e), cb.mvOn = 1; return }
+if (tier === 1) { cb.memT = 0, decide(e); return }
 cb.searchPhase = tier === 3 ? 1 : 2;
 t.scanRemain = scanOf(b);
 cb.lostSide = random() < .5 ? -1 : 1
 }
 if (cb.searchPhase === 1) {
-if (!turnToward(p, cb.memA, stp)) { cb.mvOn = 1; return }
+if (!turnToward(p, cb.memA, stp)) return
 cb.searchPhase = 2
 }
 cb.searchPhase || (cb.searchPhase = 2, t.scanRemain = TAU);
@@ -340,7 +335,6 @@ const step = min(t.scanRemain, stp);
 p.dir = norm(p.dir + step * (cb.lostSide || 1)), t.scanRemain -= step;
 if (t.scanRemain <= 0) decide(e), t.scanRemain = 0, cb.memT = 0, cb.searchPhase = 0
 }
-cb.mvOn = 1
 });
 dmgPops.forEach(d => (d.t -= dt / 1600, d.x += cos(d.a) * dt / 40, d.y += sin(d.a) * dt / 40));
 dmgPops = dmgPops.filter(d => d.t > 0);

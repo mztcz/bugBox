@@ -38,14 +38,12 @@ drag?.moved && drag.e === e || C.combat.get(e)?.fakeT > 0 || (t.actT -= "walking
 fight && sysCombatAI(dt);
 const ents = fight ? all.filter(e => !aiAct(C.walk.get(e)) && !C.combat.get(e).dead) : all;
 fight && sysSeek(ents);
-sysSteer(dt, ents), sysMove(dtS, fight ? all : ents);
+sysSteer(dt, ents), sysMove(dtS, all);
 fight || (sysRareAct(dt, ents), sysMate(dt, ents)), sysFeed();
-sysResolve(fight ? all : ents, dtS)
+sysResolve(all, dtS)
 }
 let speedBeforePause = 1;
 function syncSpeedLabel() {
-const el = $("bt-speed");
-el && (el.textContent = "Speed " + (simSpd === 0 ? speedBeforePause : simSpd) + "×");
-const st = $("bt-pause");
-st && (st.textContent = simSpd === 0 ? "\u25b6 PLAY" : "\u275a\u275a PAUSE")
+$("bt-speed").textContent = "Speed " + (simSpd === 0 ? speedBeforePause : simSpd) + "×";
+$("bt-pause").textContent = simSpd === 0 ? "\u25b6 PLAY" : "\u275a\u275a PAUSE"
 }

@@ -3,9 +3,6 @@ labSt = {
 phase: "pick",
 pA: null,
 pB: null,
-fA: 0,
-fB: 0,
-fL: 0,
 larva: null
 }, showScreen("s-lab"), renderLab();
 const lay = $("lab-layout");

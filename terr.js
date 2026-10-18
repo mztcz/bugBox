@@ -47,7 +47,6 @@ const sciBtn = (k, lbl, tip, on) =>
 `<button title="${tip}" onclick="${k?`toggleSci('${k}')`:"toggleSciAll()"}" style="font:8px 'Courier New';padding:2px 4px;cursor:pointer;border:1px solid #2a2a4a;background:${on?"#2b4":"#0a0a12"};color:${on?"#031":"#9ab"};">${lbl}</button>`;
 function syncSciHud() {
 const el = $("hud-sci");
-if (!el) return;
 const show = scienceOn && !(combatState && fightDone);
 el.style.display = show ? "flex" : "none";
 if (!show) return;

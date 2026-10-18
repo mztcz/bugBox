@@ -9,8 +9,8 @@ t === "info" && renderInfoWiki();
 t === "morph" && renderMorphWiki();
 t === "abil" && renderAbilWiki();
 t === "rec" && renderRecords();
-$("info-foot").innerHTML = (t === "rec" ? '<button class="danger bt" id="bt-rec-rst" onclick="resetRecords()">Reset</button>' : "") +
-'<button class="ok bt" id="bt-inf-close" onclick="ov(&quot;ov-inf&quot;,0)">OK</button>'
+$("info-foot").innerHTML = (t === "rec" ? '<button class="danger bt" onclick="resetRecords()">Reset</button>' : "") +
+'<button class="ok bt" onclick="ov(&quot;ov-inf&quot;,0)">OK</button>'
 }
 const OV_PAUSE = ["ov-set", "ov-inf", "ov-design"];
 let ovSpd = -1;

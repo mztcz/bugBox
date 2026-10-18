@@ -65,7 +65,7 @@ $("gset-thm").value = bugTheme;
 ov("ov-set", 1)
 };
 $("gset-snd").onchange = e => { sound.on = e.target.checked };
-$("bt-fow") && ($("bt-fow").onclick = () => toggleFow());
+$("bt-fow").onclick = () => toggleFow();
 let tap0;
 document.addEventListener("touchstart", e => tap0 = e.touches[0], { passive: !0 });
 document.addEventListener("touchend", e => {

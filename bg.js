@@ -8,16 +8,16 @@ return t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t, ((t ^ t >>> 14) >>> 0) / 4294
 }
 }
 const T1 = [
-  { n: "soil",    p: "dots",    s: 9,  c: ["#0a0809", "#171009", "#241706", "#2f2010"] },
-  { n: "ash",     p: "specks",  s: 7,  c: ["#0c0c0e", "#18181c", "#232329", "#2e2e36"] },
-  { n: "stone",   p: "cracks",  s: 12, c: ["#101012", "#1b1b1e", "#26262b", "#313138"] },
-  { n: "scale",   p: "scales",  s: 7.5, c: ["#0a0d10", "#122029", "#193040", "#204057"] },
-  { n: "cloth",   p: "weave",   s: 10, c: ["#0f0a0d", "#1c1218", "#281a22", "#34222d"] },
-  { n: "tile",    p: "checker", s: 20, c: ["#080a08", "#121710", "#1b2418", "#243020"] },
-  { n: "burlap",  p: "burlap",  s: 11, c: ["#0e0b07", "#241a10", "#33261a", "#4a3826"] },
-  { n: "denim",   p: "twill",   s: 9,  c: ["#080b12", "#12203a", "#1a2e52", "#24406e"] },
-  { n: "tweed",   p: "herring", s: 8,  c: ["#0c0c0e", "#1a1a1f", "#26262e", "#34343e"] },
-  { n: "wood",    p: "wood",    s: 14, c: ["#0d0805", "#241408", "#3a2410", "#573818"] }
+  { p: "dots",    s: 9,  c: ["#0a0809", "#171009", "#241706", "#2f2010"] },
+  { p: "specks",  s: 7,  c: ["#0c0c0e", "#18181c", "#232329", "#2e2e36"] },
+  { p: "cracks",  s: 12, c: ["#101012", "#1b1b1e", "#26262b", "#313138"] },
+  { p: "scales",  s: 7.5, c: ["#0a0d10", "#122029", "#193040", "#204057"] },
+  { p: "weave",   s: 10, c: ["#0f0a0d", "#1c1218", "#281a22", "#34222d"] },
+  { p: "checker", s: 20, c: ["#080a08", "#121710", "#1b2418", "#243020"] },
+  { p: "burlap",  s: 11, c: ["#0e0b07", "#241a10", "#33261a", "#4a3826"] },
+  { p: "twill",   s: 9,  c: ["#080b12", "#12203a", "#1a2e52", "#24406e"] },
+  { p: "herring", s: 8,  c: ["#0c0c0e", "#1a1a1f", "#26262e", "#34343e"] },
+  { p: "wood",    s: 14, c: ["#0d0805", "#241408", "#3a2410", "#573818"] }
 ];
 function drawM1(g, w, h, t, R, vRaw) {
   const v = vRaw * 2;
@@ -122,11 +122,11 @@ function drawM1(g, w, h, t, R, vRaw) {
   }
 }
 const T2 = [
-  { n: "frost",  m: "banded", f: 4.2, o: 3, c: ["#05080e", "#0d1520", "#182636", "#26384e"] },
-  { n: "rust",   m: "thresh", f: 5.0, o: 4, c: ["#120a06", "#2b1408", "#42200c", "#5c3013"] },
-  { n: "fungal", m: "thresh", f: 6.5, o: 3, c: ["#0d0710", "#1c0f22", "#2d1838", "#40234e"] },
-  { n: "sand",   m: "banded", f: 3.0, o: 4, c: ["#110e07", "#221a0d", "#332715", "#45351e"] },
-  { n: "steel",  m: "banded", f: 5.5, o: 3, c: ["#0a0a0c", "#151518", "#212127", "#2f2f37"] }
+  { m: "banded", f: 4.2, o: 3, c: ["#05080e", "#0d1520", "#182636", "#26384e"] },
+  { m: "thresh", f: 5.0, o: 4, c: ["#120a06", "#2b1408", "#42200c", "#5c3013"] },
+  { m: "thresh", f: 6.5, o: 3, c: ["#0d0710", "#1c0f22", "#2d1838", "#40234e"] },
+  { m: "banded", f: 3.0, o: 4, c: ["#110e07", "#221a0d", "#332715", "#45351e"] },
+  { m: "banded", f: 5.5, o: 3, c: ["#0a0a0c", "#151518", "#212127", "#2f2f37"] }
 ];
 function makeNoise(seed) {
   const p = new Uint8Array(512), rnd = mulberry32(seed);
@@ -170,9 +170,9 @@ function drawM2(g, w, h, t, R, vRaw) {
   g.imageSmoothingEnabled = true; g.drawImage(tmp, 0, 0, w, h)
 }
 const T3 = [
-  { n: "spore", b: "#070a08", L: [{ k: "circle", n: 260, sz: [1, 5], a: [.15, .5], c: ["#14301c", "#1d4526", "#2a5c33"] }] },
-  { n: "straw", b: "#100d07", L: [{ k: "line", n: 220, sz: [3, 12], lw: 1, a: [.2, .55], c: ["#33280f", "#463618", "#5b4820"] }] },
-  { n: "plank", b: "#0d0906", L: [{ k: "rect", n: 110, sz: [6, 22], a: [.15, .45], c: ["#2a1c0e", "#3a2814", "#4b351b"] }] }
+  { b: "#070a08", L: [{ k: "circle", n: 260, sz: [1, 5], a: [.15, .5], c: ["#14301c", "#1d4526", "#2a5c33"] }] },
+  { b: "#100d07", L: [{ k: "line", n: 220, sz: [3, 12], lw: 1, a: [.2, .55], c: ["#33280f", "#463618", "#5b4820"] }] },
+  { b: "#0d0906", L: [{ k: "rect", n: 110, sz: [6, 22], a: [.15, .45], c: ["#2a1c0e", "#3a2814", "#4b351b"] }] }
 ];
 function drawM3(g, w, h, t, R, v) {
   g.fillStyle = t.b; g.fillRect(0, 0, w, h);
@@ -198,22 +198,22 @@ function drawM3(g, w, h, t, R, v) {
 }
 const BG_METHODS = [{ t: T1, draw: drawM1 }, { t: T2, draw: drawM2 }, { t: T3, draw: drawM3 }];
 const BG_COLOR = [
-  { n: "orig",   op: null },
-  { n: "ice",    c: "#4a6a8a", op: "color", a: .5 },
-  { n: "amber",  c: "#8a6438", op: "color", a: .5 },
-  { n: "acid",   c: "#4a6a3a", op: "color", a: .45 },
-  { n: "rose",   c: "#7a4658", op: "color", a: .5 },
-  { n: "mono",   c: "#808080", op: "saturation", a: 1 },
-  { n: "sepia",  c: "#786040", op: "color", a: .55 },
-  { n: "deep",   c: "#1030a0", op: "color", a: .7 },
-  { n: "violet", c: "#584a72", op: "color", a: .5 },
-  { n: "coral",  c: "#8a5648", op: "color", a: .5 },
-  { n: "mint",   c: "#3a6a5c", op: "color", a: .45 },
-  { n: "mauve",  c: "#664a56", op: "color", a: .5 },
-  { n: "gold",   c: "#786a3a", op: "color", a: .5 },
-  { n: "teal",   c: "#2e5a5e", op: "color", a: .5 },
-  { n: "crimson",c: "#6a3438", op: "color", a: .5 },
-  { n: "lime",   c: "#5a6a3a", op: "color", a: .4 }
+  { op: null },
+  { c: "#4a6a8a", op: "color", a: .5 },
+  { c: "#8a6438", op: "color", a: .5 },
+  { c: "#4a6a3a", op: "color", a: .45 },
+  { c: "#7a4658", op: "color", a: .5 },
+  { c: "#808080", op: "saturation", a: 1 },
+  { c: "#786040", op: "color", a: .55 },
+  { c: "#1030a0", op: "color", a: .7 },
+  { c: "#584a72", op: "color", a: .5 },
+  { c: "#8a5648", op: "color", a: .5 },
+  { c: "#3a6a5c", op: "color", a: .45 },
+  { c: "#664a56", op: "color", a: .5 },
+  { c: "#786a3a", op: "color", a: .5 },
+  { c: "#2e5a5e", op: "color", a: .5 },
+  { c: "#6a3438", op: "color", a: .5 },
+  { c: "#5a6a3a", op: "color", a: .4 }
 ];
 function bgPick() {
 bgM = ri(3), bgT = ri(BG_METHODS[bgM].t.length), bgV = ri(2), bgC = ri(BG_COLOR.length), bgS = ri(1e9), bgKey = ""
@@ -227,7 +227,6 @@ bgCv.width = max(1, round(boxLW * dpr)), bgCv.height = max(1, round(boxLH * dpr)
 const g = bgCv.getContext("2d");
 g.setTransform(dpr, 0, 0, dpr, 0, 0);
 m.draw(g, boxLW, boxLH, m.t[bgT], mulberry32(bgM * 15485863 + bgT * 7919 + bgV * 104729 + bgS), bgV);
-g.setTransform(dpr, 0, 0, dpr, 0, 0);
 const col = BG_COLOR[bgC];
 col.op && (g.globalCompositeOperation = col.op, g.globalAlpha = col.a, g.fillStyle = col.c, g.fillRect(0, 0, boxLW, boxLH), g.globalCompositeOperation = "source-over");
 g.globalAlpha = 1, g.strokeStyle = "rgba(0,0,0,.45)", g.lineWidth = 2, g.strokeRect(1, 1, boxLW - 2, boxLH - 2)

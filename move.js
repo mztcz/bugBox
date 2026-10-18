@@ -106,7 +106,6 @@ p.x += ax * step, p.y += ay * step, moved = 1
 }
 if (cb.imX || cb.imY) { const lim = bugLen(b) * 2; p.x += clamp(cb.imX || 0, -lim, lim), p.y += clamp(cb.imY || 0, -lim, lim), cb.imX = 0, cb.imY = 0, moved = 1 }
 cb.mvSpd = 0;
-cb.mvOn = 0;
 if (moved) clampToBox(e);
 return
 }

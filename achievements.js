@@ -3,7 +3,7 @@ const records = { ...RECORDS0 }, run = { ...RECORDS0, games: 1 }, RECS = [record
 try { const s = localStorage.getItem("bugbox_records"); s && Object.assign(records, JSON.parse(s)) } catch (e) {}
 function saveRecords() { try { localStorage.setItem("bugbox_records", JSON.stringify(records)) } catch (e) {} }
 records.games++, saveRecords();
-let achSt = { done: {}, own: 0, ownMax: 0, fed: 0, bought: 0, kills: 0, wins: 0, streak: 0, bred: 0, lost: 0, culled: 0, hatched: 0, scared: 0 };
+let achSt = { done: {}, own: 0, ownMax: 0, fed: 0, bought: 0, kills: 0, wins: 0, streak: 0, bred: 0, lost: 0, hatched: 0, scared: 0 };
 const TUTORIAL = [
 ["own", "own a bug"],
 ["feed", "feed a bug"],

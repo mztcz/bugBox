@@ -20,9 +20,6 @@ labSt = {
 phase: "pick",
 pA: null,
 pB: null,
-fA: 0,
-fB: 0,
-fL: 0,
 larva: null
 };
 const MODES = [1, 2, 3, 6, "mayhem", "mc", "boss", "rb", "wb"],

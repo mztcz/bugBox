@@ -41,9 +41,8 @@ for (let i = 0; i < n; i++) { const a = i * 2.399, d = r * Math.sqrt(i / n) * .9
 g.fillStyle = i % 3 ? "#2a4a20" : "#375f28", g.beginPath(), g.arc(cos(a) * d, sin(a) * d * .8, sz, 0, 7), g.fill() }
 }],
 [[0,1,2,3,4], (g, r, v) => {
-const al = [.35, .6, .31, .45, .23][v], sq = [.75, .5, .84, .79, .26][v], rim = [0, 0, 0, 0, 0][v];
+const al = [.35, .6, .31, .45, .23][v], sq = [.75, .5, .84, .79, .26][v];
 g.globalAlpha = al, g.fillStyle = "#1a3a4a", g.beginPath(), g.ellipse(0, 0, r, r * sq, 0, 0, 7), g.fill();
-rim && (g.globalAlpha = al * .8, g.strokeStyle = "#4a7a8a", g.lineWidth = 1.2, g.stroke());
 g.globalAlpha = 1;
 }],
 [[0,1,2,3,4], (g, r, v) => {
@@ -124,8 +123,8 @@ g.lineTo(cos(a) * r * len, r * .5 + sin(a) * r * len),
 g.lineTo(cos(a + .3) * r * base, r * .5 + sin(a + .3) * r * base), g.closePath(), g.fill() }
 }],
 [[0,1,2], (g, r, v) => {
-const n = [3, 2, 2][v], sz = [.38, .55, .72][v], stem = [1, 1, 1][v];
-stem && (g.strokeStyle = "#3a5a28", g.lineWidth = 1.6, g.beginPath(), g.moveTo(0, -r), g.lineTo(0, 0), g.stroke());
+const n = [3, 2, 2][v], sz = [.38, .55, .72][v];
+g.strokeStyle = "#3a5a28", g.lineWidth = 1.6, g.beginPath(), g.moveTo(0, -r), g.lineTo(0, 0), g.stroke();
 for (let i = 0; i < n; i++) { const a = i * 2.399, d = n > 1 ? r * .5 : 0, x = cos(a) * d, y = sin(a) * d * .8;
 g.fillStyle = "#8a1a3a", g.beginPath(), g.arc(x, y, r * sz, 0, 7), g.fill();
 g.fillStyle = "rgba(255,160,190,.4)", g.beginPath(), g.arc(x - r * sz * .3, y - r * sz * .3, r * sz * .3, 0, 7), g.fill() }
@@ -235,9 +234,7 @@ g.beginPath(), g.ellipse(cos(a) * r * pl * .55, sin(a) * r * pl * .55, r * pl * 
 g.fillStyle = core, g.beginPath(), g.arc(0, 0, r * .28, 0, 7), g.fill();
 }],
 [[0], (g, r, v) => {
-const w = pick([.5], v), open = pick([0], v);
-g.fillStyle = "#3a6a2a", g.beginPath(), g.ellipse(0, r * .1, r * w, r * .8, 0, 0, 7), g.fill();
-open && (g.fillStyle = "#c04a7a", g.beginPath(), g.ellipse(0, -r * .5, r * w * .7, r * .3, 0, 0, 7), g.fill());
+g.fillStyle = "#3a6a2a", g.beginPath(), g.ellipse(0, r * .1, r * .5, r * .8, 0, 0, 7), g.fill();
 g.strokeStyle = "#2a4a1a", g.lineWidth = 1.2, g.beginPath(), g.moveTo(0, r * .9), g.lineTo(0, -r * .3), g.stroke();
 }],
 [[0,1,2], (g, r, v) => {
@@ -292,13 +289,12 @@ g.beginPath(), g.moveTo(-r * len, 0), g.quadraticCurveTo(0, bent * r, r * len, b
 g.fillStyle = "#9a6a48", g.beginPath(), g.ellipse(-r * len, 0, r * head * .4, r * head, 0, 0, 7), g.fill();
 }],
 [[0,1,2], (g, r, v) => {
-const th = pick([4, 3, 3], v), len = pick([.75, .6, .39], v), slot = pick([0, 0, 0], v);
+const th = pick([4, 3, 3], v), len = pick([.75, .6, .39], v);
 g.rotate(pick([1.1, .2, .9], v));
 g.fillStyle = "#8a8a92", g.fillRect(-r * len, -r * .12, r * len * 1.7, r * .24);
 g.strokeStyle = "#5a5a62", g.lineWidth = 1.2;
 for (let i = 0; i < th; i++) { const x = -r * len * .3 + r * len * 1.3 * i / th; g.beginPath(), g.moveTo(x, -r * .12), g.lineTo(x + r * .1, r * .12), g.stroke() }
 g.fillStyle = "#a8a8b0", g.beginPath(), g.ellipse(-r * len, 0, r * .12, r * .3, 0, 0, 7), g.fill();
-slot && (g.strokeStyle = "#3a3a42", g.lineWidth = 1.6, g.beginPath(), g.moveTo(-r * len, -r * .2), g.lineTo(-r * len, r * .2), g.stroke());
 }],
 [[0,1,2,3,4,5], (g, r, v) => {
 const holes = pick([4, 2, 4, 2, 4, 2], v), sz = pick([.85, .65, 1, .55, .9, .8], v), hue = pick([0, 210, 45, 120, 280, 0], v), sat = pick([0, 35, 40, 25, 30, 0], v);
@@ -309,9 +305,9 @@ for (let i = 0; i < holes; i++) { const a = i / holes * TAU + .78;
 g.beginPath(), g.arc(cos(a) * r * sz * .32, sin(a) * r * sz * .32, r * sz * .12, 0, 7), g.fill() }
 }],
 [[0,1], (g, r, v) => {
-const sz = pick([.9, .85], v), tilt = pick([1, 1], v), gold = pick([1, 0], v);
-g.fillStyle = gold ? "#c8a038" : "#a8a8a0", g.beginPath(), g.ellipse(0, 0, r * sz, r * sz * tilt, 0, 0, 7), g.fill();
-g.strokeStyle = gold ? "#8a6a18" : "#78786e", g.lineWidth = 1.4, g.beginPath(), g.ellipse(0, 0, r * sz * .78, r * sz * tilt * .78, 0, 0, 7), g.stroke();
+const sz = pick([.9, .85], v), gold = pick([1, 0], v);
+g.fillStyle = gold ? "#c8a038" : "#a8a8a0", g.beginPath(), g.ellipse(0, 0, r * sz, r * sz, 0, 0, 7), g.fill();
+g.strokeStyle = gold ? "#8a6a18" : "#78786e", g.lineWidth = 1.4, g.beginPath(), g.ellipse(0, 0, r * sz * .78, r * sz * .78, 0, 0, 7), g.stroke();
 }],
 [[0,1,2], (g, r, v) => {
 const w = pick([.4, .45, .23], v), h = pick([1, .8, 1.1], v), pores = pick([0, 4, 0], v);
@@ -327,10 +323,10 @@ g.strokeStyle = `hsl(${hue},60%,50%)`, g.lineWidth = th;
 g.beginPath(), g.ellipse(0, 0, r * w, r * h, 0, 0, 7), g.stroke();
 }],
 [[0,1,2], (g, r, v) => {
-const len = pick([.8, 1, .85], v), th = pick([.28, .2, .26], v), broken = pick([1, 1, 1], v);
+const len = pick([.8, 1, .85], v), th = pick([.28, .2, .26], v);
 g.rotate(pick([.3, -.4, 1.2], v));
 g.fillStyle = "#e0dcd4", g.fillRect(-r * len, -r * th, r * len * 2, r * th * 2);
-broken && (g.fillStyle = "#c4c0b6", g.beginPath(), g.moveTo(r * len, -r * th), g.lineTo(r * len * .75, 0), g.lineTo(r * len, r * th), g.closePath(), g.fill());
+g.fillStyle = "#c4c0b6", g.beginPath(), g.moveTo(r * len, -r * th), g.lineTo(r * len * .75, 0), g.lineTo(r * len, r * th), g.closePath(), g.fill();
 }],
 [[0,1,2], (g, r, v) => {
 const holes = pick([8, 5, 13], v), w = pick([.9, .7, 1.12], v), hue = pick([50, 190, 5], v);

@@ -48,7 +48,7 @@ if (d2 >= vr * vr) return !1;
 if (hasAbil(b, "v360") && d2 < vr * vr * .0625) return !0;
 return abs(norm(atan2(dy, dx) - p.dir)) <= fovHalfOf(b)
 }
-const liveE = x => { const c = ECS.combat.has(x) && C.combat.get(x); return c && !c.dead && c.curHp > 0 };
+const liveE = x => { const c = C.combat.get(x); return c && !c.dead && c.curHp > 0 };
 const memMsOf = b => (intOf(b) + 2) * 1000, scanOf = b => TAU * (intOf(b) - 1) / 9;
 const huntTierOf = b => { const i = intOf(b); return i <= 3 ? 1 : i <= 6 ? 2 : i <= 8 ? 3 : 4 };
 const rollVar = () => .8 + .4 * random();
@@ -99,7 +99,7 @@ groundMarks.push({ x: tp.x, y: tp.y, hue: tb.hue, t: 1 })
 }
 const COMBAT_DEFAULTS = {
 dead: !1, killsThis: 0,
-preppingBite: 0, prepVisT: 0,
+prepVisT: 0,
 kbX: 0, kbY: 0, hitDx: 0, hitDy: 0, biteT: 0,
 stunT: 0,
 flyT: 0, flyDx: 0, flyDy: 0, flySp: 0, flyE: -1, airT: 0, airMs: 1, spinRemain: 0, spinDir: 1,
@@ -111,7 +111,7 @@ callT: 0, callR: 0, callTeam: -1, callX: 0, callY: 0, callCry: 0, callDoneX: 0, 
 aimTarget: -1, aimLock: 0, avengeE: -1, avengeA: 0, lostSide: 1, wasInRange: 0, regather: 0,
 pickE: -1, swT: 0, biteE: -1, biteN: 0,
 memT: 0, memX: 0, memY: 0, memA: 0, searchPhase: 0, fleeA: 0, fleeX: 0, fleeY: 0, fleeT: null, fledLvl: 0,
-mvA: 0, mvSpd: 0, mvOn: 0,
+mvA: 0, mvSpd: 0,
 imX: 0, imY: 0,
 phoenixUsed: 0, phoenixT: 0, fakeUsed: 0, fakeT: 0, muted: 0, abT: 0, abTxt: ""
 };

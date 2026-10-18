@@ -94,7 +94,6 @@ function toggleFow() { fow = fow ? 0 : 1, syncFowBtn(), syncHud(!0) }
 function syncFowBtn() {
 inspected == null && (fow = 0);
 const el = $("bt-fow");
-if (!el) return;
 const show = inspected != null;
 el.style.display = show ? "" : "none";
 show && el.classList.toggle("prim", !!fow)
