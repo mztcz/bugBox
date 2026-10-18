@@ -1,6 +1,6 @@
 ---
-name: reviewer
-description: Read-only code review of the whole bugBox repo (duplicates, dead code, ECS violations, needless variables and names). Run ONLY when the user explicitly writes "review". Never run automatically or proactively.
+name: skoukni-kod
+description: Read-only code review of the whole bugBox repo (duplicates, dead code, ECS violations, needless variables and names). Run ONLY when the user explicitly writes "skoukniKod". Never run automatically or proactively.
 tools: Read, Grep, Glob
 ---
 
