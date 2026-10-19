@@ -17,7 +17,7 @@
 - Při každé změně kódu zvyš verzi o +1 minor: `GAME_VERSION` v core.js, řádek 1. Změna jen .md souborů verzi nemění.
 - Sekci File map měň jen při oktk. Změny souborů a symbolů do té doby sbírej v chatu.
 - Pokyn „oktk“ = samostatná zpráva uživatele „oktk“ = konec session: proveď skill skill-oktk (.claude/skills/skill-oktk/SKILL.md). Novou session nikdy nezakládej, uživatel si ji zakládá sám.
-- Smoke test (`node .claude/tool-smoke-test.cjs`) se smí pouštět jenom když uživatel napíše oktk.
+- Smoke test (`node .claude/tool-smoke-test.cjs`) se smí pouštět jenom když uživatel napíše oktk. Vlastní jiné testy (např. headless prohlížeč) jsou povolené kdykoliv.
 - Uživatele nikdy nežádej, aby četl nebo upravoval kód.
 
 ## Workflow
@@ -34,7 +34,7 @@
 - Na otázky odpovídej nejdřív doslovně, důsledně a na všechny.
 - Stručně, přesně, konzistentně, mechanicky. Žádné vágní informace ani neurčité kvalifikátory bez dat či důvodu.
 - Když něco nevíš, napiš "nevím". Ověřená fakta mají prioritu.
-- Neopakuj fakt, frázi ani myšlenku. Nevkládej do odpovědí kód, úvahy ani mezikroky. Diffy jen v SUM.
+- Neopakuj fakt, frázi ani myšlenku. Nevkládej do odpovědí kód, úvahy ani mezikroky! Jen v SUM můžeš stručně popsat rozdíly, slovy, bez diffů.
 - Nepoužívej slova: nepřesné, absolutní.
 - Před odesláním zkontroluj: shodu osoby, opakování slov, diakritiku, chybějící slovesa, jednotky, logickou konzistenci.
 - "vvv" od uživatele = v poslední odpovědi je chyba nebo neověřená informace; zkontroluj celou odpověď, ověř a oprav. Sám "vvv" nikdy nepiš.
