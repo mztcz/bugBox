@@ -46,7 +46,7 @@
 2. [sou] související, [alt] alternativní, [opp] oponující informace.
 3. [b] [c] [d] = tři next-step návrhy v infinitivu, spustitelné zadáním jednoho písmene.
 4. Při změnách kódu: "SUM: " + seznam všech rozdílů proti začátku session (krom SUM bez slov psaných celých velkými písmeny), 2 prázdné řádky, 1–4 věty o změnách od poslední zprávy, nový řádek "vX.Y:".
-5. Hlavní text odpovědi max 5 řádků; body 1–4 se do limitu nepočítají. Podrobnosti ověření (co a proč platí/neplatí) jen na vyžádání.
+5. SUM je výjimka z pravidel o opakování a délce: smí opakovat klíčové informace. Hlavní text odpovědi max 5 řádků; body 1–4 se do limitu nepočítají. Podrobnosti ověření (co a proč platí/neplatí) jen na vyžádání.
 
 ## File map
 Simple bug life simulator. Plain `<script src>` files, no modules. Everything shares one global scope.
@@ -59,7 +59,7 @@ Load order = the order in `index.html`. `main.js` is last and is the only file t
   Never say "terrarium" or "arena" for these two states.
 - **box** = the canvas and its bugs, in both combat states.
 - **Booker** = the screen where the player picks bugs, mode and tier. File `boo.js`, id `s-boo`.
-- **Market** = buying bugs. File `mkt.js`, id `s-mkt`. **Shop** is reserved for a future screen that sells box items.
+- **Market** = buying bugs (tabs T1–T5) and items (tab Items). File `mkt.js`, id `s-mkt`.
 - **modes** (`fightMode`): `1 2 3 6` (NvN), `mayhem` (any count), `mc` (mortal combat: 1 bug, T1→T5 in a row), `boss` (1 bug, stat sum 10T−9..10T), `rb` raid boss and `wb` world boss (1–10 bugs).
 - **tier** (`enemyTier` 1–5): enemy stat sum 10T−9..10T (T1: 5..10), boss 10T; boss abilities T−1.
 
@@ -81,7 +81,7 @@ Load order = the order in `index.html`. `main.js` is last and is the only file t
 | Box background art (random per fight, index.html #bt-bg rerolls) | `bg.js` | `drawBg`, `bgPick` |
 | Obstacle types, shapes and variants (index = kind, `v` = variant) | `obst.js` | `OBST` |
 | Box canvas, `combatState` declaration, Science HUD toggles (kept per combat state), obstacle and bug spawning, fight-only buttons, top-left title per mode, damage number spawn | `terr.js` | `bugsInTerrView`, `sciSt`, `genObstacles`, `spawnTerr`, `HUD_FIGHT_ONLY`, `syncHud`, `spawnDmgPop` |
-| Market screen, game-over check | `mkt.js` | `openMkt`, `renderMkt`, `mktDone`, `armOverWatch` |
+| Market screen (tabs T1–T5: 6 bugs each, T1 stats 1–3 sum 7–9, T2–T5 stat sum 10T−9..10T, price $60–125 × T; tab Items: numbered sample items, buying not active yet), game-over check | `mkt.js` | `openMkt`, `renderMkt`, `mktDone`, `armOverWatch`, `mktTab`, `setMktTab`, `MKT_ITEMS` |
 | Entity system (rarely touched), draw order (dragged item on top, faster bug on top of a slower one it overlaps) | `ecs.js` | `ecsQuery`, `C`, `ecsFront` |
 | Act choice, walking, steering, wandering, feeding (rush to seen food), collisions, wall hit (slide along the glass, then `wallNext`), wall margin = bug radius, stuck manoeuvre, corpse slow-down (speed × `CORPSE_SLOW` = 0.5), busy bug skips walking, rare acts (INT 5+ picks equally from `RARE_ACT`), feeding also in fight, fight seek points, overlap layering (faster bug via `ecsFront`, speed = `v` in `vel`) | `move.js` | `resolveBodies`, `decide` (only act chooser), `sysSteer`, `sysMove`, `sysSeek`, `SLIDE_K`, `wallNext`, `clampToBox`, `busy`, `sysRareAct`, `RARE_ACT`, `sysFeed`, `CORPSE_SLOW`, `sysRenderObstacles` (shadow pass, neon pass via `flatCol`) |
 | Mating (act `breeding`, needs full HP and both not `mated`), love bites (also when a pair is `mated`), one pair object shared by both bugs in `walk.pair` (mating pair has `phase`), touches of the last frame in `walk.touch`, eggs, hatching, box capacity | `mate.js` | `interactEligible`, `loveStep`, `mateStep`, `pairEnd`, `mateCancel` |
