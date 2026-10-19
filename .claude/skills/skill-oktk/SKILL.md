@@ -7,6 +7,7 @@ description: End-of-session routine for bugBox. Use only when the user's whole m
 
 Run the steps in order. Stop and report if a step fails and cannot be fixed.
 
+0. **Anything to push?** Run `git fetch origin main`. If `git status --porcelain` is empty and `git rev-list --count origin/main..HEAD` is `0`, write "Nothing to push to main, smoke test not run." and stop: skip all steps below.
 1. **Smoke test.** Run `node .claude/tool-smoke-test.cjs` from the repo root. It may run only when the user writes oktk. `SMOKE BLOCKED` means no oktk was written: stop and report.
 2. **Errors.** If it prints `SMOKE FAIL`, list each error in one line, fix the code, bump `GAME_VERSION` (core.js line 1, +1 minor) and rerun step 1. Repeat until `SMOKE OK`.
 3. **File map.** Update the File map section of CLAUDE.md with the file and symbol changes collected during the session. Change nothing else in CLAUDE.md.
