@@ -8,8 +8,9 @@
 
 ## Kód
 - **Herní pravidla, čísla, limity, balanc (věci které mají dopad na hráče které hráč potom zažije) měň jen přesně podle zadání. Každou další herní změnu nejdřív navrhni s dopadem a čekej na schválení. Neschválené nedělej!**
+- **Všechny věci, které chceš udělat nebo změnit sám od sebe, nejdřív projdi s uživatelem a nech schválit.**
 - Vždy ECS architektura, efektivní kód.
-- Méně kódu, méně proměnných, méně názvů; hra stejná nebo lepší.
+- Méně kódu, méně proměnných, méně názvů; stejná hra.
 - Sdílené funkce volané z více míst místo mnoha podobných kusů kódu.
 - Žádné redundance, duplicity ani mrtvý kód.
 - Upravuj existující funkce místo přidávání souborů. Čti jen nutné části souborů.
