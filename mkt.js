@@ -26,7 +26,7 @@ $("mkt-tabs").innerHTML = [1, 2, 3, 4, 5, 6].map(t => `<button class="bt-tier${t
 g.innerHTML = "";
 if (mktTab > 5) return MKT_ITEMS.forEach(([icon, name, cost, desc], i) => {
 const div = document.createElement("div");
-div.className = "card", div.innerHTML = `<div class="card-head"><div class="card-img" style="font-size:30px;">${icon}</div><div class="card-info"><div class="card-name">#${i + 1} ${name}</div><div class="card-line"><span class="c-money">$${cost}</span></div></div></div><div class="card-line">${desc}</div><button class="card-bt" style="width:100%;margin-top:8px;" disabled>Coming soon</button>`, g.appendChild(div)
+div.className = "card", div.innerHTML = `<div class="card-head"><div class="card-img" style="font-size:30px;">${icon}</div><div class="card-info"><div class="card-name">#${i + 1} ${name}</div><div class="card-line"><span class="c-money">$${cost}</span></div><div class="card-line">${desc}</div></div></div><button class="card-bt" style="width:100%;margin-top:8px;" disabled>Coming soon</button>`, g.appendChild(div)
 }), updateMktFooter();
 mktPool[mktTab - 1].forEach((item, i) => {
 const div = makeBugCard({
