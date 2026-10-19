@@ -7,7 +7,7 @@
 - Nástroje v `.claude/` nazývej jmény z Tool files (hook-…, skill-…, agent-…, tool-…). Soubory ani spouštěcí slova se nepřejmenovávají.
 
 ## Kód
-- **ZÁKAZ: Balanc a hratelnost (vše, co hráč zažije: pravidla, čísla, limity, rozsahy, ceny, šance, chování) měň jen přesně podle zadání. Každou další změnu nejdřív navrhni i s dopadem a čekej na souhlas uživatele. Neschválené nedělej, ani jako vedlejší efekt refaktoru. Každou provedenou herní změnu vypiš v odpovědi. Tento zákaz má přednost před „hra stejná nebo lepší“.**
+- **Herní pravidla, čísla, limity, balanc (věci které mají dopad na hráče které hráč potom zažije) měň jen přesně podle zadání. Každou další herní změnu nejdřív navrhni s dopadem a čekej na schválení. Neschválené nedělej!**
 - Vždy ECS architektura, efektivní kód.
 - Méně kódu, méně proměnných, méně názvů; hra stejná nebo lepší.
 - Sdílené funkce volané z více míst místo mnoha podobných kusů kódu.
