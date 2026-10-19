@@ -14,7 +14,7 @@
 - Sdílené funkce volané z více míst místo mnoha podobných kusů kódu.
 - Žádné redundance, duplicity ani mrtvý kód.
 - Upravuj existující funkce místo přidávání souborů. Čti jen nutné části souborů.
-- Při každé změně kódu zvyš verzi o +1 minor: `GAME_VERSION` v core.js, řádek 1. Změna jen .md souborů verzi nemění.
+- Při každé změně kódu zvyš verzi o +1 minor: `GAME_VERSION` v core.js, řádek 1. Změna jen .md souborů nebo souborů v `.claude/` verzi nemění.
 - Sekci File map měň jen při oktk. Změny souborů a symbolů do té doby sbírej v chatu.
 - Pokyn „oktk“ = samostatná zpráva uživatele „oktk“ = konec session: proveď skill skill-oktk (.claude/skills/skill-oktk/SKILL.md). Novou session nikdy nezakládej, uživatel si ji zakládá sám.
 - Smoke test (`node .claude/tool-smoke-test.cjs`) se smí pouštět jenom když uživatel napíše oktk. Vlastní jiné testy (např. headless prohlížeč) jsou povolené kdykoliv.
