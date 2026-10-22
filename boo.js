@@ -15,7 +15,7 @@ $("bt-boo-mkt").style.display = empty ? "" : "none";
 $("bt-boo-terr").style.marginLeft = empty ? "0" : "auto";
 document.querySelectorAll("#s-boo .bt-mode").forEach((el, i) => el.className = "bt-mode" + (!empty && fightMode === MODES[i] ? " prim" : ""));
 $("tier-row").innerHTML = Array.from({ length: 5 }, (_, i) => `<button class="bt-tier${!empty && i + 1 === enemyTier ? " prim" : ""}" onclick="setTier(${i + 1})">${String(i + 1).padStart(2, "0")}</button>`).join("");
-$("boo-info").textContent = empty ? "" : `${fightTeam.length}/${isFinite(teamMax()) ? teamMax() : "∞"} selected — ${"mc" === fightMode ? "T1→T10" : `T${enemyTier} +$${80 * enemyTier}`}`;
+$("boo-info").textContent = empty ? "" : `${fightTeam.length}/${isFinite(teamMax()) ? teamMax() : "∞"} selected — ${"mc" === fightMode ? "T1→T5" : `T${enemyTier} +$${80 * enemyTier}`}`;
 $("bt-combat").disabled = !(fightTeam.length && ("string" == typeof fightMode || fightTeam.length === fightMode))
 }
 function booApplyCard(div, btn, b) {

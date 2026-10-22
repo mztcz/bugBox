@@ -4,7 +4,9 @@ return n <= 3 ? "#cc7722" : n <= 6 ? "#cccc22" : n <= 9 ? "#00ff66" : "#22dddd"
 }
 const statSum = o => SK.reduce((s, k) => s + o[k], 0);
 const STAT_SUM_MAX = 50, STAT_LIM = [3, 5, 10, 10, 10];
-const tierOf = s => min(5, floor(s / 10) + 1), bossSum = T => T > 4 ? STAT_SUM_MAX : 10 * T - 1;
+const tierOf = s => min(5, floor(s / 10) + 1), bossSum = T => T > 4 ? STAT_SUM_MAX : 10 * T - 1,
+starsOf = s => s >= STAT_SUM_MAX ? 5 : s < 10 ? 0 : max(0, s % 10 - 5), ROLES = ["Tank", "Brawler", "Runner", "Brain", "Scout"],
+roleOf = o => { const v = SK.map(k => o[k]), s = v.slice().sort((a, b) => b - a); return s[0] - s[1] >= 2 ? ROLES[v.indexOf(s[0])] : "" };
 function genStats(T, S = T > 1 ? 10 * (T - 1) + min(ri(10), ri(10)) : 7 + ri(3)) {
 const lim = STAT_LIM[T - 1], ks = shuf(SK.slice()), s = {};
 for (let n = 4; n >= 0; n--) { const lo = max(1, S - lim * n); S -= s[ks[n]] = lo + ri(min(lim, S - n) - lo + 1) }
@@ -16,8 +18,8 @@ function statBars(statsObj, opts) {
 const fs = (opts = opts || {}).fontSize || 8,
 dead = opts.dead || !1,
 scale = 100 / (opts.scaleMax || scaleMaxOf(bugsOwned)),
-total = statSum(statsObj);
-return `<div class="sr" style="justify-content:flex-end;"><span class="sv" style="font-size:${fs}px;color:${dead?"#555":"#888"}">(${round(total)})</span></div>` + SK.map((k, i) => {
+total = round(statSum(statsObj));
+return `<div class="sr" style="justify-content:flex-end;"><span class="sv" style="width:auto;font-size:${fs}px;color:${dead?"#555":"#888"}">T${tierOf(total)} (${total}) <span style="color:${dead?"#555":"#fd4"}">${'<span class="sx">★</span>'.repeat(starsOf(total))}</span> ${roleOf(statsObj)}</span></div>` + SK.map((k, i) => {
 const sv = statsObj[k],
 bc = dead ? "#444" : statColor(sv);
 return `<div class="sr"><span class="sl" style="font-size:${fs}px;">${SN[i]}</span><div class="st"${opts.barW?` style="width:${opts.barW}px;flex:none;"`:""}><div class="sf" style="width:${clamp(scale*sv,0,100)}%;background:${bc}"></div></div><span class="sv" style="font-size:${fs}px;color:${dead?"#555":"#888"}">${round(sv)}</span></div>`

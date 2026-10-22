@@ -40,7 +40,10 @@ const ACHIEVEMENTS = [
 ["powerful", "breed a powerful bug (stat sum 20+)"],
 ["superior", "breed a superior bug (stat sum 30+)"],
 ["elite", "breed an elite bug (stat sum 40+)"],
-["godlike", "breed a godlike bug (stat sum 50)"],
+["fiveStars", "breed a five-star bug (stat sum 50)"],
+["newTier", "breed a bug of a higher tier than both parents"],
+...[1, 2, 3, 4, 5].map(T => ["ownT" + T, `own a T${T} bug`]),
+...[2, 3, 4, 5].flatMap(T => [1, 2, 3, 4].map(n => [`t${T}s${n}`, `own a T${T} ${"★".repeat(n)} bug`])),
 ["skilled", "breed a skilled bug (1 ability)"],
 ["skilful", "breed a skilful bug (2 abilities)"],
 ["expert", "breed an expert bug (3 abilities)"],
@@ -144,13 +147,17 @@ p.kids = (p.kids || 0) + 1;
 achAt(p.kids, [[5, "playboy"], [10, "familyMan"], [15, "rabbit"], [20, "genghisKhan"]])
 })
 }
-function achChild(b) {
-achieve("breed"), achStep("bred", [10, 50], "bred");
+function achBug(b) {
+const s = statSum(b), T = tierOf(s), n = starsOf(s);
+achieve("ownT" + T), n > 4 ? achieve("fiveStars") : n && achieve(`t${T}s${n}`)
+}
+function achChild(b, pT) {
+achBug(b), tierOf(statSum(b)) > pT && achieve("newTier"), achieve("breed"), achStep("bred", [10, 50], "bred");
 const sum = statSum(b),
 na = (b.abilities || []).length;
 [["con", "heavy"], ["str", "strong"], ["agi", "fast"], ["int", "clever"], ["per", "aware"]].forEach(([k, a]) => b[k] >= 5 && achieve(a));
 sum <= 5 && achieve("weak");
-achAt(sum, [[20, "powerful"], [30, "superior"], [40, "elite"], [50, "godlike"]]);
+achAt(sum, [[20, "powerful"], [30, "superior"], [40, "elite"]]);
 achAt(na, [[1, "skilled"], [2, "skilful"], [3, "expert"], [4, "master"]]);
 SK.every(k => b[k] >= 5) && achieve("allFive"),
 SK.some(k => b[k] >= 10) && achieve("statTen"),

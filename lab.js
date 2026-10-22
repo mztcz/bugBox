@@ -86,7 +86,7 @@ labSt.pA && labSt.pB ? (labSt.larva = makeBug({
 ...computeOffspring(labSt.pA, labSt.pB),
 wins: 0,
 losses: 0
-}), labSt.pA.mated = labSt.pB.mated = 1, achKids(labSt.pA, labSt.pB), labSt.larva.dead || (bugsOwned.push(labSt.larva), achOwn(1), achChild(labSt.larva), trackDynasty(labSt.larva.gen)), SFX.hatch(), labSt.phase = "result", renderLab()) : toast("Select two bugs!")
+}), labSt.pA.mated = labSt.pB.mated = 1, achKids(labSt.pA, labSt.pB), labSt.larva.dead || (bugsOwned.push(labSt.larva), achOwn(1), achChild(labSt.larva, parentTier(labSt.pA, labSt.pB)), trackDynasty(labSt.larva.gen)), SFX.hatch(), labSt.phase = "result", renderLab(), labFx()) : toast("Select two bugs!")
 }
 const bugOfCard = div => bugsOwned.find(x => String(x.id) === div.dataset.bid);
 function labApplyAll(grid) {
@@ -161,6 +161,38 @@ if (!row || !m) return;
 const sp = document.createElement("span");
 sp.className = "sv", sp.style = "font-size:8px;width:24px;text-align:left;color:" + (m > 0 ? "#4f8" : "#e44");
 sp.textContent = (m > 0 ? "+" : "") + m, row.appendChild(sp)
+})
+}
+const parentTier = (a, b) => max(tierOf(statSum(a)), tierOf(statSum(b))),
+FX_SIZE = [0, .4, .55, .7, .85, 1], FX_SPREAD = [0, .4, .75, 1, 1, 1], FX_COL = ["#4cf", "#fd4", "#a4f", "#4f8", "#f48", "#fff"];
+function labFx() {
+const l = labSt.larva, cc = $("lab-child-row").firstChild, s = statSum(l);
+if (l.dead) return;
+let src, lv = starsOf(s);
+if (tierOf(s) > parentTier(labSt.pA, labSt.pB)) {
+const u = document.createElement("span");
+u.textContent = " ▲ NEW TIER", u.style.color = "#fd4", cc.querySelector(".sr .sv").appendChild(u), lv = 5;
+const r = u.getBoundingClientRect();
+src = [0, 1, 2, 3, 4].map(i => [r.left + r.width * i / 5, r.left + r.width * (i + 1) / 5, r.bottom])
+} else src = [...cc.querySelectorAll(".sx")].map(e => { const r = e.getBoundingClientRect(); return [r.left, r.right, r.bottom] });
+if (!src.length) return;
+const cv = document.createElement("canvas"), cx = cv.getContext("2d"), d = devicePixelRatio || 1, W = innerWidth, H = innerHeight, k = FX_SIZE[lv];
+let parts = [], left = src.length, last = performance.now();
+cv.style = "position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:400", cv.width = W * d, cv.height = H * d, cx.scale(d, d), document.body.appendChild(cv);
+src.forEach(([x0, x1, y], i) => setTimeout(() => {
+left--;
+for (let j = 0; j < 55; j++) { const a = rf(-.95 * PI, -.05 * PI), v = rf(260, 620); parts.push({ x: rf(x0, x1), y: y, vx: cos(a) * v * FX_SPREAD[lv], vy: sin(a) * v, w: rf(5, 9) * k, h: rf(3, 6) * k, r: rf(0, 6), vr: rf(-10, 10), c: FX_COL[j % 6], t: 0, life: rf(1.8, 2.8) }) }
+}, 190 * i));
+requestAnimationFrame(function step(now) {
+const dt = min(.05, (now - last) / 1e3);
+last = now, cx.clearRect(0, 0, W, H);
+parts = parts.filter(p => {
+p.t += dt, p.vx *= 1 - 1.2 * dt, p.vy = p.vy * (1 - 1.2 * dt) + 700 * dt, p.x += p.vx * dt, p.y += p.vy * dt, p.r += p.vr * dt;
+const f = abs(cos(8 * p.t));
+cx.save(), cx.globalAlpha = clamp(2 * (p.life - p.t), 0, 1), cx.translate(p.x, p.y), cx.rotate(p.r), cx.fillStyle = p.c, cx.fillRect(-p.w / 2, -p.h / 2 * f, p.w, p.h * f + 1), cx.restore();
+return p.t < p.life && p.y < H + 40
+});
+parts.length || left ? requestAnimationFrame(step) : cv.remove()
 })
 }
 function computeOffspring(a, b) {

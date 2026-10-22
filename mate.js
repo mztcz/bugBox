@@ -72,7 +72,7 @@ const bug = boxFull() || makeBug({ ...computeOffspring(sb, tb) });
 !1 === bug.dead && (boxEggs.push({
 x: (sp.x + tp.x) / 2, y: (sp.y + tp.y) / 2,
 r: max(bugLen(sb), bugLen(tb)) * .25,
-bug,
+bug, pT: parentTier(sb, tb),
 ready: 0
 }), achKids(sb, tb), achieve("mate"));
 pairEnd(m, 1)
@@ -101,7 +101,7 @@ boxEggs.forEach(g => {
 if (!g.ready) return void keep.push(g);
 const nb = g.bug;
 nb.curHp = maxHpOf(nb);
-bugsOwned.push(nb), achOwn(1), achChild(nb), achStep("hatched", [1, 10], "hatch");
+bugsOwned.push(nb), achOwn(1), achChild(nb, g.pT), achStep("hatched", [1, 10], "hatch");
 trackDynasty(nb.gen);
 SFX.hatch()
 });
