@@ -2,11 +2,7 @@ function hpColor(frac) {
 const p = clamp(frac, 0, 1) * 100;
 return p >= 100 ? "#4cf" : p >= 75 ? "#00ff66" : p >= 50 ? "#cccc22" : p >= 20 ? "#cc7722" : "#cc3333"
 }
-function vHpBar(frac, h) {
-h = h || 26;
-const pct = clamp(frac, 0, 1) * 100;
-return `<div style="width:3px;height:${h}px;border:1px solid #555566;flex-shrink:0;position:relative;background:#0a0a12;"><div style="position:absolute;left:0;bottom:0;width:100%;height:${pct}%;background:${hpColor(frac)};"></div></div>`
-}
+const hpBar = frac => `<div style="height:3px;border:1px solid #555566;background:#0a0a12;"><div style="width:${clamp(frac, 0, 1) * 100}%;height:100%;background:${hpColor(frac)};"></div></div>`;
 function abilLine(b, dead) {
 const col = dead ? "#555" : "#c8f";
 const txt = (b.abilities && b.abilities.length) ? b.abilities.map(id => "\u2b22" + ABILITIES[id].name).join(" ") : "";
@@ -23,11 +19,10 @@ const c = boxCx, w = 20, x = p.x - w / 2, y = p.y - r - 4;
 c.fillStyle = "#1a1a1a", c.fillRect(x, y, w, 2), c.fillStyle = "#fff", c.fillRect(x, y, w * frac, 2)
 }
 function bugCardBody(o) {
-const hp = o.showHp ? vHpBar(o.dead ? 0 : o.hpFrac, 38) : "",
-img = `<div class="card-img" id="${o.imgId}"></div>`,
+const img = `<div style="flex-shrink:0;">${o.showHp ? hpBar(o.dead ? 0 : o.hpFrac) : ""}<div class="card-img" id="${o.imgId}"></div></div>`,
 s = round(statSum(o.statsObj)),
 info = `<div class="card-info"><div class="card-line">${o.line3}</div></div>`;
-return `<div class="card-name">${o.name} <span style="color:${o.dead?"#555":STAR_COL[tierOf(s)]}">${'<span class="sx">★</span>'.repeat(starsOf(s))}</span><span class="card-lbl"></span></div><div class="card-head">${hp}${info}${img}</div>${statBars(o.statsObj, { dead: !!o.dead, scaleMax: o.scaleMax })}${abilLine(o.abilB, o.dead)}`
+return `<div class="card-name">${o.name} <span style="color:${o.dead?"#555":STAR_COL[tierOf(s)]}">${'<span class="sx">★</span>'.repeat(starsOf(s))}</span><span class="card-lbl"></span></div><div class="card-head">${info}${img}</div>${statBars(o.statsObj, { dead: !!o.dead, scaleMax: o.scaleMax })}${abilLine(o.abilB, o.dead)}`
 }
 function makeBugCard(o) {
 const div = document.createElement("div");
