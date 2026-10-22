@@ -31,7 +31,7 @@ div.className = "card", div.innerHTML = `<div class="card-head"><div class="card
 mktPool[mktTab - 1].forEach((item, i) => {
 const div = makeBugCard({
 name: item.name,
-line3: `<span class="c-money">$${item.cost}</span>`,
+line3: `<span class="c-money">$${item.cost}</span>${roleTag(item)}`,
 statsObj: item,
 abilB: item,
 dead: !1,

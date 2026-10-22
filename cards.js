@@ -25,8 +25,9 @@ c.fillStyle = "#1a1a1a", c.fillRect(x, y, w, 2), c.fillStyle = "#fff", c.fillRec
 function bugCardBody(o) {
 const hp = o.showHp ? vHpBar(o.dead ? 0 : o.hpFrac, 38) : "",
 img = `<div class="card-img" id="${o.imgId}"></div>`,
-info = `<div class="card-info"><div class="card-name">${o.name}</div><div class="card-line">${o.line3}</div></div>`;
-return `<div class="card-head">${hp}${img}${info}</div>${statBars(o.statsObj, { dead: !!o.dead, scaleMax: o.scaleMax })}${abilLine(o.abilB, o.dead)}`
+s = round(statSum(o.statsObj)),
+info = `<div class="card-info"><div class="card-line">${o.line3}</div></div>`;
+return `<div class="card-name">${o.name} <span style="color:${o.dead?"#555":STAR_COL[tierOf(s)]}">${'<span class="sx">★</span>'.repeat(starsOf(s))}</span><span class="card-lbl"></span></div><div class="card-head">${hp}${info}${img}</div>${statBars(o.statsObj, { dead: !!o.dead, scaleMax: o.scaleMax })}${abilLine(o.abilB, o.dead)}`
 }
 function makeBugCard(o) {
 const div = document.createElement("div");
@@ -88,7 +89,8 @@ const fixedW = div.offsetWidth, fixedH = div.offsetHeight;
 div.style.width = fixedW + "px", div.style.height = fixedH + "px", div.style.boxSizing = "border-box";
 div.innerHTML = '<div style="font-size:9px;color:#445;text-align:center;padding:' + max(0, (fixedH - 20) / 2) + 'px 0;">— gone —</div>'
 }
-function gkfLine(b) { return `Gen ${b.gen} \u00b7 K${b.killsTotal||0}/F${b.fights||0}${b.mated?'<br><span style="color:#c8f;">mated</span>':""}` }
+const STAR_COL = ["", "", "#f93", "#fd4", "#4f8", "#4cf"], roleTag = b => (r => r ? " \u00b7 " + r : "")(roleOf(b));
+function gkfLine(b) { return `Gen ${b.gen}${roleTag(b)}<br>K${b.killsTotal||0}/F${b.fights||0}${b.mated?'<br><span style="color:#c8f;">mated</span>':""}` }
 let fow = 0, killPh = null, killPhClose = null;
 function toggleFow() { fow = fow ? 0 : 1, syncFowBtn(), syncHud(!0) }
 function syncFowBtn() {

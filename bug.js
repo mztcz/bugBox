@@ -19,7 +19,7 @@ const fs = (opts = opts || {}).fontSize || 8,
 dead = opts.dead || !1,
 scale = 100 / (opts.scaleMax || scaleMaxOf(bugsOwned)),
 total = round(statSum(statsObj));
-return `<div class="sr" style="justify-content:flex-end;"><span class="sv" style="width:auto;font-size:${fs}px;color:${dead?"#555":"#888"}">T${tierOf(total)} (${total}) <span style="color:${dead?"#555":"#fd4"}">${'<span class="sx">★</span>'.repeat(starsOf(total))}</span> ${roleOf(statsObj)}</span></div>` + SK.map((k, i) => {
+return `<div class="sr" style="justify-content:flex-end;"><span class="sv" style="width:2ch;display:flex;justify-content:center;font-size:${fs}px;color:${dead?"#555":"#888"}">(${total})</span></div>` + SK.map((k, i) => {
 const sv = statsObj[k],
 bc = dead ? "#444" : statColor(sv);
 return `<div class="sr"><span class="sl" style="font-size:${fs}px;">${SN[i]}</span><div class="st"${opts.barW?` style="width:${opts.barW}px;flex:none;"`:""}><div class="sf" style="width:${clamp(scale*sv,0,100)}%;background:${bc}"></div></div><span class="sv" style="font-size:${fs}px;color:${dead?"#555":"#888"}">${round(sv)}</span></div>`

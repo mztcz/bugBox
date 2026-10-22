@@ -51,11 +51,7 @@ isChild ? (l.dead = !0) : (pA === bug ? st.pAdead = !0 : st.pBdead = !0);
 freezeCardAsGone(cardDiv)
 }
 });
-if (lbl) {
-const bn = card.querySelector(".card-name");
-bn && (bn.innerHTML = `<span style="color:${lbl==="A"?"#ffdd44":"#44ff88"}">(${lbl}) </span>${bug.name}`)
-}
-return card
+return abLbl(card, lbl), card
 };
 if (pA || st.pAdead) parentsRow.appendChild(mkCard(pA, st.pAdead, !1, "A"));
 if (pB || st.pBdead) parentsRow.appendChild(mkCard(pB, st.pBdead, !1, "B"));
@@ -64,11 +60,11 @@ childRow.appendChild(cc), markMeta(cc, l);
 return
 }
 }
+const abLbl = (card, l) => card.querySelector(".card-lbl").innerHTML = l ? ` <span style="color:${l==="A"?"#ffdd44":"#44ff88"}">(${l})</span>` : "";
 function labApplyCard(div, b) {
 const isA = labSt.pA?.id === b.id,
-isB = labSt.pB?.id === b.id,
-bn = div.querySelector(".card-name");
-bn && (bn.innerHTML = `${isA?'<span style="color:#ffdd44">(A) </span>':isB?'<span style="color:#44ff88">(B) </span>':""}${b.name}`);
+isB = labSt.pB?.id === b.id;
+abLbl(div, isA ? "A" : isB ? "B" : "");
 const old = div.querySelector(".bt-breed");
 old && old.remove();
 if (labSt.pA && labSt.pB && (isA || isB)) {
@@ -155,11 +151,12 @@ const mutQ4 = () => { const r = random(); return r < .25 ? -1 : r < .5 ? 0 : r <
 function markMeta(card, b) {
 if (!b.meta) return;
 const rows = card.querySelectorAll(".sr");
+card.classList.add("card-meta");
 SK.forEach((k, i) => {
 const row = rows[i + 1], m = b.meta[k];
 if (!row || !m) return;
 const sp = document.createElement("span");
-sp.className = "sv", sp.style = "font-size:8px;width:24px;text-align:left;color:" + (m > 0 ? "#4f8" : "#e44");
+sp.style = "position:absolute;right:0;font-size:8px;color:" + (m > 0 ? "#4f8" : "#e44");
 sp.textContent = (m > 0 ? "+" : "") + m, row.appendChild(sp)
 })
 }
@@ -171,7 +168,7 @@ if (l.dead) return;
 let src, lv = starsOf(s);
 if (tierOf(s) > parentTier(labSt.pA, labSt.pB)) {
 const u = document.createElement("span");
-u.textContent = " ▲ NEW TIER", u.style.color = "#fd4", cc.querySelector(".sr .sv").appendChild(u), lv = 5;
+u.textContent = " ▲ NEW TIER", u.style = "color:#fd4;font-size:8px", cc.querySelector(".card-lbl").appendChild(u), lv = 5;
 const r = u.getBoundingClientRect();
 src = [0, 1, 2, 3, 4].map(i => [r.left + r.width * i / 5, r.left + r.width * (i + 1) / 5, r.bottom])
 } else src = [...cc.querySelectorAll(".sx")].map(e => { const r = e.getBoundingClientRect(); return [r.left, r.right, r.bottom] });
