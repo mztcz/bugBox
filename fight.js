@@ -1,7 +1,6 @@
-const statsOf = S => { const s = {}; SK.forEach(k => s[k] = 1); while (S-- > 5) { const k = SK[ri(5)]; s[k] < 10 ? s[k]++ : S++ } return s };
 const BOSS = { boss: [2, 1], rb: [3, 10], wb: [3, 50] }, weekOf = () => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate() - (d.getDay() + 6) % 7).toDateString() };
 let bosses = {}, wbWeek = "";
-try { const s = JSON.parse(localStorage.getItem("bugbox_wb")); s && (wbWeek = s.week, Object.entries(s.bugs).forEach(([k, b]) => bosses[k] = { ...b, id: bid++ })) } catch (e) {}
+try { const s = JSON.parse(localStorage.getItem("bugbox_wb")); s && (wbWeek = s.week, Object.entries(s.bugs).forEach(([k, b]) => statSum(b) === bossSum(+k.slice(2)) && (bosses[k] = { ...b, id: bid++ }))) } catch (e) {}
 function wbKeep() {
 if ("wb" !== fightMode || !combatState) return;
 ecsQuery("team", "combat").forEach(e => { const c = C.combat.get(e); C.team.get(e).team && (c.dead ? delete bosses["wb" + enemyTier] : C.bug.get(e).curHp = c.curHp) });
@@ -9,10 +8,10 @@ try { localStorage.setItem("bugbox_wb", JSON.stringify({ week: wbWeek, bugs: Obj
 }
 function buildEnemies() {
 const m = BOSS[fightMode], k = fightMode + enemyTier, w = weekOf();
-if (!m) return fightTeam.map(() => makeBug({ ...statsOf(10 * enemyTier - ri(enemyTier > 1 ? 10 : 6)), hue: rf(0, 45) }));
+if (!m) return fightTeam.map(() => makeBug({ ...genStats(enemyTier), hue: rf(0, 45) }));
 wbWeek !== w && (Object.keys(bosses).forEach(x => "w" === x[0] && delete bosses[x]), wbWeek = w);
 if (!bosses[k]) {
-const b = bosses[k] = makeBug({ ...statsOf(10 * enemyTier), hue: rf(0, 45), hpMul: m[1], abilities: shuf(ABIL_IDS.slice()).slice(0, enemyTier - 1) });
+const b = bosses[k] = makeBug({ ...genStats(enemyTier, bossSum(enemyTier)), hue: rf(0, 45), hpMul: m[1], abilities: shuf(ABIL_IDS.slice()).slice(0, enemyTier - 1) });
 ["bodyLength", "bodyWidth", "headSize", "legLen"].forEach(x => b.morph[x] *= m[0])
 }
 return [bosses[k]]

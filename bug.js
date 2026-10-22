@@ -3,7 +3,13 @@ const n = round(v);
 return n <= 3 ? "#cc7722" : n <= 6 ? "#cccc22" : n <= 9 ? "#00ff66" : "#22dddd"
 }
 const statSum = o => SK.reduce((s, k) => s + o[k], 0);
-const STAT_SUM_MAX = 50;
+const STAT_SUM_MAX = 50, STAT_LIM = [3, 5, 10, 10, 10];
+const tierOf = s => min(5, floor(s / 10) + 1), bossSum = T => T > 4 ? STAT_SUM_MAX : 10 * T - 1;
+function genStats(T, S = T > 1 ? 10 * (T - 1) + min(ri(10), ri(10)) : 7 + ri(3)) {
+const lim = STAT_LIM[T - 1], ks = shuf(SK.slice()), s = {};
+for (let n = 4; n >= 0; n--) { const lo = max(1, S - lim * n); S -= s[ks[n]] = lo + ri(min(lim, S - n) - lo + 1) }
+return s
+}
 const capSum = (o, lo = () => 1) => { let ks; while (statSum(o) > STAT_SUM_MAX && (ks = SK.filter(k => o[k] > lo(k))).length) o[rnd(ks)]--; return o };
 const scaleMaxOf = list => { const m = max(0, ...list.flatMap(b => SK.map(k => b[k]))); return m >= 11 ? 20 : m >= 6 ? 10 : 5 };
 function statBars(statsObj, opts) {

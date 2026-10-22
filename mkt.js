@@ -5,11 +5,8 @@ mktTab = 1;
 function openMkt() {
 mktCart = [], mktTab = 1;
 mktPool = [1, 2, 3, 4, 5].map(T => Array.from({ length: 6 }, () => {
-let st, sum;
-if (T > 1) st = statsOf(10 * T - ri(10));
-else do { st = {}, sum = 0, SK.forEach(k => sum += st[k] = 1 + ri(3)) } while (sum < 7 || sum > 9);
-const b = makeBug(st);
-return b.cost = (60 + ri(66)) * T, b
+const b = makeBug(genStats(T));
+return b.cost = 3 * statSum(b), b
 })), renderMkt(), showScreen("s-mkt")
 }
 function setMktTab(t) { mktTab = t, renderMkt() }

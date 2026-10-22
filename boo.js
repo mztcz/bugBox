@@ -1,5 +1,5 @@
 const teamMax = () => ({ mayhem: 1 / 0, rb: 10, wb: 10 })[fightMode] || +fightMode || 1,
-bossFit = b => { const d = 10 * enemyTier - round(statSum(b)); return d >= 0 && d < 10 };
+bossFit = b => tierOf(statSum(b)) === enemyTier;
 function openBoo(keepMode, keepTeam) {
 fightTeam = keepTeam ? keepTeam.map(f => ownedById(f.id)).filter(Boolean) : [], keepMode || (fightMode = 1, enemyTier = 1), renderBooGrid(), updateBooUI()
 }
