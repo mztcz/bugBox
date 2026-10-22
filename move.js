@@ -1,12 +1,12 @@
 const BASE_WALK = 20, RUSH = 1.25;
 const sf        = b => hasAbil(b, "steadfast") ? 2 : 1;
-const spdOf     = b => BASE_WALK * agiOf(b) * sf(b);
-const turningOf = b => TAU / (6.6 - .61 * agiOf(b)) * sf(b);
+const spdOf     = b => statLin(b, "agi", BASE_WALK, 10 * BASE_WALK) * sf(b);
+const turningOf = b => TAU / statLin(b, "agi", 5.99, .5) * sf(b);
 const STUCK_CHECK_MS = 2000;
 const SLIDE_K = .25;
 const CORPSE_SLOW = .5;
 const COMBAT_STEP_MS = 16, MAX_STEPS_PER_FRAME = 64;
-const wallNext = e => random() < (11 - intOf(C.bug.get(e))) / 20 && think(e) || decide(e);
+const wallNext = e => random() < statLin(C.bug.get(e), "int", .5, .05) && think(e) || decide(e);
 const facing = (p, a) => max(0, cos(a - p.dir));
 const busy = t => t.pair || t.dropStuck;
 function decide(e) {

@@ -3,7 +3,7 @@ function setAct(e, act, ms = 1 / 0) {
 const t = C.walk.get(e);
 return t.slide = null, t.act = act, t.actT = ms
 }
-const intMs = e => 5500 - 500 * intOf(C.bug.get(e));
+const intMs = e => statLin(C.bug.get(e), "int", 5e3, 500);
 const think = (e, k = 1) => setAct(e, "thinking", k * intMs(e) + rf(-250, 250));
 const aiAct = t => "fighting" === t.act || "fleeing" === t.act;
 const newDir = e => C.vel.get(e).wanderAngle = random() * TAU;

@@ -6,11 +6,11 @@ const ABILITIES = {};
 [
 ["dash", "Dash", "agi", 5e3, 2000, `Leaps at 8x walking speed for up to {d}s at a target between biting reach and 7 body lengths away, and bites the instant it arrives, skipping the wind-up.`],
 ["jump", "Jump", "agi", 9e3, 600, `As soon as it reaches biting range with the target within 20 degrees of its nose, leaps over the target in {d}s, turning 150-210 degrees in mid-air, and lands at its rear, then turns straight back to it. The target must turn on its own to bite back.`],
-["knockout", "Knock Out", "str", 8e3, 2400, `On a bite, stuns the target for {d}s + 0.2s per point your STR beats its CON (min 0.2s). Braced bugs are immune.`],
-["kickback", "Kick Back", "str", 5e3, 350, `On a bite, shoves the target 1.5 of its body lengths, plus 0.28 for every point your STR beats its CON (minus 0.28 per point short, min 0.25), stuns it {d}s and, while sliding, spins it 60 degrees per body length shoved (max 180), plus a random -20 to +20 in steps of 10. Braced bugs go half as far, no stun, no spin.`],
+["knockout", "Knock Out", "str", 8e3, 2400, `On a bite, stuns the target for {d}s + 0.1s per point your STR beats its CON (min 0.2s). Braced bugs are immune.`],
+["kickback", "Kick Back", "str", 5e3, 350, `On a bite, shoves the target 1.5 of its body lengths, plus 0.14 for every point your STR beats its CON (minus 0.14 per point short, min 0.25), stuns it {d}s and, while sliding, spins it 60 degrees per body length shoved (max 180), plus a random -20 to +20 in steps of 10. Braced bugs go half as far, no stun, no spin.`],
 ["flanking", "Flanking", "int", 6e3, 0, `Once within 2 own body lengths of the target, even in biting reach, sidesteps around it to reach its rear, then bites. Gives up when bitten, when muted by Loud, when the target gets 3 body lengths away, or after circling 270 degrees. The cooldown starts when the flank ends.`],
 ["strongbite", "Strong Bite", "str", 7e3, 0, `Charges after a bite: the next bite deals double damage.`],
-["swiftbite", "Swift Bite", "agi", 7e3, 0, `Charges after a bite: the next bite needs half the usual wind-up (${BITE_PREP_MAX} ms at AGI 1 to ${BITE_PREP_MIN} ms at AGI 10).`],
+["swiftbite", "Swift Bite", "agi", 7e3, 0, `Charges after a bite: the next bite needs half the usual wind-up (${BITE_PREP_MAX} ms at AGI 1 to ${BITE_PREP_MIN} ms at AGI 20).`],
 ["backflip", "Backflip", "agi", 6e3, 1000, `After its 3rd bite on the same target, if the target is not stunned, leaps backward and keeps backing off on foot, {d}s in total; the first half is airborne. Slides along any wall it backs into.`],
 ["grab", "Grab", "str", 9e3, 0, `Seizes an enemy from behind its flanks and drags it 1 body length backward at half walking speed (max ${GRAB_HOLD_MS / 1e3}s). The victim cannot act.`],
 ["mark", "Mark", "int", 6e3, 3e3, `While it has a target, marks the target's spot with a green X for {d}s. Every ally within 7 body lengths that cannot see an enemy heads there; on arrival with nothing in sight it turns 270 degrees, then resumes its search.`],
@@ -33,14 +33,14 @@ const ABIL_ROLL_CHANCE = [.5, .5, .25, .25, 0];
 const ABIL_BY_STAT = {};
 SK.forEach(k => ABIL_BY_STAT[k] = ABIL_IDS.filter(id => ABILITIES[id].stat === k));
 const shuf = a => { for (let i = a.length - 1; i > 0; i--) { const j = floor(random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]] } return a };
-const bitePrepOf = (b, k = 1) => (BITE_PREP_MAX - (BITE_PREP_MAX - BITE_PREP_MIN) * (agiOf(b) - 1) / 9) * k + rf(-125, 125),
+const bitePrepOf = (b, k = 1) => statLin(b, "agi", BITE_PREP_MAX, BITE_PREP_MIN) * k + rf(-125, 125),
 biteDone = (cb, b, t, k) => (SFX.bite(t), cb.biteT = 1, cb.bitePrep = cb.bitePrepMax = bitePrepOf(b, k));
 const FOV_MIN_DEG = 90, FOV_MAX_DEG = 94.5;
 function engageDistOf(b) { const m = ensureMorph(b); return m.bodyLength / 2 + m.headSize * 2 }
 function bugRadius(b) { const m = ensureMorph(b); return m.bodyLength / 2 + m.headSize }
-const statOf = (b, k) => 1 + (clamp(b[k] || 5, 1, 20) - 1) * 9 / 19, agiOf = b => statOf(b, "agi"), perOf = b => statOf(b, "per"), intOf = b => statOf(b, "int");
-const visRangeOf = b => 25 * perOf(b) + 50;
-const fovHalfOf = b => (FOV_MIN_DEG + (FOV_MAX_DEG - FOV_MIN_DEG) * (perOf(b) - 1) / 9) * PI / 360;
+const statLin = (b, k, a, z) => a + (z - a) * (b[k] - 1) / 19;
+const visRangeOf = b => statLin(b, "per", 75, 300);
+const fovHalfOf = b => statLin(b, "per", FOV_MIN_DEG, FOV_MAX_DEG) * PI / 360;
 function seesPoint(b, p, x, y) {
 const dx = x - p.x, dy = y - p.y, d2 = dx * dx + dy * dy, vr = visRangeOf(b);
 if (d2 >= vr * vr) return !1;
@@ -48,11 +48,11 @@ if (hasAbil(b, "v360") && d2 < vr * vr * .0625) return !0;
 return abs(norm(atan2(dy, dx) - p.dir)) <= fovHalfOf(b)
 }
 const liveE = x => { const c = C.combat.get(x); return c && !c.dead && c.curHp > 0 };
-const memMsOf = b => (intOf(b) + 2) * 1000, scanOf = b => TAU * (intOf(b) - 1) / 9;
+const memMsOf = b => statLin(b, "int", 3e3, 12e3), scanOf = b => statLin(b, "int", 0, TAU);
 const huntTierOf = b => { const i = b.int; return i <= 3 ? 1 : i <= 6 ? 2 : i <= 8 ? 3 : 4 };
 const rollVar = () => .8 + .4 * random();
 function biteDodged(atkB, p, tb, tp, atkTeam) {
-const chance = clamp(.12 + .04 * (agiOf(tb) - agiOf(atkB)), 0, .25);
+const chance = clamp(.12 + .02 * (tb.agi - atkB.agi), 0, .25);
 if (random() >= chance) return !1;
 return spawnDmgPop(tp, 0, atkTeam, atan2(tp.y - p.y, tp.x - p.x)), !0
 }
@@ -82,7 +82,7 @@ function applyBite(cb, ab, p, te, tb, tp, mult, atkTeam, atkE) {
 const tcb = C.combat.get(te), fd = abs(norm(atan2(p.y - tp.y, p.x - tp.x) - tp.dir)),
 flankMult = fd < PI / 3 ? 1 : fd < TAU / 3 ? 1.5 : 2;
 if (atkE != null && (tcb.flankA > 0 || fd >= PI / 3 && tb.int < 5)) { tcb.avengeE = atkE, tcb.avengeA = atan2(p.y - tp.y, p.x - tp.x), tcb.flankA > 0 && flankEnd(tcb) }
-let dmg = statOf(ab, "str") * rollVar() * flankMult * mult;
+let dmg = statLin(ab, "str", 1, 10) * rollVar() * flankMult * mult;
 if (hasAbil(tb, "chitin")) dmg *= .5;
 tcb.curHp -= dmg, C.walk.get(te).hitT = 1;
 const ha = atan2(tp.y - p.y, tp.x - p.x);

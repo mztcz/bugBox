@@ -11,8 +11,7 @@ const MORPH_FREE = { bodySegments: [1, 3], segmentGradient: [1, 5] };
 const MORPH_STAT = { bodyLength: [16, 29], bodyWidth: [2, 11], headSize: [2, 6], legLen: [5, 14], headGearSize: [0, 2] };
 const MORPH_RANGE = { ...MORPH_FREE, ...MORPH_STAT };
 function statMorph(s) {
-const g = k => statOf(s, k), i = round(g("int")), p = round(g("per"));
-return { bodyLength: 1.5 * g("con") + 14, bodyWidth: g("str") + 1, headSize: 1 + floor((i + 1) / 2), legLen: g("agi") + 4, headGearSize: p < 4 ? 0 : p < 7 ? 1 : 2 }
+return { bodyLength: statLin(s, "con", 15.5, 29), bodyWidth: statLin(s, "str", 2, 11), headSize: 2 + floor((s.int - 1) / 4), legLen: statLin(s, "agi", 5, 14), headGearSize: s.per < 7 ? 0 : s.per < 13 ? 1 : 2 }
 }
 function randomMorph() {
 const m = {};

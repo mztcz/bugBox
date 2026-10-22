@@ -56,5 +56,5 @@ abilities: [],
 };
 return o.abilities || b.abilities.length || (b.abilities = assignBirthAbilities(b)), b.curHp == null && (b.curHp = maxHpOf(b)), syncMorph(b), b
 }
-function maxHpOf(b) { return round(12 * statOf(b, "con") * (hasAbil(b, "resilient") ? 1.5 : 1) * (b.hpMul || 1)) }
+function maxHpOf(b) { return round(statLin(b, "con", 12, 120) * (hasAbil(b, "resilient") ? 1.5 : 1) * (b.hpMul || 1)) }
 function hpFrac(b) { const m = maxHpOf(b); return clamp((b.curHp == null ? m : b.curHp) / m, 0, 1) }

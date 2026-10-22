@@ -17,19 +17,19 @@ if (el.dataset.done) return;
 el.dataset.done = "1";
 el.innerHTML +=
 `<p><b class="c-hdr">STATS</b><br>
-      Each stat is <b>1&ndash;20</b>. Formulas use the scaled stat <b>1 + (stat &minus; 1) &times; 9/19</b> (stat 20 = 10).</p>
+      Each stat is <b>1&ndash;20</b>. Formulas grow in a straight line from stat 1 to stat 20.</p>
      <p><b class="c-hdr">ABILITIES</b><br>
       Max <b>4</b> per bug, passive or active alike. Gained at birth if the required stat is <b>5 or higher</b> (~15% chance each). Inherited with ~50% chance from one parent, ~85% if both parents share it.</p>
      <p><b class="c-hdr">VISION</b><br>
-      A bug sees a cone in front of it and nothing else. PER sets both how far and how wide: <b>${FOV_MIN_DEG}&deg; wide at PER 1</b>, <b>${FOV_MAX_DEG}&deg; at PER 20</b>, reaching <b>25 &times; PER + 50</b> pixels. Nothing behind that cone exists for it &mdash; but a bite in the side or the back makes it turn on whoever bit it. It remembers an enemy it has lost for <b>INT + 2 seconds</b>.</p>
+      A bug sees a cone in front of it and nothing else. PER sets both how far and how wide: <b>${FOV_MIN_DEG}&deg; wide at PER 1</b>, <b>${FOV_MAX_DEG}&deg; at PER 20</b>, reaching <b>75 px at PER 1</b> to <b>300 px at PER 20</b>. Nothing behind that cone exists for it &mdash; but a bite in the side or the back makes it turn on whoever bit it. It remembers an enemy it has lost for <b>3s at INT 1</b> to <b>12s at INT 20</b>.</p>
      <p><b class="c-hdr">SPEED</b><br>
-      Walking is <b>${BASE_WALK} &times; AGI</b> px/s, and a half turn takes <b>${(PI / turningOf({ agi: 1 })).toFixed(1)}s at AGI 1</b> down to <b>${(PI / turningOf({ agi: 20 })).toFixed(2)}s at AGI 20</b>. Every walk in the game is that speed or a plain multiple of it: <b>&times;2</b> dashing, <b>&times;0.5</b> dragging a grabbed bug.</p>
+      Walking is <b>${BASE_WALK} px/s at AGI 1</b> to <b>${10 * BASE_WALK} px/s at AGI 20</b>, and a half turn takes <b>${(PI / turningOf({ agi: 1 })).toFixed(1)}s at AGI 1</b> down to <b>${(PI / turningOf({ agi: 20 })).toFixed(2)}s at AGI 20</b>. Every walk in the game is that speed or a plain multiple of it: <b>&times;2</b> dashing, <b>&times;0.5</b> dragging a grabbed bug.</p>
      <p><b class="c-hdr">BITE WIND-UP</b><br>
       Every bite needs <b>${BITE_PREP_MAX} ms at AGI 1</b> down to <b>${BITE_PREP_MIN} ms at AGI 20</b>, &plusmn;125 ms at random, of standing in range and facing the target. The wind-up only advances while facing.</p>
      <p><b class="c-hdr">DAMAGE FORMULA</b><br>
-      <code>damage = STR &times; variance &times; flank &times; strongBite</code>, then halved if the target has Shield up.<br>
+      <code>damage = STR factor &times; variance &times; flank &times; strongBite</code>, then halved if the target has Shield up. STR factor = <b>1 at STR 1</b> to <b>10 at STR 20</b>.<br>
       variance = <b>0.8&ndash;1.2</b> &middot; strongBite = <b>2</b> on a charged bite, else <b>1</b>.<br>
-      Max HP = <code>12 &times; CON</code>. Dodge chance = <b>12% + 4% &times; (AGI &minus; attacker AGI)</b>, from <b>0%</b> to <b>25%</b>.</p>
+      Max HP = <b>12 at CON 1</b> to <b>120 at CON 20</b>. Dodge chance = <b>12% + 2% &times; (AGI &minus; attacker AGI)</b>, from <b>0%</b> to <b>25%</b>.</p>
      <p><b class="c-hdr">FLANK ZONES</b> (angle between the incoming hit and where the target faces \u2014 each zone spans 120&deg;)<br>
       &bull; <b>Front</b> 0&ndash;60&deg; &rarr; <b class="c-money">&times;1</b> &nbsp; &bull; <b>Side</b> 60&ndash;120&deg; &rarr; <b class="c-money">&times;1.5</b> &nbsp; &bull; <b>Rear</b> 120&ndash;180&deg; &rarr; <b class="c-money">&times;2</b></p>
      <p><b class="c-hdr">SCIENCE MODE</b> (Settings)<br>

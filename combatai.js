@@ -273,9 +273,9 @@ let strongMult = 1;
 if (cb.strongPend) { strongMult = 2; cb.strongPend = 0 }
 applyBite(cb, b, p, target, tb, tp, strongMult, tm.team, e), biteNoticed(target);
 const braced = hasAbil(tb, "braced");
-if (abilReady(e, "kickback")) { const d = max(.25, 1.5 + .28 * (statOf(b, "str") - statOf(tb, "con"))) * (braced ? .5 : 1), kbDist = bugLen(tb) * d * (1 - KB_DAMP); tcb.kbX += cos(toT) * kbDist, tcb.kbY += sin(toT) * kbDist; if (!braced) { tcb.stunT = max(tcb.stunT, ABILITIES.kickback.dur); const sa = (min(PI, d * PI / 3) + (floor(random() * 5) - 2) * PI / 18) * rsign(); tcb.spinRemain = abs(sa); tcb.spinDir = sign(sa); tcb.regather = 1 } abilFire(e, "kickback") }
+if (abilReady(e, "kickback")) { const d = max(.25, 1.5 + .14 * (b.str - tb.con)) * (braced ? .5 : 1), kbDist = bugLen(tb) * d * (1 - KB_DAMP); tcb.kbX += cos(toT) * kbDist, tcb.kbY += sin(toT) * kbDist; if (!braced) { tcb.stunT = max(tcb.stunT, ABILITIES.kickback.dur); const sa = (min(PI, d * PI / 3) + (floor(random() * 5) - 2) * PI / 18) * rsign(); tcb.spinRemain = abs(sa); tcb.spinDir = sign(sa); tcb.regather = 1 } abilFire(e, "kickback") }
 if (abilReady(e, "knockout")) {
-if (!braced) { tcb.stunT = max(200, ABILITIES.knockout.dur + 200 * (statOf(b, "str") - statOf(tb, "con"))); tcb.regather = 1 }
+if (!braced) { tcb.stunT = max(200, ABILITIES.knockout.dur + 100 * (b.str - tb.con)); tcb.regather = 1 }
 abilFire(e, "knockout");
 }
 cb.biteE === target || (cb.biteE = target, cb.biteN = 0), cb.biteN++;
