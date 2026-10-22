@@ -27,7 +27,7 @@ el.innerHTML +=
      <p><b class="c-hdr">BITE WIND-UP</b><br>
       Every bite needs <b>${BITE_PREP_MAX} ms at AGI 1</b> down to <b>${BITE_PREP_MIN} ms at AGI 20</b>, &plusmn;125 ms at random, of standing in range and facing the target. The wind-up only advances while facing.</p>
      <p><b class="c-hdr">DAMAGE FORMULA</b><br>
-      <code>damage = STR factor &times; variance &times; flank &times; strongBite</code>, then halved if the target has Shield up. STR factor = <b>1 at STR 1</b> to <b>10 at STR 20</b>.<br>
+      <code>damage = STR factor &times; variance &times; flank &times; strongBite</code>, then halved if the target has Chitin. STR factor = <b>1 at STR 1</b> to <b>10 at STR 20</b>.<br>
       variance = <b>0.8&ndash;1.2</b> &middot; strongBite = <b>2</b> on a charged bite, else <b>1</b>.<br>
       Max HP = <b>12 at CON 1</b> to <b>120 at CON 20</b>. Dodge chance = <b>12% + 2% &times; (AGI &minus; attacker AGI)</b>, from <b>0%</b> to <b>25%</b>.</p>
      <p><b class="c-hdr">FLANK ZONES</b> (angle between the incoming hit and where the target faces \u2014 each zone spans 120&deg;)<br>
