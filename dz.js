@@ -10,7 +10,7 @@ dzLo = r => r[2] ?? MORPH_RANGE[r[0]][0],
 dzStep = r => r[4] ?? 1,
 dzHi = r => r[3] ?? MORPH_RANGE[r[0]][1],
 dzVal = k => k === "headGear" ? GEAR_KEYS.indexOf(dz.headGear) : dz[k],
-dzTxt = k => k === "headGear" ? GEAR_LABEL[dz.headGear] : k === "headGearSize" ? SIZE_LABEL[dz.headGearSize] : dz[k],
+dzTxt = k => k === "headGear" ? GEAR_LABEL[dz.headGear] : k === "headGearSize" ? SIZE_LABEL[dz.headGearSize] : k in MORPH_STAT ? round(dz[k] * 10) / 10 : dz[k],
 dzLocked = k => dz.link && k in MORPH_STAT;
 function dzRefresh() {
 DZ_ROWS.forEach(r => {
@@ -30,7 +30,7 @@ return `<option value="">Ability ${slot + 1}</option>` + ABIL_IDS.filter(id => !
 }
 function dzStatRows() {
 return SK.map(k => `<div class="dz-row"><span class="dz-lbl">${k.toUpperCase()} <b id="dz-val-${k}">${dz[k]}</b></span>
-     <input type="range" id="dz-${k}" min="1" max="10" value="${dz[k]}"></div>`).join("")
+     <input type="range" id="dz-${k}" min="1" max="20" value="${dz[k]}"></div>`).join("")
 }
 function dzExtras() {
 $("dz-extras").innerHTML = dzStatRows();
@@ -42,7 +42,7 @@ SK.forEach(bindRange);
 [0, 1, 2, 3].forEach(i => {
 $("dz-abil-" + i).onchange = ev => {
 const id = dz.abils[i] = ev.target.value;
-if (id) { const k = ABILITIES[id].stat; dz[k] = max(dz[k], 5) }
+if (id) { const k = ABILITIES[id].stat; dz[k] = max(dz[k], 5), capSum(dz, s => dz.abils.some(a => a && ABILITIES[a].stat === s) ? 5 : 1) }
 dzSync(), dzExtras(), dzRefresh()
 }
 });
@@ -52,7 +52,8 @@ sideBtn && (sideBtn.onclick = () => { dzSide = dzSide ? 0 : 1, dzExtras() })
 function bindRange(k) {
 const el = $("dz-" + k);
 el.oninput = () => {
-const v = parseInt(el.value);
+let v = parseInt(el.value);
+SK.includes(k) && (el.value = v = min(v, STAT_SUM_MAX - statSum(dz) + dz[k]));
 k === "headGear" ? dz.headGear = GEAR_KEYS[v] : dz[k] = v;
 SK.includes(k) && dzSync(), dzRefresh()
 }

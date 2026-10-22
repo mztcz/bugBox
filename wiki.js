@@ -16,14 +16,16 @@ const el = $("itab-info");
 if (el.dataset.done) return;
 el.dataset.done = "1";
 el.innerHTML +=
-`<p><b class="c-hdr">ABILITIES</b><br>
+`<p><b class="c-hdr">STATS</b><br>
+      Each stat is <b>1&ndash;20</b>. Formulas use the scaled stat <b>1 + (stat &minus; 1) &times; 9/19</b> (stat 20 = 10).</p>
+     <p><b class="c-hdr">ABILITIES</b><br>
       Max <b>4</b> per bug, passive or active alike. Gained at birth if the required stat is <b>5 or higher</b> (~15% chance each). Inherited with ~50% chance from one parent, ~85% if both parents share it.</p>
      <p><b class="c-hdr">VISION</b><br>
-      A bug sees a cone in front of it and nothing else. PER sets both how far and how wide: <b>${FOV_MIN_DEG}&deg; wide at PER 1</b>, <b>${FOV_MAX_DEG}&deg; at PER 10</b>, reaching <b>25 &times; PER + 50</b> pixels. Nothing behind that cone exists for it &mdash; but a bite in the side or the back makes it turn on whoever bit it. It remembers an enemy it has lost for <b>INT + 2 seconds</b>.</p>
+      A bug sees a cone in front of it and nothing else. PER sets both how far and how wide: <b>${FOV_MIN_DEG}&deg; wide at PER 1</b>, <b>${FOV_MAX_DEG}&deg; at PER 20</b>, reaching <b>25 &times; PER + 50</b> pixels. Nothing behind that cone exists for it &mdash; but a bite in the side or the back makes it turn on whoever bit it. It remembers an enemy it has lost for <b>INT + 2 seconds</b>.</p>
      <p><b class="c-hdr">SPEED</b><br>
-      Walking is <b>${BASE_WALK} &times; AGI</b> px/s, and a half turn takes <b>${(PI / turningOf({ agi: 1 })).toFixed(1)}s at AGI 1</b> down to <b>${(PI / turningOf({ agi: 10 })).toFixed(2)}s at AGI 10</b>. Every walk in the game is that speed or a plain multiple of it: <b>&times;2</b> dashing, <b>&times;0.5</b> dragging a grabbed bug.</p>
+      Walking is <b>${BASE_WALK} &times; AGI</b> px/s, and a half turn takes <b>${(PI / turningOf({ agi: 1 })).toFixed(1)}s at AGI 1</b> down to <b>${(PI / turningOf({ agi: 20 })).toFixed(2)}s at AGI 20</b>. Every walk in the game is that speed or a plain multiple of it: <b>&times;2</b> dashing, <b>&times;0.5</b> dragging a grabbed bug.</p>
      <p><b class="c-hdr">BITE WIND-UP</b><br>
-      Every bite needs <b>${BITE_PREP_MAX} ms at AGI 1</b> down to <b>${BITE_PREP_MIN} ms at AGI 10</b>, &plusmn;125 ms at random, of standing in range and facing the target. The wind-up only advances while facing.</p>
+      Every bite needs <b>${BITE_PREP_MAX} ms at AGI 1</b> down to <b>${BITE_PREP_MIN} ms at AGI 20</b>, &plusmn;125 ms at random, of standing in range and facing the target. The wind-up only advances while facing.</p>
      <p><b class="c-hdr">DAMAGE FORMULA</b><br>
       <code>damage = STR &times; variance &times; flank &times; strongBite</code>, then halved if the target has Shield up.<br>
       variance = <b>0.8&ndash;1.2</b> &middot; strongBite = <b>2</b> on a charged bite, else <b>1</b>.<br>

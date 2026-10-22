@@ -13,7 +13,7 @@ function decide(e) {
 const b = C.bug.get(e), t = C.walk.get(e);
 if (t.turnA != null) return setAct(e, "turning");
 if (combatState || hpFrac(b) < 1 || random() < .7) return setAct(e, "walking", rf(WALK_MIN, WALK_MAX)), newDir(e);
-setAct(e, RARE_ACT[intOf(b) > 4 ? ri(hasAbil(b, "flanking") ? 4 : 3) : 0], RARE_MIN + random() * RARE_SPAN), t.rareA = PI / 3, t.rareS = rsign(), t.rareE = null
+setAct(e, RARE_ACT[b.int > 4 ? ri(hasAbil(b, "flanking") ? 4 : 3) : 0], RARE_MIN + random() * RARE_SPAN), t.rareA = PI / 3, t.rareS = rsign(), t.rareE = null
 }
 function sysSteer(dt, ents) {
 const dtS = dt / 1e3, foods = ecsQuery("food", "pos"), obs = ecsQuery("obstacle", "pos");

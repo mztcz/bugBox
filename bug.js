@@ -1,9 +1,11 @@
 function statColor(v) {
 const n = round(v);
-return n <= 2 ? "#cc3333" : n <= 4 ? "#cc7722" : n <= 6 ? "#cccc22" : n <= 8 ? "#00ff66" : "#22dddd"
+return n <= 3 ? "#cc7722" : n <= 6 ? "#cccc22" : n <= 9 ? "#00ff66" : "#22dddd"
 }
 const statSum = o => SK.reduce((s, k) => s + o[k], 0);
-const scaleMaxOf = list => list.some(b => SK.some(k => b[k] >= 6)) ? 10 : 5;
+const STAT_SUM_MAX = 50;
+const capSum = (o, lo = () => 1) => { let ks; while (statSum(o) > STAT_SUM_MAX && (ks = SK.filter(k => o[k] > lo(k))).length) o[rnd(ks)]--; return o };
+const scaleMaxOf = list => { const m = max(0, ...list.flatMap(b => SK.map(k => b[k]))); return m >= 11 ? 20 : m >= 6 ? 10 : 5 };
 function statBars(statsObj, opts) {
 const fs = (opts = opts || {}).fontSize || 8,
 dead = opts.dead || !1,
@@ -46,5 +48,5 @@ abilities: [],
 };
 return o.abilities || b.abilities.length || (b.abilities = assignBirthAbilities(b)), b.curHp == null && (b.curHp = maxHpOf(b)), syncMorph(b), b
 }
-function maxHpOf(b) { return round(12 * b.con * (hasAbil(b, "resilient") ? 1.5 : 1) * (b.hpMul || 1)) }
+function maxHpOf(b) { return round(12 * statOf(b, "con") * (hasAbil(b, "resilient") ? 1.5 : 1) * (b.hpMul || 1)) }
 function hpFrac(b) { const m = maxHpOf(b); return clamp((b.curHp == null ? m : b.curHp) / m, 0, 1) }

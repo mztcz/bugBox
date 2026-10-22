@@ -159,22 +159,18 @@ SK.forEach((k, i) => {
 const row = rows[i + 1], m = b.meta[k];
 if (!row || !m) return;
 const sp = document.createElement("span");
-sp.className = "sv", sp.style = "font-size:8px;width:24px;text-align:left;color:" + (m.d > 0 ? "#4f8" : m.d < 0 ? "#e44" : "#888");
-sp.textContent = m.src + (m.d ? (m.d > 0 ? " +" : " ") + m.d : ""), row.appendChild(sp)
+sp.className = "sv", sp.style = "font-size:8px;width:24px;text-align:left;color:" + (m > 0 ? "#4f8" : "#e44");
+sp.textContent = (m > 0 ? "+" : "") + m, row.appendChild(sp)
 })
 }
 function computeOffspring(a, b) {
 const name = childName(a, b), child = { gen: max(a.gen, b.gen) + 1, name: name || "Dead", dead: !name, meta: {} };
 const hr = random();
 child.hue = hr < 1 / 3 ? a.hue : hr < 2 / 3 ? b.hue : ((random() < .5 ? a.hue : b.hue) + HUE_OFF[ri(4)] + 360) % 360, child.morph = mixMorph(a, b);
-SK.forEach(k => {
-const fromA = random() < .5;
-child[k] = fromA ? a[k] : b[k], child.meta[k] = { src: fromA ? "A" : "B", d: 0 }
-});
-shuf(SK.slice()).slice(0, 2).forEach(k => {
-const was = child[k];
-child[k] = clamp(was + mutQ4(), 1, 10), child.meta[k].d = child[k] - was
-});
+const avg = {};
+SK.forEach(k => { const s = a[k] + b[k]; child[k] = avg[k] = s % 2 ? (s + rsign()) / 2 : s / 2 });
+shuf(SK.slice()).slice(0, 2).forEach(k => child[k] = clamp(child[k] + mutQ4(), 1, 20));
+capSum(child), SK.forEach(k => child.meta[k] = child[k] - avg[k]);
 return inheritAbilities(child, a, b), child
 }
 function labBack() {
