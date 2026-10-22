@@ -62,7 +62,7 @@ Load order = the order in `index.html`. `main.js` is last and is the only file t
 - **Market** = buying bugs (tabs T1–T5) and items (tab Items). File `mkt.js`, id `s-mkt`.
 - **modes** (`fightMode`): `1 2 3 6` (NvN), `mayhem` (any count), `mc` (mortal combat: 1 bug, T1→T5 in a row), `boss` (1 bug, stat sum 10T−9..10T), `rb` raid boss and `wb` world boss (1–10 bugs).
 - **tier** (`enemyTier` 1–5) = tens of the stat sum (`tierOf`): T1 5–9, T2 10–19, T3 20–29, T4 30–39, T5 40–50. Generated stats max 3 (T1), 5 (T2), 10 (T3–T5). Boss stat sum 10T−1 (T5 50), boss abilities T−1.
-- **stats** 1–20; formulas use the scaled stat (`statOf`, 20 = old 10), thresholds (5+, INT tiers, achievements) use the real stat. Stat sum max 50.
+- **stats** 1–20; formulas run linearly from stat 1 to stat 20 (`statLin`), thresholds (5+, INT tiers, achievements) use the same stat. Stat sum max 50.
 
 ### Routing table — "I want to change X" → open this file, look for this symbol
 
@@ -74,10 +74,10 @@ Load order = the order in `index.html`. `main.js` is last and is the only file t
 | Tutorial list, achievement list, unlock rules, toasts on unlock, record updates (saved `records` + this game's `run`, both via `RECS`), threshold unlocks, tier/star/five-star achievements of a new owned bug (Market, lab, hatched egg; not designer), new tier achievement | `achievements.js` | `achSt`, `records`, `run`, `RECS`, `bugbox_records`, `achAt`, `achBug`, `achChild` |
 | Starting money, tunables (walk timers), global variables, fight modes, act setter, turning, random sign, owned bug by id, fresh lab state | `state.js` | `bugsOwned`, `fightMode`, `MODES`, `enemyTier` (1–5), `WALK_MIN`, `WALK_MAX`, `setAct` (only act setter), `think` (pause, length by INT), `aiAct`, `newDir` (random walk direction, called only by move.js decide), `turnToward` (takes the entity), `intMs` (INT pause base, also flee length), `rsign`, `ownedById`, `newLab` |
 | Bug object, names, stat bars (scale 5/10/20, sum row: tier, stars, role), stat colours, max HP (boss HP multiplier), stat sum cap 50, tier from sum, shared stat generator (Market + enemies + bosses), boss sum, stars, roles | `bug.js` | `maxHpOf`, `hpMul`, `statColor`, `scaleMaxOf`, `STAT_SUM_MAX`, `capSum`, `STAT_LIM`, `tierOf`, `genStats`, `bossSum`, `starsOf`, `roleOf`, `ROLES` |
-| Ability list, ability rules, bite damage, dodge, bite side shove, bite prep by AGI, flee, inheritance, stat scaling 1–20 → 1–10 | `abilities.js` | `ABILITIES`, `applyBite`, `biteDodged`, `biteDone`, `bitePrepOf`, `flee`, `newCombat`, `statOf` |
+| Ability list, ability rules, bite damage, dodge, bite side shove, bite prep by AGI, flee, inheritance, linear stat formula (value at stat 1 → value at stat 20) | `abilities.js` | `ABILITIES`, `applyBite`, `biteDodged`, `biteDone`, `bitePrepOf`, `flee`, `newCombat`, `statLin` |
 | Bug cards (Market/lab/Booker/result), HP bars, kill button (sets `run.end`), focus line, blocked-flash, toast text | `cards.js` | `makeBugCard`, `drawHpBar`, `inspectLine`, `toast`, `flashBlocked` |
 | Screen switching, info overlay tabs, money display | `screens.js` | |
-| Bug body shapes (stat-linked from the scaled stat, length/width/legs not rounded), colour palette, walk style (gait), graphics theme, shadow (leg shadow = straight line from shifted leg root to foot), one-colour corpse, head-to-tail top | `morph.js` | `statMorph`, `randomMorph`, `setPalette`, `setGait`, `setBugTheme`, `drawMorphBug` option `flat`, `morphTop` |
+| Bug body shapes (stat-linked from stats 1–20, length/width/legs not rounded), colour palette, walk style (gait), graphics theme, shadow (leg shadow = straight line from shifted leg root to foot), one-colour corpse, head-to-tail top | `morph.js` | `statMorph`, `randomMorph`, `setPalette`, `setGait`, `setBugTheme`, `drawMorphBug` option `flat`, `morphTop` |
 | Drawing one bug, card thumbnails | `drawbug.js` | `drawBugStyled` |
 | Box background art (random per fight, index.html #bt-bg rerolls) | `bg.js` | `drawBg`, `bgPick` |
 | Obstacle types, shapes and variants (index = kind, `v` = variant) | `obst.js` | `OBST` |
