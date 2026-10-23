@@ -24,6 +24,7 @@ showScreen("s-terr"), resizeBoxCV(), spawnTerr(), toast("Morituri te salutant")
 }
 function endFight() {
 resultTimer && (clearTimeout(resultTimer), resultTimer = null);
+dev && combatState && bugsOwned.forEach(b => b.mated = 0);
 combatState = !1, tickDebt = 0, simSpd = speedBeforePause, ecsQuery("team").forEach(ecsKill), restoreTerrWorld(), ov("ov-res", 0), syncHud(!0)
 }
 const tallyFight = (lb, f) => (lb.fights = (lb.fights || 0) + 1, lb.killsTotal = (lb.killsTotal || 0) + (f.killsThis || 0));
