@@ -51,6 +51,7 @@ lb && (lb.losses++, tallyFight(lb, f), bugsOwned = bugsOwned.filter(b => b.id !=
 });
 let html = "";
 if (won) {
+"boss" === fightMode && (tierMax = max(tierMax, min(5, enemyTier + 1)));
 const prize = 80 * enemyTier * (BOSS[fightMode] || [0, 1])[1];
 money += prize, alive0.forEach(f => {
 const lb = ownedById(f.b.id);

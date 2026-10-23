@@ -14,7 +14,7 @@ for (let n = 4; n >= 0; n--) { const lo = max(1, S - lim * n); S -= s[ks[n]] = l
 return s
 }
 const capSum = (o, lo = () => 1) => { let ks; while (statSum(o) > STAT_SUM_MAX && (ks = SK.filter(k => o[k] > lo(k))).length) o[rnd(ks)]--; return o };
-const statScale = () => { const m = max(0, ...bugsOwned.flatMap(b => SK.map(k => b[k]))); return statCap = max(statCap, m >= 11 ? 20 : m >= 6 ? 10 : 5) },
+const statScale = () => { const m = max(0, ...bugsOwned.flatMap(b => SK.map(k => b[k]))); return statCap = max(statCap, m >= 11 || tierOpen(4) ? 20 : m >= 6 || tierOpen(3) ? 10 : 5) },
 tierLim = T => STAT_LIM[T - 1];
 function statBars(statsObj, opts) {
 const fs = (opts = opts || {}).fontSize || 8,

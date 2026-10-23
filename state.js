@@ -18,11 +18,11 @@ enemyTier = 1,
 lastSurvivors = null,
 dev = 0,
 statCap = 5,
+tierMax = 1,
 obstKinds = [0, 1],
 obstOffer = null,
 labSt = newLab();
-const TIER_OPEN = [, , , () => statScale() > 5, () => achSt.done.ownT5, () => statScale() > 10],
-tierOpen = T => T < 3 || TIER_OPEN.slice(T).some(f => f()) && (T > 3 || TIER_OPEN[3]()), lockAttr = T => tierOpen(T) ? "" : dev ? ' style="opacity:.3"' : " disabled";
+const tierOpen = T => T <= tierMax, lockAttr = T => tierOpen(T) ? "" : dev ? ' style="opacity:.3"' : " disabled";
 function newLab() { return { phase: "pick", pA: null, pB: null, larva: null } }
 const MODES = [1, 2, 3, 6, "mayhem", "mc", "boss", "rb", "wb"],
 ri = n => floor(random() * n),
