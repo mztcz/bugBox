@@ -7,6 +7,7 @@ function setMode(n) {
 fightMode = n, fightTeam = "boss" === n ? [] : fightTeam.slice(0, teamMax()), updateBooUI(), renderBooGrid()
 }
 function setTier(n) {
+if (!tierGate(n)) return;
 enemyTier = n, "boss" === fightMode && (fightTeam = fightTeam.filter(bossFit)), updateBooUI(), renderBooGrid()
 }
 function updateBooUI() {

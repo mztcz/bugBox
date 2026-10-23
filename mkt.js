@@ -9,7 +9,7 @@ const b = makeBug(genStats(T));
 return b.cost = 3 * statSum(b), b
 })), renderMkt(), showScreen("s-mkt")
 }
-function setMktTab(t) { mktTab = t, renderMkt() }
+function setMktTab(t) { tierGate(t) && (mktTab = t, renderMkt()) }
 function mktApplyCard(div, btn, item) {
 const inCart = mktCart.includes(item);
 btn.className = "card-bt bt-sel", btn.textContent = inCart ? "✓ In cart — remove" : "Buy $" + item.cost, div.classList.toggle("card-sel", inCart), div.classList.toggle("card-off", !inCart && money < item.cost)
