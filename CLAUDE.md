@@ -45,7 +45,7 @@
 1. 2 shrnující věty za celou zprávu (max 50 znaků) + [proc] = 1 stručný návrh, jak poslední krok udělat jinak a lépe; jen když jde výrazně lépe, jinak vynech.
 2. [sou] související, [alt] alternativní, [opp] oponující informace.
 3. [b] [c] [d] = tři next-step návrhy v infinitivu, spustitelné zadáním jednoho písmene.
-4. Při změnách kódu: "SUM: " + seznam všech rozdílů proti začátku session (krom SUM bez slov psaných celých velkými písmeny), 1 prázdný řádek, 1–4 věty o změnách od poslední zprávy (součást SUM), nový řádek "vX.Y:".
+4. Při změnách kódu: "SUM: " + seznam všech rozdílů proti začátku session (krom SUM bez slov psaných celých velkými písmeny), 1 prázdný řádek, 1–4 věty o změnách od poslední zprávy (součást SUM, bez čísla verze), nový řádek "vX.Y:" = jediné místo SUM s číslem verze.
 5. SUM a 2 shrnující věty (bod 1) jsou výjimka z pravidel o opakování a délce: smí opakovat klíčové informace. Hlavní text odpovědi max 5 řádků; body 1–4 se do limitu nepočítají. Podrobnosti ověření (co a proč platí/neplatí) jen na vyžádání.
 
 ## File map
