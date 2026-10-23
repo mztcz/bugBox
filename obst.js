@@ -1,5 +1,5 @@
 const pick = (a, v) => a[v % a.length];
-// OBST index -> 0 rock, 1 leaf, 2 Twig, 3 Pebbles, 4 Acorn, 5 Bark, 6 Moss, 7 Puddle, 8 Sand, 9 Petal, 10 Brick, 11 Feather, 12 Bone, 13 Cobweb, 14 Egg, 15 Crystal, 16 Carapace, 17 Snail shell, 18 Thorn, 19 Berries, 20 Log slice, 21 Amber, 22 Matchstick, 23 Paper scrap, 24 Oak leaf, 25 Maple leaf, 26 Fern frond, 27 Pine needles, 28 Curled leaf, 29 Ivy leaf, 30 Reed stalk, 31 Clover, 32 Daisy, 33 Bud, 34 Root tangle, 35 Wood chip, 36 Charcoal, 37 Flint shard, 38 Slate slab, 39 Glass bead, 40 Rusty nail, 41 Screw, 42 Button, 43 Coin, 44 Cork, 45 Rubber band, 46 Chalk stub, 47 Sponge, 48 Down puff, 49 Droppings
+const OBST_NAME = "Rock,Leaf,Twig,Pebbles,Acorn,Bark,Moss,Puddle,Sand,Petal,Brick,Feather,Bone,Cobweb,Egg,Crystal,Carapace,Snail shell,Thorn,Berries,Log slice,Amber,Matchstick,Paper scrap,Oak leaf,Maple leaf,Fern frond,Pine needles,Curled leaf,Ivy leaf,Reed stalk,Clover,Daisy,Bud,Root tangle,Wood chip,Charcoal,Flint shard,Slate slab,Glass bead,Rusty nail,Screw,Button,Coin,Cork,Rubber band,Chalk stub,Sponge,Down puff,Droppings".split(",");
 const OBST = [
 [[0,1,2,3,4], (g, r, v) => {
 const sq = [.8, .7, .5, 1, .62][v], hl = [.4, .46, .22, .6, .3][v], c = [["#4a4640", "#5a564e"], ["#504a42", "#605a50"], ["#3a3a3e", "#4a4a50"], ["#5e5446", "#7a6e5c"], ["#403c38", "#6a6660"]][v];

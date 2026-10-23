@@ -12,7 +12,7 @@ return b.cost = 3 * statSum(b), b
 function setMktTab(t) { mktTab = t, renderMkt() }
 function mktApplyCard(div, btn, item) {
 const inCart = mktCart.includes(item);
-btn.className = "card-bt bt-sel", btn.textContent = inCart ? "✓ In cart — remove" : "Buy $" + item.cost, div.classList.toggle("card-sel", inCart)
+btn.className = "card-bt bt-sel", btn.textContent = inCart ? "✓ In cart — remove" : "Buy $" + item.cost, div.classList.toggle("card-sel", inCart), div.classList.toggle("card-off", !inCart && money < item.cost)
 }
 function updateMktFooter() {
 const n = mktCart.length;
@@ -43,17 +43,17 @@ imgH: 52
 });
 const btn = document.createElement("button");
 btn.style = "width:100%;margin-top:8px;", div.appendChild(btn), mktApplyCard(div, btn, item), div.onclick = e => {
-e.stopPropagation(), toggleCart(item, div, btn)
+e.stopPropagation(), toggleCart(item, div)
 }, g.appendChild(div)
 }), updateMktFooter(), armOverWatch()
 }
-function toggleCart(item, div, btn) {
+function toggleCart(item, div) {
 if (mktCart.includes(item)) mktCart = mktCart.filter(x => x !== item), money += item.cost;
 else {
 if (money < item.cost) return flashBlocked(div), void toast("Not enough money!");
 money -= item.cost, mktCart.push(item)
 }
-mktApplyCard(div, btn, item), updateMktFooter(), updateMoney()
+[...$("mkt-grid").children].forEach((d, i) => mktApplyCard(d, d.lastChild, mktPool[mktTab - 1][i])), updateMktFooter(), updateMoney()
 }
 const OVER_DELAY = 3000;
 let overTimer = null;

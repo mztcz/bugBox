@@ -29,7 +29,7 @@ const ABILITIES = {};
 ].forEach(([id, name, stat, cd, dur, txt]) => ABILITIES[id] = { name, stat, cd, dur, txt });
 const ABIL_IDS = Object.keys(ABILITIES);
 const ABIL_MAX = 4, ABIL_INHERIT_ONE = .5, ABIL_INHERIT_BOTH = .75;
-const ABIL_ROLL_CHANCE = [.5, .5, .25, .25, 0];
+const ABIL_ROLL_CHANCE = [.25, .2, .1, .05, 0];
 const ABIL_BY_STAT = {};
 SK.forEach(k => ABIL_BY_STAT[k] = ABIL_IDS.filter(id => ABILITIES[id].stat === k));
 const shuf = a => { for (let i = a.length - 1; i > 0; i--) { const j = floor(random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]] } return a };

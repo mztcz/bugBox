@@ -3,7 +3,7 @@ const n = round(v);
 return n <= 3 ? "#cc7722" : n <= 6 ? "#cccc22" : n <= 10 ? "#00ff66" : "#22dddd"
 }
 const statSum = o => SK.reduce((s, k) => s + o[k], 0);
-const STAT_SUM_MAX = 50, STAT_LIM = [3, 5, 10, 10, 10];
+const STAT_SUM_MAX = 50, STAT_LIM = [3, 5, 7, 10, 13];
 const tierOf = s => min(5, floor(s / 10) + 1), bossSum = T => T > 4 ? STAT_SUM_MAX : 10 * T - 1,
 starsOf = s => s >= STAT_SUM_MAX ? 5 : s < 10 ? 0 : max(0, s % 10 - 5), ROLES = ["Tank", "Brawler", "Runner", "Brain", "Scout"],
 roleOf = o => { const v = SK.map(k => o[k]), s = v.slice().sort((a, b) => b - a); return s[0] - s[1] >= 2 ? ROLES[v.indexOf(s[0])] : "Fighter" };
@@ -15,7 +15,7 @@ return s
 }
 const capSum = (o, lo = () => 1) => { let ks; while (statSum(o) > STAT_SUM_MAX && (ks = SK.filter(k => o[k] > lo(k))).length) o[rnd(ks)]--; return o };
 const statScale = () => { const m = max(0, ...bugsOwned.flatMap(b => SK.map(k => b[k]))); return statCap = max(statCap, m >= 11 ? 20 : m >= 6 ? 10 : 5) },
-tierLim = T => min(STAT_LIM[T - 1], statScale());
+tierLim = T => STAT_LIM[T - 1];
 function statBars(statsObj, opts) {
 const fs = (opts = opts || {}).fontSize || 8,
 dead = opts.dead || !1,

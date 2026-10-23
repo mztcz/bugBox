@@ -55,7 +55,7 @@ const prize = 80 * enemyTier * (BOSS[fightMode] || [0, 1])[1];
 money += prize, alive0.forEach(f => {
 const lb = ownedById(f.b.id);
 lb && (lb.wins++, tallyFight(lb, f), achSurvive(lb))
-}), updateMoney(), html += `<p style="color:#44ff88;font-size:10px;margin-bottom:8px;">+${prize}</p>`
+}), offerObst(), updateMoney(), html += `<p style="color:#44ff88;font-size:10px;margin-bottom:8px;">+${prize}</p>`
 } else updateMoney();
 scienceOn && (html += `<p style="color:#888;font-size:10px;margin-bottom:8px;">Time ${fmtT(fightMs)}</p>`);
 achFight(won, dead0.length, alive0.length), achOwn(0), bugsOwned.forEach(b => b.mated = 0);

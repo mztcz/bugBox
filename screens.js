@@ -15,7 +15,7 @@ $("info-foot").innerHTML = (t === "rec" ? '<button class="danger bt" onclick="re
 const OV_PAUSE = ["ov-set", "ov-inf", "ov-design"];
 let ovSpd = -1;
 function ov(id, on) {
-on || cancelAnimationFrame(dzAnim), $(id).style.display = on ? "flex" : "none";
+on || cancelAnimationFrame(dzAnim), "ov-res" === id && !on && obstOffer && showObstOffer(), $(id).style.display = on ? "flex" : "none";
 OV_PAUSE.includes(id) && (on ? ovSpd < 0 && (ovSpd = simSpd, simSpd = 0) : ovSpd >= 0 && !OV_PAUSE.some(o => "flex" === $(o).style.display) && (simSpd = ovSpd, ovSpd = -1), tickDebt = 0, syncSpeedLabel())
 }
 function showScreen(id) {

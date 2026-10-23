@@ -118,19 +118,36 @@ killsThis: cb.killsThis || 0
 }
 })
 }
-function genObstacles(inCombat) {
-const n = 8 + ri(5), placed = [];
-for (let i = 0; i < n; i++) {
-const k = ri(OBST.length), t = OBST[k], v = t[0][ri(t[0].length)], r = (12 + ri(10)) * (t[2] || 1);
+function placeObst(k, placed, inCombat) {
+const t = OBST[k], v = rnd(t[0]), r = (12 + ri(10)) * (t[2] || 1);
 for (let a = 0; a < 30; a++) {
 const x = 40 + random() * (boxLW - 80), y = 40 + random() * (boxLH - 80);
 if (placed.some(o => hypot(o.x - x, o.y - y) < o.r + r + 18)) continue;
 if (inCombat && (abs(x - .18 * boxLW) < r + 26 || abs(x - .82 * boxLW) < r + 26)) continue;
-placed.push({ x, y, r });
-ecsSpawn({ obstacle: { r, kind: k, v, rot: (45 * ri(8) + rf(10, 35)) * PI / 180 }, pos: { x, y, dir: 0 } });
-break
+const o = { r, kind: k, v, rot: (45 * ri(8) + rf(10, 35)) * PI / 180, x, y };
+return placed.push(o), o
 }
 }
+const spawnObst = o => o && ecsSpawn({ obstacle: { r: o.r, kind: o.kind, v: o.v, rot: o.rot }, pos: { x: o.x, y: o.y, dir: 0 } });
+function genObstacles(inCombat) {
+const placed = [];
+for (let i = 8 + ri(5); i--;) spawnObst(placeObst(rnd(obstKinds), placed, inCombat))
+}
+function offerObst() {
+const left = shuf(OBST.map((_, k) => k).filter(k => !obstKinds.includes(k)));
+left.length >= 3 && (obstOffer = left.slice(0, 3))
+}
+function showObstOffer() {
+const d = document.createElement("div"), row = document.createElement("div");
+d.style = "position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:160;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px";
+d.innerHTML = '<div class="dos-title" style="font-size:15px">CHOOSE AN OBSTACLE</div>', row.style = "display:flex;gap:8px", d.appendChild(row);
+obstOffer.forEach(k => {
+const b = document.createElement("button"), cv = document.createElement("canvas"), g = cv.getContext("2d");
+cv.width = cv.height = 56, cv.style = "display:block;margin:0 auto 4px", g.translate(28, 28), OBST[k][1](g, 20, OBST[k][0][0]);
+b.appendChild(cv), b.append(OBST_NAME[k]), b.onclick = () => {
+obstKinds.push(k), savedWorld ? placeObst(k, savedWorld.obs, 0) : spawnObst(placeObst(k, snapObstacles(), 0)), d.remove()
+}, row.appendChild(b)
+}), obstOffer = null, document.body.appendChild(d)
 }
 function bugEntity(b, x, y, dir, tm) {
 return {
@@ -152,7 +169,7 @@ function restoreTerrWorld() {
 if (!savedWorld) return;
 ecsQuery("obstacle").forEach(e => ecsKill(e));
 ecsQuery("food").forEach(e => ecsKill(e));
-savedWorld.obs.forEach(o => ecsSpawn({ obstacle: { r: o.r, kind: o.kind, v: o.v, rot: o.rot }, pos: { x: o.x, y: o.y, dir: 0 } }));
+savedWorld.obs.forEach(spawnObst);
 savedWorld.food.forEach(f => ecsSpawn({ food: {}, pos: { x: f.x, y: f.y, dir: 0 } }));
 savedWorld = null
 }

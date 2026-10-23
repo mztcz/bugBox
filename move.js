@@ -33,7 +33,7 @@ t.frzMs = 0, t.lastX = p.x, t.lastY = p.y;
 if (stuck) return t.frzSide = t.frzSide || rsign(), t.turnA = norm(p.dir + t.frzSide * rf(HALF_PI, PI)), void setAct(e, "turning");
 t.frzSide = 0
 }
-const fT = hungry(e) ? seenFood(b, p, foods) : null;
+const fT = hurt(e) ? seenFood(b, p, foods) : null;
 if (fT) {
 const want = atan2(fT.y - p.y, fT.x - p.x);
 ru || setAct(e, "rushing"), turnToward(e, want, turningOf(b) * dtS), (t.rushK = RUSH * facing(p, want)) || (t.frzMs = 0);
@@ -63,7 +63,7 @@ foods.forEach(fe => {
 const fp = C.pos.get(fe);
 for (const be of bugs) {
 const bp = C.pos.get(be), b = C.bug.get(be);
-if ((combatState ? hurt : hungry)(be) && hypot(bp.x - fp.x, bp.y - fp.y) < 16) {
+if (hurt(be) && hypot(bp.x - fp.x, bp.y - fp.y) < 16) {
 const h = C.combat.get(be) || b, mx = maxHpOf(b);
 h.curHp = min(mx, h.curHp + mx / 5);
 combatState || think(be);
