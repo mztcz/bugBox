@@ -13,11 +13,7 @@ const tip = document.createElement("div");
 tip.style = "font-size:8px;color:#888;width:100%;max-width:700px;text-align:center;margin-bottom:2px;";
 tip.textContent = "Tip: Tap any bug's picture to kill it. Hold any bug's card to find it.";
 lay.appendChild(tip);
-const sortRow = document.createElement("div");
-sortRow.style = "display:flex;gap:4px;flex-wrap:wrap;align-items:center;justify-content:center;width:100%;max-width:700px;margin-bottom:4px;";
-sortRow.innerHTML = '<span style="font-size:9px;color:#888;">Sort by</span>' +
-BREED_SORT.map(([k, l]) => `<button class="bt${labSort===k?" card-sel":""}" style="min-width:0;height:auto;padding:2px 7px;font-size:9px;" onclick="setLabSort('${k}')">${l}</button>`).join("");
-lay.appendChild(sortRow);
+lay.appendChild(fillSort(document.createElement("div")));
 const bar = document.createElement("div");
 lay.style.cursor = "", lay.onclick = null, bar.id = "lab-topbar", bar.style = "width:100%;max-width:700px;", lay.appendChild(bar);
 const grid = document.createElement("div");
@@ -51,7 +47,7 @@ isChild ? (l.dead = !0) : (pA === bug ? st.pAdead = !0 : st.pBdead = !0);
 freezeCardAsGone(cardDiv)
 }
 });
-return abLbl(card, lbl), card
+return abLbl(card, lbl), card.classList.add("card-meta"), card
 };
 if (pA || st.pAdead) parentsRow.appendChild(mkCard(pA, st.pAdead, !1, "A"));
 if (pB || st.pBdead) parentsRow.appendChild(mkCard(pB, st.pBdead, !1, "B"));
@@ -110,11 +106,16 @@ const BREED_SORT = [
 ["pwr", "Pwr", statSum]
 ];
 let labSort = "name", labDir = 1;
-function setLabSort(k) { labDir = labSort === k ? -labDir : "name" === k ? 1 : -1, labSort = k, renderLab() }
+function setLabSort(k) { labDir = labSort === k ? -labDir : "name" === k ? 1 : -1, labSort = k, $("s-lab").classList.contains("active") ? renderLab() : renderBooGrid() }
+function fillSort(el) {
+el.style = "display:flex;gap:4px;flex-wrap:wrap;align-items:center;justify-content:center;width:100%;max-width:700px;margin-bottom:4px;";
+el.innerHTML = '<span style="font-size:9px;color:#888;">Sort by</span>' +
+BREED_SORT.map(([k, l]) => `<button class="bt${labSort===k?" card-sel":""}" style="min-width:0;height:auto;padding:2px 7px;font-size:9px;" onclick="setLabSort('${k}')">${l}</button>`).join("");
+return el
+}
+const sortedOwned = () => { const val = BREED_SORT.find(r => r[0] === labSort)[2]; return [...bugsOwned].sort((x, y) => { const a = val(x), b = val(y); return labDir * ((a > b) - (a < b)) }) };
 function renderLabGrid(grid) {
-const val = BREED_SORT.find(r => r[0] === labSort)[2],
-list = [...bugsOwned].sort((x, y) => { const a = val(x), b = val(y); return labDir * ((a > b) - (a < b)) });
-grid.innerHTML = "", list.forEach(b => {
+grid.innerHTML = "", sortedOwned().forEach(b => {
 const div = makeKillableCard(b, {
 uid: "lab",
 onImgTap: cardDiv => { cardDiv.dataset.gone || labPick(b, cardDiv, grid, !0) },
@@ -151,7 +152,6 @@ const mutQ4 = () => { const r = random(); return r < .25 ? -1 : r < .5 ? 0 : r <
 function markMeta(card, b) {
 if (!b.meta) return;
 const rows = card.querySelectorAll(".sr");
-card.classList.add("card-meta");
 SK.forEach((k, i) => {
 const row = rows[i + 1], m = b.meta[k];
 if (!row || !m) return;
@@ -165,13 +165,13 @@ FX_SIZE = [0, .4, .55, .7, .85, 1], FX_SPREAD = [0, .4, .75, 1, 1, 1], FX_COL = 
 function labFx() {
 const l = labSt.larva, cc = $("lab-child-row").firstChild, s = statSum(l);
 if (l.dead) return;
-let src, lv = starsOf(s);
+let src = [], lv = starsOf(s);
 if (tierOf(s) > parentTier(labSt.pA, labSt.pB)) {
 const u = document.createElement("span");
 u.textContent = " ▲ NEW TIER", u.style = "color:#fd4;font-size:8px", cc.querySelector(".card-lbl").appendChild(u), lv = 5;
 const r = u.getBoundingClientRect();
 src = [0, 1, 2, 3, 4].map(i => [r.left + r.width * i / 5, r.left + r.width * (i + 1) / 5, r.bottom])
-} else src = [...cc.querySelectorAll(".sx")].map(e => { const r = e.getBoundingClientRect(); return [r.left, r.right, r.bottom] });
+} else if (tierOf(s) === parentTier(labSt.pA, labSt.pB)) src = [...cc.querySelectorAll(".sx")].map(e => { const r = e.getBoundingClientRect(); return [r.left, r.right, r.bottom] });
 if (!src.length) return;
 const cv = document.createElement("canvas"), cx = cv.getContext("2d"), d = devicePixelRatio || 1, W = innerWidth, H = innerHeight, k = FX_SIZE[lv];
 let parts = [], left = src.length, last = performance.now();

@@ -22,7 +22,7 @@ doneBtn.textContent = n > 0 ? "Buy →" : "BugBox →", doneBtn.disabled = !1
 }
 function renderMkt() {
 const g = $("mkt-grid");
-$("mkt-tabs").innerHTML = [1, 2, 3, 4, 5, 6].map(t => `<button class="bt-tier${t === mktTab ? " prim" : ""}" onclick="setMktTab(${t})">${t < 6 ? "T" + t : "Items"}</button>`).join("");
+$("mkt-tabs").innerHTML = [1, 2, 3, 4, 5, 6].map(t => `<button class="bt-tier${t === mktTab ? " prim" : ""}"${t < 6 ? lockAttr(t) : ""} onclick="setMktTab(${t})">${t < 6 ? "T" + t : "Items"}</button>`).join("");
 g.innerHTML = "";
 if (mktTab > 5) return MKT_ITEMS.forEach(([icon, name, cost, desc], i) => {
 const div = document.createElement("div");
@@ -31,7 +31,7 @@ div.className = "card", div.innerHTML = `<div class="card-head"><div class="card
 mktPool[mktTab - 1].forEach((item, i) => {
 const div = makeBugCard({
 name: item.name,
-line3: `<span class="c-money">$${item.cost}</span>${roleTag(item)}`,
+line3: `<span class="c-money">$${item.cost}</span>`,
 statsObj: item,
 abilB: item,
 dead: !1,

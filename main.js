@@ -51,6 +51,7 @@ const survivors = bugsInTerrView().filter(f => 0 === f.team && !f.dead).map(f =>
 endFight(), spawnTerr(), openBoo(!0, survivors), showScreen("s-boo"), toast("Fight abandoned. Your bugs are safe.")
 }, updateMoney();
 $("bt-des").onclick = openDz, $("bt-bg").onclick = bgPick;
+$("s-intro1").onclick = e => (dev = e.target.closest(".press-key") ? 0 : 1, dev || ($("bt-des").style.display = "none"), openMkt());
 $("bt-set").onclick = () => {
 $("gset-snd").checked = sound.on;
 $("gset-sci").checked = scienceOn;

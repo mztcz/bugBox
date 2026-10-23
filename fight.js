@@ -1,6 +1,6 @@
 const BOSS = { boss: [2, 1], rb: [3, 10], wb: [3, 50] }, weekOf = () => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate() - (d.getDay() + 6) % 7).toDateString() };
 let bosses = {}, wbWeek = "";
-try { const s = JSON.parse(localStorage.getItem("bugbox_wb")); s && (wbWeek = s.week, Object.entries(s.bugs).forEach(([k, b]) => statSum(b) === bossSum(+k.slice(2)) && (bosses[k] = { ...b, id: bid++ }))) } catch (e) {}
+try { const s = JSON.parse(localStorage.getItem("bugbox_wb")); s && (wbWeek = s.week, Object.entries(s.bugs).forEach(([k, b]) => bosses[k] = { ...b, id: bid++ })) } catch (e) {}
 function wbKeep() {
 if ("wb" !== fightMode || !combatState) return;
 ecsQuery("team", "combat").forEach(e => { const c = C.combat.get(e); C.team.get(e).team && (c.dead ? delete bosses["wb" + enemyTier] : C.bug.get(e).curHp = c.curHp) });
@@ -10,8 +10,9 @@ function buildEnemies() {
 const m = BOSS[fightMode], k = fightMode + enemyTier, w = weekOf();
 if (!m) return fightTeam.map(() => makeBug({ ...genStats(enemyTier), hue: rf(0, 45) }));
 wbWeek !== w && (Object.keys(bosses).forEach(x => "w" === x[0] && delete bosses[x]), wbWeek = w);
-if (!bosses[k]) {
-const b = bosses[k] = makeBug({ ...genStats(enemyTier, bossSum(enemyTier)), hue: rf(0, 45), hpMul: m[1], abilities: shuf(ABIL_IDS.slice()).slice(0, enemyTier - 1) });
+const S = min(bossSum(enemyTier), 5 * tierLim(enemyTier));
+if (!bosses[k] || statSum(bosses[k]) !== S) {
+const b = bosses[k] = makeBug({ ...genStats(enemyTier, S), hue: rf(0, 45), hpMul: m[1], abilities: shuf(ABIL_IDS.slice()).slice(0, enemyTier - 1) });
 ["bodyLength", "bodyWidth", "headSize", "legLen"].forEach(x => b.morph[x] *= m[0])
 }
 return [bosses[k]]
@@ -62,8 +63,6 @@ for (let n = 1 + ri(3); n--;) ecsSpawn({ food: {}, pos: { x: 30 + random() * (bo
 return void($("bt-next").style.display = "")
 }
 simSpd = 0;
-const playerScale = scaleMaxOf(allPlayer.map(f => f.b)),
-enemyScale = scaleMaxOf(allEnemy.map(f => f.b));
 const buildCard = (f, isPlayer) => {
 const b = f.b,
 isDead = f.dead,
@@ -74,12 +73,11 @@ fightCount = isPlayer && lb ? lb.fights || 0 : 1,
 imgId = `rc-ph-${isPlayer?"p":"e"}-${b.id}`;
 const div = makeBugCard({
 name: b.name,
-line3: `Gen ${b.gen||1}${roleTag(b)}<br>K${killsThis}(${killsTot}/${fightCount})`,
+line3: `G${b.gen||1} \u00b7 F${fightCount}/K${killsTot}(+${killsThis})`,
 statsObj: b,
 abilB: b,
 dead: isDead,
 showHp: !0,
-scaleMax: isPlayer ? playerScale : enemyScale,
 hpFrac: isDead ? 0 : f.curHp / f.maxHp,
 imgId: imgId,
 img: b

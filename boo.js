@@ -14,7 +14,7 @@ const empty = !bugsOwned.length;
 $("bt-boo-mkt").style.display = empty ? "" : "none";
 $("bt-boo-terr").style.marginLeft = empty ? "0" : "auto";
 document.querySelectorAll("#s-boo .bt-mode").forEach((el, i) => el.className = "bt-mode" + (!empty && fightMode === MODES[i] ? " prim" : ""));
-$("tier-row").innerHTML = Array.from({ length: 5 }, (_, i) => `<button class="bt-tier${!empty && i + 1 === enemyTier ? " prim" : ""}" onclick="setTier(${i + 1})">${String(i + 1).padStart(2, "0")}</button>`).join("");
+$("tier-row").innerHTML = Array.from({ length: 5 }, (_, i) => `<button class="bt-tier${!empty && i + 1 === enemyTier ? " prim" : ""}"${lockAttr(i + 1)} onclick="setTier(${i + 1})">${String(i + 1).padStart(2, "0")}</button>`).join("");
 $("boo-info").textContent = empty ? "" : `${fightTeam.length}/${isFinite(teamMax()) ? teamMax() : "∞"} selected — ${"mc" === fightMode ? "T1→T5" : `T${enemyTier} +$${80 * enemyTier}`}`;
 $("bt-combat").disabled = !(fightTeam.length && ("string" == typeof fightMode || fightTeam.length === fightMode))
 }
@@ -29,7 +29,7 @@ if (!bugsOwned.length) {
 g.innerHTML = '<div class="empty-cell">Buy some bug first</div>';
 return
 }
-bugsOwned.forEach(b => {
+fillSort($("boo-sort")), sortedOwned().forEach(b => {
 const div = makeBugCard({
 name: b.name,
 line3: gkfLine(b),

@@ -60,7 +60,7 @@ function syncHud(force) {
 const c = combatState;
 if (c === hudWas && !force) return;
 hudWas = c;
-HUD_FIGHT_ONLY.forEach(id => $(id).style.display = c ? "" : "none");
+HUD_FIGHT_ONLY.forEach(id => $(id).style.display = c && (dev || "bt-bg" !== id) ? "" : "none");
 HUD_BOX_ONLY.forEach(id => $(id).style.display = c ? "none" : "");
 $("terr-title").style.color = c ? "#fa4" : "#4f8", $("terr-title").textContent = c && { mc: "MORTAL COMBAT T", boss: "BOSS FIGHT T", rb: "RAID BOSS T", wb: "WORLD BOSS T" }[fightMode] + enemyTier || "BUGBOX", $("bt-next").style.display = "none";
 boxCv.style.borderColor = c ? "#fa4" : "#4cf";

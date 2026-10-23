@@ -8,18 +8,20 @@ const tierOf = s => min(5, floor(s / 10) + 1), bossSum = T => T > 4 ? STAT_SUM_M
 starsOf = s => s >= STAT_SUM_MAX ? 5 : s < 10 ? 0 : max(0, s % 10 - 5), ROLES = ["Tank", "Brawler", "Runner", "Brain", "Scout"],
 roleOf = o => { const v = SK.map(k => o[k]), s = v.slice().sort((a, b) => b - a); return s[0] - s[1] >= 2 ? ROLES[v.indexOf(s[0])] : "" };
 function genStats(T, S = T > 1 ? 10 * (T - 1) + min(ri(10), ri(10)) : 7 + ri(3)) {
-const lim = STAT_LIM[T - 1], ks = shuf(SK.slice()), s = {};
+const lim = tierLim(T), ks = shuf(SK.slice()), s = {};
+S = min(S, 5 * lim);
 for (let n = 4; n >= 0; n--) { const lo = max(1, S - lim * n); S -= s[ks[n]] = lo + ri(min(lim, S - n) - lo + 1) }
 return s
 }
 const capSum = (o, lo = () => 1) => { let ks; while (statSum(o) > STAT_SUM_MAX && (ks = SK.filter(k => o[k] > lo(k))).length) o[rnd(ks)]--; return o };
-const scaleMaxOf = list => { const m = max(0, ...list.flatMap(b => SK.map(k => b[k]))); return m >= 11 ? 20 : m >= 6 ? 10 : 5 };
+const statScale = () => { const m = max(0, ...bugsOwned.flatMap(b => SK.map(k => b[k]))); return statCap = max(statCap, m >= 11 ? 20 : m >= 6 ? 10 : 5) },
+tierLim = T => min(STAT_LIM[T - 1], statScale());
 function statBars(statsObj, opts) {
 const fs = (opts = opts || {}).fontSize || 8,
 dead = opts.dead || !1,
-scale = 100 / (opts.scaleMax || scaleMaxOf(bugsOwned)),
+scale = 100 / statScale(),
 total = round(statSum(statsObj));
-return `<div class="sr" style="justify-content:flex-end;"><span class="sv" style="width:2ch;display:flex;justify-content:center;font-size:${fs}px;color:${dead?"#555":STAR_COL[tierOf(total)]||"#888"}">(${total})</span></div>` + SK.map((k, i) => {
+return `<div class="sr" style="justify-content:flex-end;"><span class="sv" style="width:2ch;display:flex;justify-content:center;font-size:${fs}px;color:${dead?"#555":"#888"}">(${total})</span></div>` + SK.map((k, i) => {
 const sv = statsObj[k],
 bc = dead ? "#444" : statColor(sv);
 return `<div class="sr"><span class="sl" style="font-size:${fs}px;">${SN[i]}</span><div class="st"${opts.barW?` style="width:${opts.barW}px;flex:none;"`:""}><div class="sf" style="width:${clamp(scale*sv,0,100)}%;background:${bc}"></div></div><span class="sv" style="font-size:${fs}px;color:${dead?"#555":"#888"}">${round(sv)}</span></div>`

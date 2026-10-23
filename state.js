@@ -16,7 +16,10 @@ fightTeam = [],
 fightMode = 1,
 enemyTier = 1,
 lastSurvivors = null,
+dev = 0,
+statCap = 5,
 labSt = newLab();
+const tierOpen = T => T < 3 || achSt.done["ownT" + T], lockAttr = T => tierOpen(T) ? "" : dev ? ' style="opacity:.3"' : " disabled";
 function newLab() { return { phase: "pick", pA: null, pB: null, larva: null } }
 const MODES = [1, 2, 3, 6, "mayhem", "mc", "boss", "rb", "wb"],
 ri = n => floor(random() * n),
