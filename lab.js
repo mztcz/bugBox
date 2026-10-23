@@ -66,15 +66,16 @@ old && old.remove();
 if (labSt.pA && labSt.pB && (isA || isB)) {
 const info = div.querySelector(".card-info"),
 gb = document.createElement("button");
-gb.className = "nav-lab bt-breed", gb.style = "font-size:10px;padding:3px 8px;margin-top:3px;", gb.textContent = "🧬 Breed", gb.onclick = e => { e.stopPropagation(), breedNow() };
+gb.className = "nav-lab bt-breed", gb.style = "font-size:10px;padding:3px 8px;margin-top:3px;", gb.textContent = `🧬 Breed $${breedCost()}`, gb.onclick = e => { e.stopPropagation(), breedNow(e.currentTarget) };
 info && info.appendChild(gb)
 }
 const btn = div.querySelector(".bt-sel");
 btn && (btn.textContent = isA || isB ? "Deselect" : "Select"), div.classList.toggle("card-sel", isA || isB), div.classList.toggle("card-off", !canParent(b))
 }
-function breedNow() {
+function breedNow(btn) {
 if (boxFull()) return void toast("Terrarium full");
-labSt.pA && labSt.pB ? (labSt.larva = makeBug({
+if (labSt.pA && labSt.pB && money < breedCost()) return flashBlocked(btn), void toast("Not enough money!");
+labSt.pA && labSt.pB ? (money -= breedCost(), updateMoney(), labSt.larva = makeBug({
 ...computeOffspring(labSt.pA, labSt.pB),
 wins: 0,
 losses: 0
@@ -136,8 +137,8 @@ const bar = $("lab-topbar");
 if (!bar) return;
 const st = labSt;
 if (st.pA && st.pB) {
-bar.innerHTML = `<button class="nav-lab wide">🧬 Breed ${st.pA.name} and ${st.pB.name}</button>`;
-bar.querySelector("button").onclick = e => { e.stopPropagation(), breedNow() }
+bar.innerHTML = `<button class="nav-lab wide">🧬 Breed ${st.pA.name} and ${st.pB.name} $${breedCost()}</button>`;
+bar.querySelector("button").onclick = e => { e.stopPropagation(), breedNow(e.currentTarget) }
 } else {
 bar.innerHTML = '<button class="prim wide" disabled>Select Parent A and Parent B</button>'
 }
@@ -160,7 +161,7 @@ sp.style = "position:absolute;right:0;font-size:8px;color:" + (m > 0 ? "#4f8" : 
 sp.textContent = (m > 0 ? "+" : "") + m, row.appendChild(sp)
 })
 }
-const parentTier = (a, b) => max(tierOf(statSum(a)), tierOf(statSum(b))),
+const parentTier = (a, b) => max(tierOf(statSum(a)), tierOf(statSum(b))), breedCost = () => round(tierRate(parentTier(labSt.pA, labSt.pB)) * (statSum(labSt.pA) + statSum(labSt.pB)) / 4),
 FX_SIZE = [0, .4, .55, .7, .85, 1], FX_SPREAD = [0, .4, .75, 1, 1, 1], FX_COL = ["#4cf", "#fd4", "#a4f", "#4f8", "#f48", "#fff"];
 function labFx() {
 const l = labSt.larva, cc = $("lab-child-row").firstChild, s = statSum(l);

@@ -9,7 +9,7 @@ const aiAct = t => "fighting" === t.act || "fleeing" === t.act;
 const newDir = e => C.vel.get(e).wanderAngle = random() * TAU;
 const SN = ["CON", "STR", "AGI", "INT", "PER"];
 let dzAnim = 0,
-money = 500,
+money = 100,
 bugsOwned = [],
 bid = 1,
 fightTeam = [],

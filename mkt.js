@@ -6,7 +6,7 @@ function openMkt() {
 mktCart = [], mktTab = 1;
 mktPool = [1, 2, 3, 4, 5].map(T => Array.from({ length: 6 }, () => {
 const b = makeBug(genStats(T));
-return b.cost = 3 * statSum(b), b
+return b.cost = round(bugValue(b) * (1 + .25 * starsOf(statSum(b))) + 10 * tierRate(T) * b.abilities.length), b
 })), renderMkt(), showScreen("s-mkt")
 }
 function setMktTab(t) { tierGate(t) && (mktTab = t, renderMkt()) }

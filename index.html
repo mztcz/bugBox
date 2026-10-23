@@ -119,9 +119,7 @@ if(typeof window[n]==="undefined")bar().textContent+="NOT LOADED: "+n+"\n"})
 </div>
 <span style="font-size:9px;color:#555566;">Tier:</span>
 <div class="mode-row" id="tier-row" style="margin-top:4px;"></div>
-<p style="font-size:9px;color:#555566;margin-top:4px;">
-<span style="color:#ff4444;">⚠</span> Bugs that LOSE a fight DIE permanently.
-</p>
+<p id="boo-tip" style="font-size:9px;color:#555566;margin-top:4px;"></p>
 </div>
 <div id="boo-sort"></div>
 <div class="boo-grid" id="boo-grid"></div>
@@ -162,7 +160,7 @@ Drop food in the terrarium: each item restores 1/5 of max HP.</p>
 <p><b style="color:#ffdd44;">BREEDING</b><br>
 Pick two bugs (Parent A + B) to hatch a new Gen+1 larva. Only full-HP bugs can mate. Each stat is the parents' average, then 2 stats mutate.</p>
 <p><b style="color:#ffdd44;">FIGHT TIERS</b><br>
-T01–T05: tier = tens of the stat sum (T1 5–9, T2 10–19 … T5 40–50); enemies T1 7–9, T2–T5 10×(T−1) to 10×T−1, prize $80×T (RB ×10, WB ×50)<br>
+T01–T05: tier = tens of the stat sum (T1 5–9, T2 10–19 … T5 40–50); enemies T1 7–9, T2–T5 10×(T−1) to 10×T−1, entry fee 2×T×$2^T per enemy, prize = value of the beaten enemies (BOSS ×2, RB and WB ×3)<br>
 MC: one bug fights T1 to T5 in a row, food drops after each win<br>
 BOSS: one bug of tier T vs a double-size boss (stat sum 10×T−1, T5 50, T−1 abilities)<br>
 RB: 1–10 bugs vs a triple-size boss with 10× HP<br>

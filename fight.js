@@ -17,7 +17,10 @@ const b = bosses[k] = makeBug({ ...genStats(enemyTier, S), hue: rf(0, 45), hpMul
 }
 return [bosses[k]]
 }
-function startFight() {
+const entryFee = T => 2 * T * tierRate(T) * (BOSS[fightMode] ? 1 : fightTeam.length);
+function startFight(btn, T) {
+if (money < entryFee(T)) return flashBlocked(btn), void toast("Not enough money!");
+money -= entryFee(T), enemyTier = T, updateMoney();
 bgPick(), fightNum++, enemies = buildEnemies(), groundMarks = [], dmgPops = [], fightDone = !1, fightMs = 0, foodLeft = 3, combatState = !0, simSpd = 1, tickDebt = 0, syncSpeedLabel();
 markEggsReady();
 showScreen("s-terr"), resizeBoxCV(), spawnTerr(), toast("Morituri te salutant")
@@ -52,7 +55,7 @@ lb && (lb.losses++, tallyFight(lb, f), bugsOwned = bugsOwned.filter(b => b.id !=
 let html = "";
 if (won) {
 "boss" === fightMode && enemyTier >= tierMax && enemyTier < 5 && toast(`Tier ${enemyTier} boss is defeated. T${tierMax = enemyTier + 1} opens`);
-const prize = 80 * enemyTier * (BOSS[fightMode] || [0, 1])[1];
+const prize = allEnemy.reduce((s, f) => s + bugValue(f.b), 0) * (BOSS[fightMode] || [1])[0];
 money += prize, alive0.forEach(f => {
 const lb = ownedById(f.b.id);
 lb && (lb.wins++, tallyFight(lb, f), achSurvive(lb))

@@ -42,7 +42,7 @@ try { pw = require("playwright") } catch { try { pw = require("/opt/node-tools/n
   await step("market", "openMkt(); mktCart = mktPool[0].slice(0, 3); mktDone()", 500);
   await step("box", "simSpd = 16", 3000);
   await step("overlays", "['info','tut','ach','morph','abil','rec'].forEach(openInfoTab); ov('ov-inf', 0); openDz(); ov('ov-design', 0); openLab(); openBoo(); showScreen('s-terr')", 800);
-  await step("fight", "fightTeam = bugsOwned.slice(0, 2); fightMode = 2; enemyTier = 1; startFight()", 300);
+  await step("fight", "fightTeam = bugsOwned.slice(0, 2); fightMode = 2; startFight($('bt-combat'), 1)", 300);
   await step("fight speed", "simSpd = 16", 6000);
   const st = await p.evaluate("({ v: GAME_VERSION, bugs: bugsOwned.length, ms: Math.round(fightMs), done: fightDone, bar: (document.getElementById('err-bar') || {}).textContent || '' })").catch(e => ({ bar: e.message }));
   await step("leave fight", "$('bt-leave').click()", 800);
