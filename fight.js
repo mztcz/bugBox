@@ -73,7 +73,7 @@ fightCount = isPlayer && lb ? lb.fights || 0 : 1,
 imgId = `rc-ph-${isPlayer?"p":"e"}-${b.id}`;
 const div = makeBugCard({
 name: b.name,
-line3: `G${b.gen||1} \u00b7 F${fightCount}/K${killsTot}(+${killsThis})`,
+line3: `G${b.gen||1} \u00b7 K${killsTot}(+${killsThis})/F${fightCount}`,
 statsObj: b,
 abilB: b,
 dead: isDead,
