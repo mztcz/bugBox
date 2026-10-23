@@ -83,8 +83,8 @@ simFrame && cancelAnimationFrame(simFrame), simFrame = null
 }
 let boxLW = 360,
 boxLH = 300;
-// Fight box side scale: 1/4 area while T3 is locked, 1/2 area while T4 is locked
-const boxK = () => combatState && !tierOpen(4) ? tierOpen(3) ? Math.SQRT1_2 : .5 : 1;
+// Fight box area = tierMax / 4 of the full box (T1 only 1/4, T4 open = full)
+const boxK = () => combatState ? Math.sqrt(min(tierMax, 4) / 4) : 1;
 function resizeBoxCV() {
 const dpr = window.devicePixelRatio || 1, st = boxCv.style, k = boxK();
 st.flex = st.width = st.height = st.margin = "";
