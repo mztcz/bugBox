@@ -73,11 +73,17 @@ break
 })
 }
 const ROCK_PAD = 20, ROCK_FORCE = 2.5;
+// Point vs obstacle capsule (OBST_CAP turned by rot): [distance to the core segment, unit direction x, y, capsule radius]
+function obstCap(oe, x, y) {
+const p = C.pos.get(oe), o = C.obstacle.get(oe), [cx, cy, a, h, w] = capOf(o.kind)[o.v], r = o.r, co = cos(o.rot), so = sin(o.rot), c = cos(a + o.rot), s = sin(a + o.rot),
+mx = p.x + r * (cx * co - cy * so), my = p.y + r * (cx * so + cy * co), t = clamp((x - mx) * c + (y - my) * s, -h * r, h * r),
+dx = x - mx - c * t, dy = y - my - s * t, d = hypot(dx, dy) || .001;
+return [d, dx / d, dy / d, w * r]
+}
 function rockAvoid(p, vx, vy, obs) {
 obs.forEach(oe => {
-const op = C.pos.get(oe), o = C.obstacle.get(oe),
-dx = p.x - op.x, dy = p.y - op.y, d = hypot(dx, dy) || .001, rr = o.r + ROCK_PAD;
-if (d < rr) { const f = ROCK_FORCE * (rr - d) / rr; vx += dx / d * f, vy += dy / d * f }
+const [d, nx, ny, cr] = obstCap(oe, p.x, p.y), rr = cr + ROCK_PAD;
+if (d < rr) { const f = ROCK_FORCE * (rr - d) / rr; vx += nx * f, vy += ny * f }
 });
 return [vx, vy]
 }
@@ -171,10 +177,9 @@ if (dcb && dcb.dead) return;
 const p = C.pos.get(e), t = C.walk.get(e);
 let ox = 0, oy = 0, deep = 0;
 obs.forEach(oe => {
-const op = C.pos.get(oe), o = C.obstacle.get(oe),
-dx = p.x - op.x, dy = p.y - op.y, d = hypot(dx, dy) || .001, minD = o.r + bugLen(C.bug.get(e)) / 2;
+const [d, nx, ny, cr] = obstCap(oe, p.x, p.y), minD = cr + bugLen(C.bug.get(e)) / 2;
 if (d >= minD) return;
-ox += dx / d, oy += dy / d, deep = max(deep, minD - d)
+ox += nx, oy += ny, deep = max(deep, minD - d)
 });
 if (deep <= 0) return void(t.pushV = 0, t.dropStuck = 0, t.stuckMs = 0);
 t.dropStuck && (t.stuckMs = (t.stuckMs || 0) + 1e3 * dtS) > STUCK_GIVE_UP && (t.dropStuck = 0);

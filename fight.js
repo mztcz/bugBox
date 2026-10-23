@@ -17,7 +17,7 @@ const b = bosses[k] = makeBug({ ...genStats(enemyTier, S), hue: rf(0, 45), hpMul
 }
 return [bosses[k]]
 }
-const entryFee = T => 2 * T * tierRate(T) * (BOSS[fightMode] ? 1 : fightTeam.length);
+const entryFee = T => 1 === fightMode && 1 === T ? 0 : 2 * T * tierRate(T) * (BOSS[fightMode] ? 1 : fightTeam.length);
 function startFight(btn, T) {
 if (money < entryFee(T)) return flashBlocked(btn), void toast("Not enough money!");
 money -= entryFee(T), enemyTier = T, updateMoney();
@@ -28,7 +28,7 @@ showScreen("s-terr"), resizeBoxCV(), spawnTerr(), toast("Morituri te salutant")
 function endFight() {
 resultTimer && (clearTimeout(resultTimer), resultTimer = null);
 dev && combatState && bugsOwned.forEach(b => b.mated = 0);
-combatState = !1, tickDebt = 0, simSpd = speedBeforePause, ecsQuery("team").forEach(ecsKill), restoreTerrWorld(), ov("ov-res", 0), syncHud(!0)
+combatState = !1, tickDebt = 0, simSpd = speedBeforePause, ecsQuery("team").forEach(ecsKill), restoreTerrWorld(), resizeBoxCV(), ov("ov-res", 0), syncHud(!0)
 }
 const tallyFight = (lb, f) => (lb.fights = (lb.fights || 0) + 1, lb.killsTotal = (lb.killsTotal || 0) + (f.killsThis || 0));
 function showFightResult() {

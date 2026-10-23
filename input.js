@@ -1,15 +1,15 @@
 let drag = null, suppressClick = !1, holdT = 0;
 const DRAG_SLOP = 8, HOLD_MS = 250, hold = (ms, fn) => holdT = setTimeout(fn, ms);
 const boxPt = e => { const r = boxCv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top] };
-function nearest(comps, cx, cy, radius) {
+function nearest(comps, cx, cy, radius, dist = en => hypot(C.pos.get(en).x - cx, C.pos.get(en).y - cy)) {
 let hit = null, best = 1 / 0;
 ecsQuery(...comps).forEach(en => {
-const op = C.pos.get(en), d = hypot(op.x - cx, op.y - cy), r = radius(en);
+const d = dist(en), r = radius(en);
 d < r && d < best && (best = d, hit = en)
 });
 return hit
 }
-function obstacleAt(cx, cy) { return nearest(["obstacle", "pos"], cx, cy, en => C.obstacle.get(en).r + 8) }
+function obstacleAt(cx, cy) { return nearest(["obstacle", "pos"], cx, cy, en => obstCap(en, cx, cy)[3] + 8, en => obstCap(en, cx, cy)[0]) }
 function draggableAt(cx, cy) {
 let e = nearest(["bug", "pos"], cx, cy, en => bugLen(C.bug.get(en)));
 if (e != null) return { e: e, kind: "bug", pad: 21 };

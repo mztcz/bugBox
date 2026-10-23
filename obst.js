@@ -343,3 +343,22 @@ for (let i = 0; i < n; i++) { const a = i * 2.399, d = n > 1 ? r * .55 : 0;
 g.fillStyle = i % 2 ? "#3a2a1a" : "#4a3624", g.beginPath(), g.ellipse(cos(a) * d, sin(a) * d * .8, r * sz, r * sz * .72, a, 0, 7), g.fill() }
 }]
 ];
+// Capsule hitbox per kind and variant, measured from drawn pixels on first use of the kind: [centre x, centre y, axis angle, half segment, radius], lengths as ratios of r
+const OBST_CAP = [], capOf = k => OBST_CAP[k] || (OBST_CAP[k] = (([vs, d]) => {
+const R = 16, S = 2, N = 4 * R * S, cv = document.createElement("canvas"), g = cv.getContext("2d", { willReadFrequently: !0 }), out = [];
+cv.width = cv.height = N;
+vs.forEach(v => {
+g.setTransform(1, 0, 0, 1, 0, 0), g.clearRect(0, 0, N, N), g.setTransform(S, 0, 0, S, N / 2, N / 2), d(g, R, v);
+const px = g.getImageData(0, 0, N, N).data, xs = [], ys = [];
+for (let i = 3; i < px.length; i += 4) px[i] > 8 && (xs.push(((i >> 2) % N - N / 2) / S / R), ys.push((floor((i >> 2) / N) - N / 2) / S / R));
+const n = xs.length || 1, sum = a => a.reduce((s, x) => s + x, 0), mx = sum(xs) / n, my = sum(ys) / n;
+let sxx = 0, syy = 0, sxy = 0;
+xs.forEach((x, i) => { const dx = x - mx, dy = ys[i] - my; sxx += dx * dx, syy += dy * dy, sxy += dx * dy });
+const a = atan2(2 * sxy, sxx - syy) / 2, c = cos(a), s = sin(a),
+q = f => (f = f.sort((p, r) => p - r), [f[floor(.01 * (f.length - 1))] || 0, f[floor(.99 * (f.length - 1))] || 0]),
+[t0, t1] = q(xs.map((x, i) => (x - mx) * c + (ys[i] - my) * s)), [u0, u1] = q(xs.map((x, i) => (ys[i] - my) * c - (x - mx) * s)),
+m = (t0 + t1) / 2, mu = (u0 + u1) / 2, w = (u1 - u0) / 2;
+out[v] = [mx + m * c - mu * s, my + m * s + mu * c, a, max(0, (t1 - t0) / 2 - w), w]
+});
+return out
+})(OBST[k]));

@@ -83,18 +83,21 @@ simFrame && cancelAnimationFrame(simFrame), simFrame = null
 }
 let boxLW = 360,
 boxLH = 300;
+// Fight box side scale: 1/4 area while T3 is locked, 1/2 area while T4 is locked
+const boxK = () => combatState && !tierOpen(4) ? tierOpen(3) ? Math.SQRT1_2 : .5 : 1;
 function resizeBoxCV() {
-const dpr = window.devicePixelRatio || 1,
-rect = boxCv.getBoundingClientRect();
-boxLW = rect.width > 0 ? rect.width : boxCv.offsetWidth || 360, boxLH = rect.height > 0 ? rect.height : boxCv.offsetHeight || 300, boxCv.width = floor(boxLW * dpr), boxCv.height = floor(boxLH * dpr), boxCx.setTransform(dpr, 0, 0, dpr, 0, 0)
+const dpr = window.devicePixelRatio || 1, st = boxCv.style, k = boxK();
+st.flex = st.width = st.height = st.margin = "";
+const rect = boxCv.getBoundingClientRect();
+boxLW = k * (rect.width || 360), boxLH = k * (rect.height || 300), k < 1 && (st.flex = "none", st.width = boxLW + "px", st.height = boxLH + "px", st.margin = "auto"), boxCv.width = floor(boxLW * dpr), boxCv.height = floor(boxLH * dpr), boxCx.setTransform(dpr, 0, 0, dpr, 0, 0)
 }
-let boxW0 = 0, boxH0 = 0;
+let boxW0 = 0, boxH0 = 0, boxC0 = !1;
 function rescaleBox() {
-if (boxW0 && (boxW0 !== boxLW || boxH0 !== boxLH)) {
+if (boxW0 && boxC0 === combatState && (boxW0 !== boxLW || boxH0 !== boxLH)) {
 const sx = boxLW / boxW0, sy = boxLH / boxH0;
 ecsQuery("pos").forEach(e => { const p = C.pos.get(e); p.x *= sx, p.y *= sy })
 }
-boxW0 = boxLW, boxH0 = boxLH
+boxW0 = boxLW, boxH0 = boxLH, boxC0 = combatState
 }
 function bugsInTerrView() {
 return ecsQuery("bug", "pos").map(e => {
@@ -131,7 +134,7 @@ return placed.push(o), o
 const spawnObst = o => o && ecsSpawn({ obstacle: { r: o.r, kind: o.kind, v: o.v, rot: o.rot }, pos: { x: o.x, y: o.y, dir: 0 } });
 function genObstacles(inCombat) {
 const placed = [];
-for (let i = 8 + ri(5); i--;) spawnObst(placeObst(rnd(obstKinds), placed, inCombat))
+for (let i = 1 + ri(3); i--;) spawnObst(placeObst(rnd(obstKinds), placed, inCombat))
 }
 function offerObst() {
 const left = shuf(OBST.map((_, k) => k).filter(k => !obstKinds.includes(k)));
