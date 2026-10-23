@@ -48,7 +48,7 @@ if (hasAbil(b, "v360") && d2 < vr * vr * .0625) return !0;
 return abs(norm(atan2(dy, dx) - p.dir)) <= fovHalfOf(b)
 }
 const liveE = x => { const c = C.combat.get(x); return c && !c.dead && c.curHp > 0 };
-const memMsOf = b => statLin(b, "int", 3e3, 12e3), scanOf = b => statLin(b, "int", 0, TAU);
+const memMsOf = b => statLin(b, "int", 3e3, 12e3), scanOf = b => statLin(b, "int", 0, PI);
 const huntTierOf = b => { const i = b.int; return i <= 3 ? 1 : i <= 6 ? 2 : i <= 8 ? 3 : 4 };
 const rollVar = () => .8 + .4 * random();
 function biteDodged(atkB, p, tb, tp, atkTeam) {

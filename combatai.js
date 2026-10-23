@@ -176,10 +176,10 @@ flee(e, p.dir + rf(45, 110) * PI / 180 * rsign()), cb.aimLock = 0, cb.aimTarget 
 }
 if ("fleeing" === t.act) {
 if (cb.fleeT != null) return void(turnToward(e, cb.fleeT, turn) && (cb.fleeT = null));
-const fT = hungry(e) && seenFood(b, p);
+const fT = hurt(e) && seenFood(b, p);
 return go(fT ? cb.fleeA + max(-PI / 6, min(PI / 6, norm(atan2(fT.y - p.y, fT.x - p.x) - cb.fleeA))) : cb.fleeA), void(cb.mvSpd *= RUSH)
 }
-if (hungry(e) && !melee() && seenFood(b, p)) return cb.aimLock = 0, cb.aimTarget = -1, void setAct(e, "rushing");
+if (hurt(e) && !melee() && seenFood(b, p)) return cb.aimLock = 0, cb.aimTarget = -1, void setAct(e, "rushing");
 if (target) {
 const tp = C.pos.get(target),
 tcb = C.combat.get(target),
@@ -322,7 +322,7 @@ if (cb.searchPhase === 1) {
 if (!turnToward(e, cb.memA, turn)) return
 cb.searchPhase = 2
 }
-cb.searchPhase || (cb.searchPhase = 2, t.scanRemain = TAU);
+cb.searchPhase || (cb.searchPhase = 2, t.scanRemain = PI);
 const step = min(t.scanRemain, turn);
 p.dir = norm(p.dir + step * (cb.lostSide || 1)), t.scanRemain -= step;
 if (t.scanRemain <= 0) decide(e), t.scanRemain = 0, cb.memT = 0, cb.searchPhase = 0

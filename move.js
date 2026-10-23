@@ -48,7 +48,6 @@ turnToward(e, atan2(vy, vx), turningOf(b) * dtS)
 })
 }
 const hurt = e => { const b = C.bug.get(e), c = C.combat.get(e); return !(c && c.dead) && (c || b).curHp < maxHpOf(b) };
-const hungry = e => { const b = C.bug.get(e), c = C.combat.get(e); return hurt(e) && 4 * (c || b).curHp <= 3 * (c ? c.maxHp : maxHpOf(b)) };
 function seenFood(b, p, foods = ecsQuery("food", "pos")) {
 let fT = null, fD2 = 1 / 0;
 foods.forEach(fe => {
@@ -260,8 +259,12 @@ p.x += cos(p.dir) * s, p.y += sin(p.dir) * s
 clampToBox(e)
 })
 }
-const SEEK_REACH = 40, SEEK_CROSS = .45;
+const SEEK_REACH = 40, SEEK_CROSS = .45, SEEK_CONE = PI / 3;
 function seekPick(t, p) {
+for (let i = 0; i < 9; i++) {
+const a = p.dir + rf(-SEEK_CONE, SEEK_CONE), d = rf(.25, .5) * boxLW, x = p.x + cos(a) * d, y = p.y + sin(a) * d;
+if (x > 40 && x < boxLW - 40 && y > 40 && y < boxLH - 40) return t.seekX = x, t.seekY = y
+}
 const far = p.x < boxLW / 2;
 t.seekX = far ? boxLW * (1 - SEEK_CROSS) + random() * (boxLW * SEEK_CROSS - 40) : 40 + random() * (boxLW * SEEK_CROSS - 40);
 t.seekY = 40 + random() * (boxLH - 80)
