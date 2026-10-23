@@ -35,6 +35,6 @@ combatState === wantCombat && (combatState && ecsQuery("bug").length ? resizeBox
 }
 }
 function updateMoney() {
-$("mkt-money").textContent = "$" + money, $("terr-money").textContent = "$" + money, $("lab-money").textContent = "$" + money;
+$("mkt-money").textContent = "$" + money, $("terr-money").textContent = "$" + money, $("lab-money").textContent = $("boo-money").textContent = "$" + money;
 money >= 1000 && achieve("rich1k"), money >= 5000 && achieve("rich5k")
 }

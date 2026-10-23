@@ -103,7 +103,7 @@ return cb ? [max(0, round(cb.curHp)), cb.maxHp] : [round(b.curHp == null ? maxHp
 function inspectLine(b) {
 const [hp, mhp] = liveHp(b);
 return `${b.name} | Gen${b.gen} | K${b.killsTotal||0}/F${b.fights||0} | ` +
-SK.map((k, i) => `<span style="color:#44ff88;font-size:9px;">${SN[i]}:${round(b[k])}</span>`).join(" ") +
+SK.map((k, i) => `<span style="color:#44ff88;font-size:9px;">${SN[i]}:${round(b[k])}</span>`).join(" ") + ` <span style="color:#888;font-size:9px;">(${statSum(b)})</span>` +
 ` | <span style="color:${hp>=mhp?"#44ff88":"#ff5555"};">${hp}/${mhp}</span> ${C.walk.get(entOf(b))?.act ?? ""}` +
 abilTags(b)
 }
