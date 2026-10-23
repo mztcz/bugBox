@@ -24,7 +24,7 @@
 - Repo: https://github.com/mztcz/bugBox
 - Režim B (Claude Code, zápis do repa): commituj jen změněné soubory, push jen do session větve, žádný pull request. Do main jen přes oktk (skill-oktk). Commit zpráva = 1 řádek anglicky: "vX.Y: co se změnilo".
 - Po každém pushi do main napiš do odpovědi klikací testovací URL https://mztcz.github.io/bugBox/ a k ní verzi vX.Y, která je v main.
-- Testovací artefakt https://claude.ai/artifact/DAGsKmWecR1uCaAMeUMhoB: aktualizuj ho po každé změně kódu, posílej jen soubory změněné od jeho poslední verze, URL zůstává. Ke každému odkazu na artefakt napiš jeho aktuální verzi vX.Y a přibližnou cenu jeho vytvoření nebo aktualizace v tokenech (odhad z velikosti obsahu, který prošel kontextem).
+- Testovací artefakt https://claude.ai/artifact/DAGsKmWecR1uCaAMeUMhoB: aktualizuj ho po každé změně kódu, posílej jen soubory změněné od jeho poslední verze, URL zůstává. Když odpověď artefakt vytvoří nebo aktualizuje, je její první řádek: odkaz na artefakt, jeho verze vX.Y a přibližná cena vytvoření nebo aktualizace v tokenech (odhad z velikosti obsahu, který prošel kontextem). Android aplikace ukazuje artefakt nad textem odpovědi, takže tenhle řádek je hned pod ním.
 - Režim A (chat bez zápisu do repa): hned bez ptaní naklonuj main. Když se `GAME_VERSION` liší od verze, kterou uvede uživatel, napiš to 1 řádkem a pracuj na klonu. Když klon zmizí, naklonuj znovu a zopakuj úpravy session. Když klonování selže, požádej o nahrání jen potřebných souborů.
 - Režim A dodávka: jen změněné soubory, každý zvlášť, nikdy .zip. Každý soubor kumulativní = originál + všechny úpravy session.
 - Režim A na požádání: testovací build `bugbox-vXX.X.html` (všechny .js a .css vložené do index.html), vytvořený skriptem, ne do repa.
