@@ -73,7 +73,7 @@ fightCount = isPlayer && lb ? lb.fights || 0 : 1,
 imgId = `rc-ph-${isPlayer?"p":"e"}-${b.id}`;
 const div = makeBugCard({
 name: b.name,
-line3: `G${b.gen||1} \u00b7 K${killsTot}(+${killsThis})/F${fightCount}`,
+line3: `G${b.gen||1} \u00b7 K${killsTot}${killsThis ? `(+${killsThis})` : ""}/F${fightCount}`,
 statsObj: b,
 abilB: b,
 dead: isDead,
@@ -82,6 +82,7 @@ hpFrac: isDead ? 0 : f.curHp / f.maxHp,
 imgId: imgId,
 img: b
 });
+isPlayer || !BOSS[fightMode] || (div.querySelector(".card-lbl").innerHTML = ` <span style="color:#fa4">(${({ boss: "Boss", rb: "Raid Boss", wb: "World Boss" })[fightMode]})</span>`);
 if (isDead) {
 div.style.borderColor = "#442222";
 const nm = div.querySelector(".card-name");

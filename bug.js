@@ -1,12 +1,12 @@
 function statColor(v) {
 const n = round(v);
-return n <= 3 ? "#cc7722" : n <= 6 ? "#cccc22" : n <= 9 ? "#00ff66" : "#22dddd"
+return n <= 3 ? "#cc7722" : n <= 6 ? "#cccc22" : n <= 10 ? "#00ff66" : "#22dddd"
 }
 const statSum = o => SK.reduce((s, k) => s + o[k], 0);
 const STAT_SUM_MAX = 50, STAT_LIM = [3, 5, 10, 10, 10];
 const tierOf = s => min(5, floor(s / 10) + 1), bossSum = T => T > 4 ? STAT_SUM_MAX : 10 * T - 1,
 starsOf = s => s >= STAT_SUM_MAX ? 5 : s < 10 ? 0 : max(0, s % 10 - 5), ROLES = ["Tank", "Brawler", "Runner", "Brain", "Scout"],
-roleOf = o => { const v = SK.map(k => o[k]), s = v.slice().sort((a, b) => b - a); return s[0] - s[1] >= 2 ? ROLES[v.indexOf(s[0])] : "" };
+roleOf = o => { const v = SK.map(k => o[k]), s = v.slice().sort((a, b) => b - a); return s[0] - s[1] >= 2 ? ROLES[v.indexOf(s[0])] : "Fighter" };
 function genStats(T, S = T > 1 ? 10 * (T - 1) + min(ri(10), ri(10)) : 7 + ri(3)) {
 const lim = tierLim(T), ks = shuf(SK.slice()), s = {};
 S = min(S, 5 * lim);
