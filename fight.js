@@ -1,4 +1,4 @@
-const BOSS = { boss: [2, 1], rb: [3, 10], wb: [3, 50] }, weekOf = () => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate() - (d.getDay() + 6) % 7).toDateString() };
+const BOSS = { boss: [1.5, 1], rb: [3, 10], wb: [3, 50] }, weekOf = () => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate() - (d.getDay() + 6) % 7).toDateString() };
 let bosses = {}, wbWeek = "";
 try { const s = JSON.parse(localStorage.getItem("bugbox_wb")); s && (wbWeek = s.week, Object.entries(s.bugs).forEach(([k, b]) => bosses[k] = { ...b, id: bid++ })) } catch (e) {}
 function wbKeep() {
@@ -18,16 +18,17 @@ const b = bosses[k] = makeBug({ ...genStats(enemyTier, S), hue: rf(0, 45), hpMul
 return [bosses[k]]
 }
 const entryFee = T => 1 === fightMode && 1 === T ? 0 : 2 * T * tierRate(T) * (BOSS[fightMode] ? 1 : fightTeam.length);
+const keepHp = () => ecsQuery("team", "combat").forEach(e => { const c = C.combat.get(e); C.team.get(e).team || c.dead || (C.bug.get(e).curHp = max(1, round(c.curHp))) });
 function startFight(btn, T) {
 if (money < entryFee(T)) return flashBlocked(btn), void toast("Not enough money!");
-money -= entryFee(T), enemyTier = T, updateMoney();
+money -= entryFee(T), enemyTier = T, updateMoney(), keepHp();
 bgPick(), fightNum++, enemies = buildEnemies(), groundMarks = [], dmgPops = [], fightDone = !1, fightMs = 0, foodLeft = 3, combatState = !0, simSpd = 1, tickDebt = 0, syncSpeedLabel();
 markEggsReady();
 showScreen("s-terr"), resizeBoxCV(), spawnTerr(), toast("Morituri te salutant")
 }
 function endFight() {
 resultTimer && (clearTimeout(resultTimer), resultTimer = null);
-dev && combatState && bugsOwned.forEach(b => b.mated = 0);
+dev && combatState && bugsOwned.forEach(b => b.mated = 0), keepHp();
 combatState = !1, tickDebt = 0, simSpd = speedBeforePause, ecsQuery("team").forEach(ecsKill), restoreTerrWorld(), resizeBoxCV(), ov("ov-res", 0), syncHud(!0)
 }
 const tallyFight = (lb, f) => (lb.fights = (lb.fights || 0) + 1, lb.killsTotal = (lb.killsTotal || 0) + (f.killsThis || 0));
@@ -43,7 +44,7 @@ won = alive0.length > 0 && 0 === alive1.length,
 allPlayer = all.filter(f => 0 === f.team),
 allEnemy = all.filter(f => 1 === f.team);
 lastSurvivors = alive0.length ? alive0.map(f => f.b) : null;
-alive0.forEach(f => { const lb = ownedById(f.b.id); lb && (lb.curHp = max(1, round(f.curHp))) });
+keepHp();
 dead0.length && achStep("lost", [1, 10], "lost", dead0.length);
 addKills(allPlayer.reduce((s, f) => s + (f.killsThis || 0), 0));
 const rt = $("res-title"),
@@ -102,7 +103,7 @@ ctx.putImageData(id, 0, 0)
 }
 return div
 };
-const btnRow = `<div style="display:flex;gap:8px;">\n    <button class="nav-mkt bt bt-mkt f1">Market 🛒</button>\n    <button class="nav-terr bt bt-terr f1">BugBox</button>\n    ${bugsOwned.length?'<button class="warn bt f1" onclick="openBoo(true,lastSurvivors);showScreen(\'s-boo\');">↺ Fight Again</button>':""}\n  </div>`;
+const btnRow = `<div style="display:flex;gap:8px;">\n    <button class="nav-mkt bt bt-mkt f1">Market 🛒</button>\n    <button class="nav-terr bt bt-terr f1">BugBox</button>\n    <button class="nav-lab bt bt-lab f1">Breed 🧬</button>\n    ${bugsOwned.length?'<button class="warn bt f1" onclick="openBoo(true,lastSurvivors);showScreen(\'s-boo\');">↺ Fight Again</button>':""}\n  </div>`;
 bugsOwned.length || (html += '<p style="color:#ffdd44;font-size:10px;margin-bottom:8px;">⚠ No bugs left! Visit the Market.</p>'), html += btnRow + `<div style="height:10px;"></div>`;
 html += `<div class="grid2">\n    <div>\n      <div class="lbl-yours">YOUR BUGS</div>\n      <div id="rc-player-col" class="col4"></div>\n    </div>\n    <div>\n      <div class="lbl-enemy">ENEMY BUGS</div>\n      <div id="rc-enemy-col" class="col4"></div>\n    </div>\n  </div>` + btnRow + `<div id="res-cnt" style="position:absolute;right:6px;bottom:4px;font-size:8px;color:#44ccff;">${run.wins}/${fightNum}</div>`
 rb.innerHTML = html;

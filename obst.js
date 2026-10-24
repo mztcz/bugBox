@@ -221,7 +221,7 @@ stem && (g.strokeStyle = "#3a6a28", g.lineWidth = 1.6, g.beginPath(), g.moveTo(0
 g.fillStyle = "#3a7a2a";
 for (let i = 0; i < n; i++) { const a = -1.57 + i / n * TAU;
 g.beginPath(), g.ellipse(cos(a) * r * sz * .7, sin(a) * r * sz * .7, r * sz * .6, r * sz * .5, a, 0, 7), g.fill() }
-}],
+}, 3],
 [[0,1,2,3,4], (g, r, v) => {
 const n = pick([6, 12, 10, 9, 16], v), pl = pick([1, .75, .95, 1, 1.1], v), core = pick(["#e8c830", "#c8a018", "#d8b820", "#d0a828", "#f4c079"], v);
 g.fillStyle = "#e8e4d8";

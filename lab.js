@@ -154,11 +154,11 @@ function markMeta(card, b) {
 if (!b.meta) return;
 const rows = card.querySelectorAll(".sr");
 SK.forEach((k, i) => {
-const row = rows[i + 1], m = b.meta[k];
-if (!row || !m) return;
+const row = rows[i + 1], m = b.meta[k], p = b.meta[k + "P"];
+if (!row || !(m || p)) return;
 const sp = document.createElement("span");
 sp.style = "position:absolute;right:0;font-size:8px;color:" + (m > 0 ? "#4f8" : "#e44");
-sp.textContent = (m > 0 ? "+" : "") + m, row.appendChild(sp)
+sp.innerHTML = (p ? `<span style="color:${p === "A" ? "#ffdd44" : "#44ff88"}">${p}</span> ` : "") + (m ? (m > 0 ? "+" : "") + m : ""), row.appendChild(sp)
 })
 }
 const parentTier = (a, b) => max(tierOf(statSum(a)), tierOf(statSum(b))), breedCost = () => round(tierRate(parentTier(labSt.pA, labSt.pB)) * (statSum(labSt.pA) + statSum(labSt.pB)) / 4),
@@ -198,7 +198,7 @@ const name = childName(a, b), child = { gen: max(a.gen, b.gen) + 1, name: name |
 const hr = random();
 child.hue = hr < 1 / 3 ? a.hue : hr < 2 / 3 ? b.hue : ((random() < .5 ? a.hue : b.hue) + HUE_OFF[ri(4)] + 360) % 360, child.morph = mixMorph(a, b);
 const avg = {};
-SK.forEach(k => { const s = a[k] + b[k]; child[k] = avg[k] = s % 2 ? (s + rsign()) / 2 : s / 2 });
+SK.forEach(k => { const s = a[k] + b[k], h = s % 2 && rsign(); child[k] = avg[k] = (s + h) / 2, h && (child.meta[k + "P"] = h > 0 === a[k] > b[k] ? "A" : "B") });
 shuf(SK.slice()).slice(0, 2).forEach(k => child[k] = clamp(child[k] + mutQ4(), 1, 20));
 capSum(child), SK.forEach(k => child.meta[k] = child[k] - avg[k]);
 return inheritAbilities(child, a, b), child

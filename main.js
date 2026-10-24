@@ -31,10 +31,12 @@ if (tapT.length >= 3) return tapT = [], void panicAll()
 inspected = null
 }, window.addEventListener("resize", () => {
 $("s-terr").classList.contains("active") && !combatState ? spawnTerr() : resizeBoxCV()
-}), $("bt-lab").onclick = () => openLab(), $("bt-boo").onclick = () => {
+}), $("bt-boo").onclick = () => {
 openBoo(), showScreen("s-boo")
 }, document.addEventListener("click", e => {
+if (e.target.closest("#s-mkt .title, #terr-title")) return location.reload();
 if (e.target.closest(".bt-mkt")) return combatState && leaveFight(), openMkt();
+if (e.target.closest(".bt-lab")) return combatState && leaveFight(), openLab();
 e.target.closest(".bt-terr") && leaveFight()
 }), document.addEventListener("click", closeKill), $("bt-combat").onclick = e => startFight(e.currentTarget, "mc" === fightMode ? 1 : enemyTier), $("bt-next").onclick = e => startFight(e.currentTarget, enemyTier + 1);
 $("bt-speed").onclick = () => {
@@ -62,8 +64,9 @@ ov("ov-set", 1)
 const setSnd = on => { sound.on = on, $("bt-snd").textContent = on ? "🔊" : "🔇" };
 $("gset-snd").onchange = e => setSnd(e.target.checked), $("bt-snd").onclick = () => setSnd(!sound.on);
 $("bt-fow").onclick = () => toggleFow();
-let tap0;
+let tap0, cardDrag = 0;
 document.addEventListener("touchstart", e => tap0 = e.touches[0], { passive: !0 });
+document.addEventListener("touchmove", e => cardDrag && (e.preventDefault(), drag && dragMove({ clientX: e.touches[0].clientX, clientY: e.touches[0].clientY, preventDefault() {} })), { passive: !1 });
 document.addEventListener("touchend", e => {
 const t = e.changedTouches[0];
 e.target.closest(".card") && hypot(t.clientX - tap0.clientX, t.clientY - tap0.clientY) < 20 && (e.preventDefault(), e.target.click())
@@ -72,7 +75,10 @@ document.addEventListener("pointerdown", e => {
 const c = e.target.closest(".pick-grid .card");
 c && hold(500, () => {
 const b = bugOfCard(c);
-b && (achieve("find"), closeKill(), leaveFight(), requestAnimationFrame(() => requestAnimationFrame(() => inspected = b)))
+b && (achieve("find"), closeKill(), leaveFight(), cardDrag = 1, requestAnimationFrame(() => requestAnimationFrame(() => {
+const en = ecsQuery("bug").find(x => C.bug.get(x) === b), [cx, cy] = boxPt(e);
+inspected = b, cardDrag && en != null && dragAt({ e: en, kind: "bug", pad: 21 }, cx, cy)
+})))
 })
 });
-["pointerup", "pointercancel"].forEach(k => document.addEventListener(k, () => clearTimeout(holdT)));
+["pointerup", "pointercancel"].forEach(k => document.addEventListener(k, () => (clearTimeout(holdT), cardDrag && (cardDrag = 0, endDrag()))));

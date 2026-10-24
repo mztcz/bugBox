@@ -1,5 +1,6 @@
 let drag = null, suppressClick = !1, holdT = 0;
 const DRAG_SLOP = 8, HOLD_MS = 250, hold = (ms, fn) => holdT = setTimeout(fn, ms);
+const dragAt = (t, cx, cy, p = C.pos.get(t.e)) => ("bug" === t.kind && mateCancel(t.e), drag = { ...t, ox: p.x - cx, oy: p.y - cy, sx: cx, sy: cy, moved: !1 }, ecsFront(t.e));
 const boxPt = e => { const r = boxCv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top] };
 function nearest(comps, cx, cy, radius, dist = en => hypot(C.pos.get(en).x - cx, C.pos.get(en).y - cy)) {
 let hit = null, best = 1 / 0;
@@ -22,9 +23,7 @@ function dragStart(e) {
 const [cx, cy] = boxPt(e), t = draggableAt(cx, cy);
 suppressClick = !1, t || hold(HOLD_MS, () => canPlaceFood() && (ecsSpawn({ food: {}, pos: { x: cx, y: cy, dir: 0 } }), SFX.feed(), combatState && foodLeft--, suppressClick = !0));
 if (!t || combatState) return;
-const op = C.pos.get(t.e);
-"bug" === t.kind && mateCancel(t.e);
-drag = { ...t, ox: op.x - cx, oy: op.y - cy, sx: cx, sy: cy, moved: !1 }, ecsFront(t.e);
+dragAt(t, cx, cy);
 boxCv.setPointerCapture && boxCv.setPointerCapture(e.pointerId)
 }
 function dragMove(e) {
