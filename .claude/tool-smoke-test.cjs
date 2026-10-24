@@ -1,13 +1,13 @@
 // BUGBOX smoke test: module check + headless run (box, fight, overlays). Exit 0 = OK.
-// Usage: node .claude/tool-smoke-test.cjs         runs only after the user wrote oktk (token set by --arm)
-//        node .claude/tool-smoke-test.cjs --arm   UserPromptSubmit hook: prompt oktk sets the token, any other prompt removes it
-//        node .claude/tool-smoke-test.cjs --gate  PreToolUse hook on Skill: blocks skill oktk without the token
+// Usage: node .claude/tool-smoke-test.cjs         runs only after the user wrote okp (token set by --arm)
+//        node .claude/tool-smoke-test.cjs --arm   UserPromptSubmit hook: prompt okp sets the token, any other prompt removes it
+//        node .claude/tool-smoke-test.cjs --gate  PreToolUse hook on Skill: blocks skill okp without the token
 const fs = require("fs"), path = require("path"), os = require("os"), { execFileSync } = require("child_process");
 const root = path.resolve(__dirname, "..");
-const token = path.join(os.tmpdir(), "bugbox-oktk");
-if (process.argv.includes("--arm")) { /^\s*oktk\s*$/i.test(JSON.parse(fs.readFileSync(0, "utf8")).prompt || "") ? fs.writeFileSync(token, "") : fs.rmSync(token, { force: true }); process.exit(0) }
-if (process.argv.includes("--gate")) { /oktk/.test(JSON.parse(fs.readFileSync(0, "utf8")).tool_input?.skill) && !fs.existsSync(token) && (console.error("OKTK BLOCKED: runs only after the user writes oktk"), process.exit(2)); process.exit(0) }
-if (!fs.existsSync(token)) { console.log("SMOKE BLOCKED: runs only after the user writes oktk"); process.exit(1) }
+const token = path.join(os.tmpdir(), "bugbox-okp");
+if (process.argv.includes("--arm")) { /^\s*okp\s*$/i.test(JSON.parse(fs.readFileSync(0, "utf8")).prompt || "") ? fs.writeFileSync(token, "") : fs.rmSync(token, { force: true }); process.exit(0) }
+if (process.argv.includes("--gate")) { /okp/.test(JSON.parse(fs.readFileSync(0, "utf8")).tool_input?.skill) && !fs.existsSync(token) && (console.error("OKP BLOCKED: runs only after the user writes okp"), process.exit(2)); process.exit(0) }
+if (!fs.existsSync(token)) { console.log("SMOKE BLOCKED: runs only after the user writes okp"); process.exit(1) }
 const fail = msg => { console.log("SMOKE FAIL\n" + msg); process.exit(1) };
 const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
 const scripts = [...html.matchAll(/<script src="([^"]+\.js)"><\/script>/g)].map(m => m[1]);

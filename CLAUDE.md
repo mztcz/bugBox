@@ -15,14 +15,14 @@
 - Žádné redundance, duplicity ani mrtvý kód.
 - Upravuj existující funkce místo přidávání souborů. Čti jen nutné části souborů.
 - Při každé změně kódu zvyš verzi o +1 minor: `GAME_VERSION` v core.js, řádek 1. Změna jen .md souborů nebo souborů v `.claude/` verzi nemění.
-- Sekci File map měň jen při oktk. Změny souborů a symbolů do té doby sbírej v chatu.
-- Pokyn „oktk“ = samostatná zpráva uživatele „oktk“ = konec session: proveď skill skill-oktk (.claude/skills/skill-oktk/SKILL.md). Novou session nikdy nezakládej, uživatel si ji zakládá sám.
-- Smoke test (`node .claude/tool-smoke-test.cjs`) se smí pouštět jenom když uživatel napíše oktk. Vlastní jiné testy (např. headless prohlížeč) jsou povolené kdykoliv.
+- Sekci File map měň jen při okp. Změny souborů a symbolů do té doby sbírej v chatu.
+- Pokyn „okp“ = samostatná zpráva uživatele „okp“ = konec session: proveď skill skill-okp (.claude/skills/skill-okp/SKILL.md). Novou session nikdy nezakládej, uživatel si ji zakládá sám.
+- Smoke test (`node .claude/tool-smoke-test.cjs`) se smí pouštět jenom když uživatel napíše okp. Vlastní jiné testy (např. headless prohlížeč) jsou povolené kdykoliv.
 - Uživatele nikdy nežádej, aby četl nebo upravoval kód.
 
 ## Workflow
 - Repo: https://github.com/mztcz/bugBox
-- Režim B (Claude Code, zápis do repa): commituj jen změněné soubory, push jen do session větve, žádný pull request. Do main jen přes oktk (skill-oktk). Commit zpráva: 1. řádek anglicky "vX.Y: nejdůležitější změny pro hráče", 1 prázdný řádek, pak řádky SUM nové od posledního commitu přeložené do angličtiny (bez řádku "vX.Y:"); commit při oktk nese celý SUM session. Vše na gitu anglicky.
+- Režim B (Claude Code, zápis do repa): commituj jen změněné soubory, push jen do session větve, žádný pull request. Do main jen přes okp (skill-okp). Commit zpráva: 1. řádek anglicky "vX.Y: nejdůležitější změny pro hráče", 1 prázdný řádek, pak řádky SUM nové od posledního commitu přeložené do angličtiny (bez řádku "vX.Y:"); commit při okp nese celý SUM session. Vše na gitu anglicky.
 - Po každém pushi do main napiš do odpovědi klikací testovací URL https://mztcz.github.io/bugBox/ a k ní verzi vX.Y, která je v main.
 - Po každé změně kódu a pushi do session větve je první řádek odpovědi klikací URL `https://raw.githack.com/mztcz/bugBox/<session větev>/index.html` a k ní verze vX.Y. Nová verze se tam ukáže po pár minutách (cache raw.githack).
 - Testovací artefakt https://claude.ai/artifact/DAGsKmWecR1uCaAMeUMhoB jen na požádání: posílej jen soubory změněné od jeho poslední verze, URL zůstává. Odpověď, která ho vytvoří nebo aktualizuje, začíná řádkem: odkaz, verze vX.Y, přibližná cena v tokenech (odhad z velikosti obsahu, který prošel kontextem).
@@ -120,8 +120,8 @@ Open `index.html`. All paths are relative, so it works from a local folder or fr
 
 ### Tool files
 - **tool-smoke-test** `.claude/tool-smoke-test.cjs` = smoke test: local files linked from `index.html` must exist, every backticked symbol in a routing table row (Area + Symbol columns, file names skipped) must exist in its file; external requests (Google Font) are stubbed so offline runs pass, then all scripts as one ES module (duplicate top-level names across files fail), then headless Chromium: market, box, info tabs, designer, lab, booker, 2v2 fight, leave.
-- `.claude/settings.json` = 3 hooks: **hook-context-compress** (PreCompact: full-context reminder), **hook-oktk-start** (UserPromptSubmit, `tool-smoke-test.cjs --arm`: prompt oktk sets the token, any other prompt removes it), **hook-oktk-block** (PreToolUse on Skill, `tool-smoke-test.cjs --gate`: skill oktk needs the token).
-- **skill-oktk** `.claude/skills/skill-oktk/SKILL.md` = end-of-session routine triggered by "oktk".
+- `.claude/settings.json` = 3 hooks: **hook-context-compress** (PreCompact: full-context reminder), **hook-okp-start** (UserPromptSubmit, `tool-smoke-test.cjs --arm`: prompt okp sets the token, any other prompt removes it), **hook-okp-block** (PreToolUse on Skill, `tool-smoke-test.cjs --gate`: skill okp needs the token).
+- **skill-okp** `.claude/skills/skill-okp/SKILL.md` = end-of-session routine triggered by "okp".
 - **agent-skoukni-kod** `.claude/agents/agent-skoukni-kod.md` = read-only review subagent; run only when the user writes "skoukniKod" (Agent tool, `subagent_type: agent-skoukni-kod`).
 `style.css` has few, very long lines — prefer `grep -o` with a short context over `grep -n`. The `.js` files are multi-line; `grep -n` is safe.
 
