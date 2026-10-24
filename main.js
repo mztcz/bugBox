@@ -59,7 +59,8 @@ $("gset-bg").checked = !!bgOn;
 $("gset-thm").value = bugTheme;
 ov("ov-set", 1)
 };
-$("gset-snd").onchange = e => { sound.on = e.target.checked };
+const setSnd = on => { sound.on = on, $("bt-snd").textContent = on ? "🔊" : "🔇" };
+$("gset-snd").onchange = e => setSnd(e.target.checked), $("bt-snd").onclick = () => setSnd(!sound.on);
 $("bt-fow").onclick = () => toggleFow();
 let tap0;
 document.addEventListener("touchstart", e => tap0 = e.touches[0], { passive: !0 });
