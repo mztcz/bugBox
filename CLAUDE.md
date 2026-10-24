@@ -22,7 +22,7 @@
 
 ## Workflow
 - Repo: https://github.com/mztcz/bugBox
-- Režim B (Claude Code, zápis do repa): commituj jen změněné soubory, push jen do session větve, žádný pull request. Do main jen přes oktk (skill-oktk). Commit zpráva = 1 řádek anglicky: "vX.Y: co se změnilo".
+- Režim B (Claude Code, zápis do repa): commituj jen změněné soubory, push jen do session větve, žádný pull request. Do main jen přes oktk (skill-oktk). Commit zpráva: 1. řádek anglicky "vX.Y: nejdůležitější změny pro hráče", 1 prázdný řádek, pak SUM ve stejném znění jako v odpovědi k té změně (česky, bez řádku "vX.Y:").
 - Po každém pushi do main napiš do odpovědi klikací testovací URL https://mztcz.github.io/bugBox/ a k ní verzi vX.Y, která je v main.
 - Po každé změně kódu a pushi do session větve je první řádek odpovědi klikací URL `https://raw.githack.com/mztcz/bugBox/<session větev>/index.html` a k ní verze vX.Y. Nová verze se tam ukáže po pár minutách (cache raw.githack).
 - Testovací artefakt https://claude.ai/artifact/DAGsKmWecR1uCaAMeUMhoB jen na požádání: posílej jen soubory změněné od jeho poslední verze, URL zůstává. Odpověď, která ho vytvoří nebo aktualizuje, začíná řádkem: odkaz, verze vX.Y, přibližná cena v tokenech (odhad z velikosti obsahu, který prošel kontextem).
