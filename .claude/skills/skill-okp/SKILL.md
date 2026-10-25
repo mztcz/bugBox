@@ -11,7 +11,7 @@ Run the steps in order. Stop and report if a step fails and cannot be fixed.
 1. **Smoke test.** Run `node .claude/tool-smoke-test.cjs` from the repo root. It may run only when the user writes okp. `SMOKE BLOCKED` means no okp was written: stop and report.
 2. **Errors.** If it prints `SMOKE FAIL`, list each error in one line, fix the code, bump `GAME_VERSION` (core.js line 1, +1 minor) and rerun step 1. Repeat until `SMOKE OK`.
 3. **File map.** Update the File map section of CLAUDE.md with the file and symbol changes collected during the session. Change nothing else in CLAUDE.md.
-4. **Commit.** Stage only the files changed in this session (`git add <files>`, never `git add -A`). Message format = CLAUDE.md, section Workflow (first line `vX.Y: <main changes for the player>`, X.Y = current `GAME_VERSION`, blank line, the session SUM in English).
+4. **Commit.** Stage only the files changed in this session (`git add <files>`, never `git add -A`). Message format = CLAUDE.md, section Workflow (first line `vX.Y: <main changes for the player>`, X.Y = current `GAME_VERSION`, blank line, the list of all changes of the session in English).
 5. **Main.** Merge the session branch into main and push:
    `git fetch origin main`, `git checkout main`, `git merge --no-edit <session-branch>`, `git push -u origin main`.
    On a merge conflict, resolve it, rerun step 1, then push.

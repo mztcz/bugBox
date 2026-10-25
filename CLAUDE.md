@@ -22,7 +22,7 @@
 
 ## Workflow
 - Repo: https://github.com/mztcz/bugBox
-- Režim B (Claude Code, zápis do repa): commituj jen změněné soubory, push jen do session větve, žádný pull request. Do main jen přes okp (skill-okp). Commit zpráva: 1. řádek anglicky "vX.Y: nejdůležitější změny pro hráče", 1 prázdný řádek, pak řádky SUM nové od posledního commitu přeložené do angličtiny (bez řádku "vX.Y:"); commit při okp nese celý SUM session. Vše na gitu anglicky.
+- Režim B (Claude Code, zápis do repa): commituj jen změněné soubory, push jen do session větve, žádný pull request. Do main jen přes okp (skill-okp). Commit zpráva: 1. řádek anglicky "vX.Y: nejdůležitější změny pro hráče", 1 prázdný řádek, pak anglický seznam změn od posledního commitu; commit při okp nese seznam změn celé session. Vše na gitu anglicky.
 - Po každém pushi do main napiš do odpovědi klikací testovací URL https://mztcz.github.io/bugBox/ a k ní verzi vX.Y, která je v main.
 - Po každé změně kódu a pushi do session větve je první řádek odpovědi klikací URL `https://raw.githack.com/mztcz/bugBox/<session větev>/index.html` a k ní verze vX.Y. Nová verze se tam ukáže po pár minutách (cache raw.githack).
 - Testovací artefakt https://claude.ai/artifact/DAGsKmWecR1uCaAMeUMhoB jen na požádání: posílej jen soubory změněné od jeho poslední verze, URL zůstává. Odpověď, která ho vytvoří nebo aktualizuje, začíná řádkem: odkaz, verze vX.Y, přibližná cena v tokenech (odhad z velikosti obsahu, který prošel kontextem).
@@ -35,7 +35,7 @@
 - Na otázky odpovídej nejdřív doslovně, důsledně a na všechny.
 - Stručně, přesně, konzistentně, mechanicky. Žádné vágní informace ani neurčité kvalifikátory bez dat či důvodu.
 - Když něco nevíš, napiš "nevím". Ověřená fakta mají prioritu.
-- Neopakuj fakt, frázi ani myšlenku. Nevkládej do odpovědí kód, úvahy ani mezikroky! Jen v SUM můžeš stručně popsat rozdíly, slovy, bez diffů.
+- Neopakuj fakt, frázi ani myšlenku. Nevkládej do odpovědí kód, úvahy ani mezikroky!
 - Nepoužívej slova: nepřesné, absolutní.
 - Před odesláním zkontroluj: shodu osoby, opakování slov, diakritiku, chybějící slovesa, jednotky, logickou konzistenci.
 - "vvv" od uživatele = v poslední odpovědi je chyba nebo neověřená informace; zkontroluj celou odpověď, ověř a oprav. Sám "vvv" nikdy nepiš.
@@ -46,8 +46,7 @@
 1. 2 shrnující věty za celou zprávu (max 50 znaků) + [proc] = 1 stručný návrh, jak poslední krok udělat jinak a lépe; jen když jde výrazně lépe, jinak vynech.
 2. [sou] související, [alt] alternativní, [opp] oponující informace.
 3. [b] [c] [d] = tři next-step návrhy v infinitivu, spustitelné zadáním jednoho písmene.
-4. Při změnách kódu: "SUM: " + seznam všech rozdílů proti začátku session (krom SUM bez slov psaných celých velkými písmeny), 1 prázdný řádek, 1–4 věty o změnách od poslední zprávy (součást SUM, bez čísla verze), nový řádek "vX.Y:" = jediné místo SUM s číslem verze.
-5. SUM a 2 shrnující věty (bod 1) jsou výjimka z pravidel o opakování a délce: smí opakovat klíčové informace. Hlavní text odpovědi max 5 řádků; body 1–4 se do limitu nepočítají. Podrobnosti ověření (co a proč platí/neplatí) jen na vyžádání.
+4. 2 shrnující věty (bod 1) jsou výjimka z pravidel o opakování a délce: smí opakovat klíčové informace. Hlavní text odpovědi max 5 řádků; body 1–3 se do limitu nepočítají. Podrobnosti ověření (co a proč platí/neplatí) jen na vyžádání.
 
 ## File map
 Simple bug life simulator. Plain `<script src>` files, no modules. Everything shares one global scope.
