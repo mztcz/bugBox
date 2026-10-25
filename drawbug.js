@@ -4,9 +4,10 @@ hue = hueOv == null ? b.hue : hueOv;
 drawMorphBug(ctx, cfg, morphColor(hue), x, y, dir + HALF_PI, {
 alpha: alpha, hue: hue,
 walkL: phase ? phase.wL : null, walkR: phase ? phase.wR : null,
-glow: highlighted ? `hsl(${hue},80%,60%)` : null
+glow: highlighted ? glowCol(hue) : null
 })
 }
+const glowCol = hue => `hsl(${hue},80%,60%)`;
 function posPhase(t) { return { wL: (t.stride || 0) + 2.2 * (t.turnAcc || 0), wR: (t.stride || 0) - 2.2 * (t.turnAcc || 0) } }
 function sysAnimPhase() {
 ecsQuery("bug", "pos").forEach(e => {

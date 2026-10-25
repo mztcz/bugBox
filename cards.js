@@ -27,7 +27,7 @@ return `<div class="card-name">${o.name} <span style="color:${o.dead?"#555":STAR
 function makeBugCard(o) {
 const div = document.createElement("div");
 div.className = "card";
-o.style && (div.style = o.style);
+o.style && (div.style = o.style), o.dead || div.style.setProperty("--tc", TIER_COL[tierOf(round(statSum(o.statsObj)))]);
 div.innerHTML = bugCardBody(o);
 const ph = div.querySelector("#" + o.imgId);
 if (ph) { const cv = bugCardH(o.img, o.imgW, o.imgH); ph.appendChild(cv), cv.style.margin = "0" }

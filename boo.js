@@ -25,7 +25,7 @@ $("bt-combat").disabled = !(fightTeam.length && ("string" == typeof fightMode ||
 }
 function booApplyCard(div, btn, b) {
 const sel = fightTeam.find(x => x.id === b.id);
-btn.className = "bt-sel", btn.textContent = sel ? "✓ Selected — remove" : "+ Send to fight", div.classList.toggle("card-sel", !!sel)
+btn.className = "bt-sel", btn.textContent = sel ? "✓ Selected — remove" : "+ Send to fight", div.classList.toggle("card-sel", !!sel), div.classList.toggle("card-off", "boss" === fightMode && !bossFit(b))
 }
 function renderBooGrid() {
 const g = $("boo-grid");

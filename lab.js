@@ -56,7 +56,7 @@ childRow.appendChild(cc), markMeta(cc, l);
 return
 }
 }
-const abLbl = (card, l) => card.querySelector(".card-lbl").innerHTML = l ? ` <span style="color:${l==="A"?"#ffdd44":"#44ff88"}">(${l})</span>` : "";
+const abLbl = (card, l) => card.querySelector(".card-lbl").innerHTML = l ? ` <span style="color:${l==="A"?"#ffdd44":"#ff9933"}">(${l})</span>` : "";
 function labApplyCard(div, b) {
 const isA = labSt.pA?.id === b.id,
 isB = labSt.pB?.id === b.id;
@@ -158,7 +158,7 @@ const row = rows[i + 1], m = b.meta[k], p = b.meta[k + "P"];
 if (!row || !(m || p)) return;
 const sp = document.createElement("span");
 sp.style = "position:absolute;right:0;font-size:8px;color:" + (m > 0 ? "#4f8" : "#e44");
-sp.innerHTML = (p ? `<span style="color:${p === "A" ? "#ffdd44" : "#44ff88"}">${p}</span> ` : "") + (m ? (m > 0 ? "+" : "") + m : ""), row.appendChild(sp)
+sp.innerHTML = (p ? `<span style="color:${p === "A" ? "#ffdd44" : "#ff9933"}">${p}</span> ` : "") + (m ? (m > 0 ? "+" : "") + m : ""), row.appendChild(sp)
 })
 }
 const parentTier = (a, b) => max(tierOf(statSum(a)), tierOf(statSum(b))), breedCost = () => round(tierRate(parentTier(labSt.pA, labSt.pB)) * (statSum(labSt.pA) + statSum(labSt.pB)) / 4),

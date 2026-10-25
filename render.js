@@ -94,8 +94,8 @@ const cfg = ensureMorph(b), r = morphR(b);
 if (isGrey(e)) {
 cb.greyAt || (cb.greyAt = performance.now());
 const k = min(1, floor((performance.now() - cb.greyAt) / 40) / 10);
-drawBugStyled(boxCx, b, p.x, p.y, p.dir, 1 - k, !1, null, sci("col") ? TEAM_HUE[tm.team] : null);
-drawMorphBug(boxCx, cfg, "#6e6e76", p.x, p.y, p.dir + HALF_PI, { alpha: k, flat: 1 });
+drawBugStyled(boxCx, b, p.x, p.y, p.dir, 1 - k, b === inspected, null, sci("col") ? TEAM_HUE[tm.team] : null);
+drawMorphBug(boxCx, cfg, "#6e6e76", p.x, p.y, p.dir + HALF_PI, { alpha: k, flat: 1, glow: b === inspected ? glowCol(b.hue) : null });
 return;
 }
 cb.greyAt = 0;
@@ -153,7 +153,7 @@ boxCx.restore()
 })
 }
 drawCooldowns();
-inCombat && scienceOn && (boxCx.save(), boxCx.fillStyle = "#fff", boxCx.font = "9px 'Courier New'", boxCx.textAlign = "left", boxCx.textBaseline = "top", boxCx.fillText(fmtT(fightMs), 4, 4), boxCx.restore());
+if (inCombat && scienceOn) { const [a0, a1, h0, h1] = teamAlive(ents); boxCx.save(), boxCx.fillStyle = "#fff", boxCx.font = "9px 'Courier New'", boxCx.textAlign = "left", boxCx.textBaseline = "top", boxCx.fillText(fmtT(fightMs), 4, 4), boxCx.fillText(`${a0} (${h0}%) : ${a1} (${h1}%)`, 4, 15), boxCx.restore() }
 const infoEl = $("terr-info");
 if (inspected) { infoEl.innerHTML = inspectLine(inspected); return }
 if (!inCombat) return void(infoEl.textContent = `${bugsOwned.length} bug${1!==bugsOwned.length?"s":""} \u2014 select a bug to inspect`);
@@ -162,5 +162,6 @@ infoEl.textContent = `Fight #${fightNum} \u2014 YOURS: ${a0} alive \u00b7 ${a1} 
 }
 function teamAlive(ents) {
 const live = ents.filter(e => { const c = C.combat.get(e); return !c.dead || c.phoenixT > 0 || c.fakeT > 0 });
-return [live.filter(e => 0 === C.team.get(e).team).length, live.filter(e => 1 === C.team.get(e).team).length]
+const n = tm => live.filter(e => tm === C.team.get(e).team).length, h = tm => { let c = 0, m = 0; ents.forEach(e => { const cb = C.combat.get(e); tm === C.team.get(e).team && (c += max(0, cb.curHp), m += cb.maxHp) }); return round(100 * c / (m || 1)) };
+return [n(0), n(1), h(0), h(1)]
 }

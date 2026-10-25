@@ -1,7 +1,8 @@
 function statColor(v) {
 const n = round(v);
-return n <= 3 ? "#cc7722" : n <= 6 ? "#cccc22" : n <= 10 ? "#00ff66" : "#22dddd"
+return TIER_COL[n <= 3 ? 2 : n <= 6 ? 3 : n <= 10 ? 4 : 5]
 }
+const TIER_COL = ["", "", "#cc7722", "#cccc22", "#00ff66", "#22dddd"];
 const statSum = o => SK.reduce((s, k) => s + o[k], 0);
 const STAT_SUM_MAX = 50, STAT_LIM = [3, 5, 7, 10, 13];
 const tierOf = s => min(5, floor(s / 10) + 1), bossSum = T => T > 4 ? STAT_SUM_MAX : 10 * T - 1,

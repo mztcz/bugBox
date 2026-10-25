@@ -23,7 +23,7 @@ const ABILITIES = {};
 ["focus", "Focus", "int", 0, 0, `Passive. Targets the weakest visible enemy by current HP instead of the closest one.`],
 ["tank", "Tank", "str", 0, 0, `Passive. Keeps walking at full speed even while biting and shoves any bug without Tank out of its path. Only the glass stops it.`],
 ["steadfast", "Steadfast", "agi", 0, 0, `Passive. Walks and turns at double speed, Dash included.`],
-["flee", "Flee", "int", 0, 0, `Twice per fight, below 50% HP and below 25% HP, turns away and runs for 4.5-9s (shorter with higher INT) before hunting again. Bitten while stuck, it fights back instead. Plays dead first if it can.`],
+["flee", "Flee", "int", 0, 0, `Twice per fight, below 50% HP and below 25% HP, turns away and runs for 2.5-7s (shorter with higher INT) before hunting again. Bitten while stuck, it fights back instead. Plays dead first if it can.`],
 ["resilient", "Resilient", "con", 0, 0, `Passive. 50% more max HP than its CON alone gives.`],
 ["chitin", "Chitin", "con", 0, 0, `Passive. Every bite it takes does half damage.`]
 ].forEach(([id, name, stat, cd, dur, txt]) => ABILITIES[id] = { name, stat, cd, dur, txt });
@@ -61,7 +61,7 @@ const t = C.walk.get(e);
 t && !aiAct(t) && (t.scanRemain = 0, t.seekX = t.turnA = null, setAct(e, "fighting"))
 }
 function flee(e, a, panic) {
-const t = C.walk.get(e), cb = C.combat.get(e), p = C.pos.get(e), ms = 4e3 + intMs(e);
+const t = C.walk.get(e), cb = C.combat.get(e), p = C.pos.get(e), ms = 2e3 + intMs(e);
 if ("fleeing" === t.act) return void(panic && (t.actT += ms));
 wakeToFight(e), setAct(e, "fleeing", ms);
 cb.fleeA = a, cb.fleeX = p.x, cb.fleeY = p.y, cb.fleeT = panic ? p.dir + norm(a - p.dir) / 2 : null

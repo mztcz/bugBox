@@ -103,7 +103,7 @@ ctx.putImageData(id, 0, 0)
 }
 return div
 };
-const btnRow = `<div style="display:flex;gap:8px;">\n    <button class="nav-mkt bt bt-mkt f1">Market 🛒</button>\n    <button class="nav-terr bt bt-terr f1">BugBox</button>\n    <button class="nav-lab bt bt-lab f1">Breed 🧬</button>\n    ${bugsOwned.length?'<button class="warn bt f1" onclick="openBoo(true,lastSurvivors);showScreen(\'s-boo\');">↺ Fight Again</button>':""}\n  </div>`;
+const btnRow = `<div style="display:flex;gap:8px;">\n    <button class="nav-mkt bt bt-mkt f1">Market 🛒</button>\n    <button class="nav-terr bt bt-terr f1">BugBox</button>\n    <button class="nav-lab bt bt-lab f1">Breed 🧬</button>\n    ${bugsOwned.length?'<button class="warn bt f1" onclick="openBoo(true,lastSurvivors);showScreen(\'s-boo\');">↺ Fight</button>':""}\n  </div>`;
 bugsOwned.length || (html += '<p style="color:#ffdd44;font-size:10px;margin-bottom:8px;">⚠ No bugs left! Visit the Market.</p>'), html += btnRow + `<div style="height:10px;"></div>`;
 html += `<div class="grid2">\n    <div>\n      <div class="lbl-yours">YOUR BUGS</div>\n      <div id="rc-player-col" class="col4"></div>\n    </div>\n    <div>\n      <div class="lbl-enemy">ENEMY BUGS</div>\n      <div id="rc-enemy-col" class="col4"></div>\n    </div>\n  </div>` + btnRow + `<div id="res-cnt" style="position:absolute;right:6px;bottom:4px;font-size:8px;color:#44ccff;">${run.wins}/${fightNum}</div>`
 rb.innerHTML = html;
