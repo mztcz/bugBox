@@ -43,7 +43,7 @@
 - [tip] = když by mohl uživatel promptovat výrazně lépe.
 
 ## Konec každé odpovědi
-1. 2 shrnující věty za celou zprávu (max 50 znaků) + [proc] = 1 stručný návrh, jak poslední krok udělat jinak a lépe; jen když jde výrazně lépe, jinak vynech.
+1. 2 shrnující věty za celou zprávu (obě věty dohromady max 50 slov) + [proc] = 1 stručný návrh, jak poslední krok udělat jinak a lépe; jen když jde výrazně lépe, jinak vynech.
 2. [sou] související, [alt] alternativní, [opp] oponující informace.
 3. [b] [c] [d] = tři next-step návrhy v infinitivu, spustitelné zadáním jednoho písmene.
 4. 2 shrnující věty (bod 1) jsou výjimka z pravidel o opakování a délce: smí opakovat klíčové informace. Hlavní text odpovědi max 5 řádků; body 1–3 se do limitu nepočítají. Podrobnosti ověření (co a proč platí/neplatí) jen na vyžádání.
