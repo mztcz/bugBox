@@ -10,7 +10,7 @@ return `<div class="panel"><b style="color:#c8f;">\u2b22 ${a.name}</b> <span sty
         <span style="color:#9ab;">${a.txt.replaceAll("{d}", a.dur / 1e3)}</span></div>`
 }).join("")).join("")
 }
-const STAT_FULL = { con: "Constitution", str: "Strength", agi: "Agility", int: "Intelligence", per: "Perception" };
+const STAT_FULL = { con: "Constitution", str: "Strength", agi: "Agility", per: "Perception", int: "Intelligence" };
 function renderInfoWiki() {
 const el = $("itab-info");
 if (el.dataset.done) return;
