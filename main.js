@@ -34,7 +34,6 @@ $("s-terr").classList.contains("active") && !combatState ? spawnTerr() : resizeB
 }), $("bt-boo").onclick = () => {
 openBoo(), showScreen("s-boo")
 }, document.addEventListener("click", e => {
-if (e.target.closest("#s-mkt .title, #terr-title")) return location.reload();
 if (e.target.closest(".bt-mkt")) return combatState && leaveFight(), openMkt();
 if (e.target.closest(".bt-lab")) return combatState && leaveFight(), openLab();
 e.target.closest(".bt-terr") && leaveFight()
@@ -61,8 +60,7 @@ $("gset-bg").checked = !!bgOn;
 $("gset-thm").value = bugTheme;
 ov("ov-set", 1)
 };
-const setSnd = on => { sound.on = on, $("bt-snd").textContent = on ? "🔊" : "🔇" };
-$("gset-snd").onchange = e => setSnd(e.target.checked), $("bt-snd").onclick = () => setSnd(!sound.on);
+$("gset-snd").onchange = e => { sound.on = e.target.checked };
 $("bt-fow").onclick = () => toggleFow();
 let tap0, cardDrag = 0;
 document.addEventListener("touchstart", e => tap0 = e.touches[0], { passive: !0 });
@@ -72,7 +70,7 @@ const t = e.changedTouches[0];
 e.target.closest(".card") && hypot(t.clientX - tap0.clientX, t.clientY - tap0.clientY) < 20 && (e.preventDefault(), e.target.click())
 });
 document.addEventListener("pointerdown", e => {
-const c = e.target.closest(".pick-grid .card");
+const c = e.target.closest(".pick-grid .card, #boo-grid .card");
 c && hold(500, () => {
 const b = bugOfCard(c);
 b && (achieve("find"), closeKill(), leaveFight(), cardDrag = 1, requestAnimationFrame(() => requestAnimationFrame(() => {

@@ -66,7 +66,6 @@ if(typeof window[n]==="undefined")bar().textContent+="NOT LOADED: "+n+"\n"})
 <div id="terr-bar" style="position:relative;">
 <button class="warn bt" id="bt-next" style="display:none;position:absolute;right:6px;bottom:100%;margin-bottom:6px;">NEXT →</button>
 <div id="terr-bar-row" style="justify-content:flex-end;">
-<button class="bt" id="bt-snd" style="margin-right:auto;" title="sound on/off">🔊</button>
 <button class="bt" id="bt-fow" style="display:none;" title="fog of war: hide everything outside the focused bug's field of view">👁 FOW</button>
 <button class="nav-lab bt bt-lab" id="bt-lab">↓ BREED 🧬</button>
 <button id="bt-bg" class="bt" style="display:none;">🖼 BG</button>
@@ -114,9 +113,11 @@ if(typeof window[n]==="undefined")bar().textContent+="NOT LOADED: "+n+"\n"})
 <button class="bt-mode" onclick="setMode(2)">2v2</button>
 <button class="bt-mode" onclick="setMode(3)">3v3</button>
 <button class="bt-mode" onclick="setMode(6)">6v6</button>
+<button class="bt-mode" onclick="setMode('boss')">BOSS</button>
+</div>
+<div class="mode-row" style="margin-top:4px;">
 <button class="bt-mode" onclick="setMode('mayhem')">MAYHEM</button>
 <button class="bt-mode" onclick="setMode('mc')">MC</button>
-<button class="bt-mode" onclick="setMode('boss')">BOSS</button>
 <button class="bt-mode" onclick="setMode('rb')">RB</button>
 <button class="bt-mode" onclick="setMode('wb')">WB</button>
 </div>
@@ -247,6 +248,7 @@ Bug palette
 <hr class="dos-hr">
 <div style="text-align:center;">
 <button class="ok" onclick="ov('ov-set',0)" style="font-size:12px;padding:6px 28px;">OK</button>
+<button class="warn bt" onclick="confirm('Restart game?') && location.reload()">↺ Restart game</button>
 </div>
 </div>
 </div>
