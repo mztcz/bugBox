@@ -63,7 +63,7 @@ hudWas = c;
 HUD_FIGHT_ONLY.forEach(id => $(id).style.display = c && (dev || "bt-bg" !== id) ? "" : "none");
 HUD_BOX_ONLY.forEach(id => $(id).style.display = c ? "none" : "");
 $("terr-title").style.color = c ? "#fa4" : "#4f8", $("terr-title").textContent = c && { mc: "MORTAL COMBAT T", boss: "BOSS FIGHT T", rb: "RAID BOSS T", wb: "WORLD BOSS T" }[fightMode] + enemyTier || "BUGBOX", $("bt-next").style.display = "none";
-boxCv.style.borderColor = c ? "#fa4" : "#4cf";
+boxCv.style.borderColor = c ? boxK() < 1 ? "transparent" : "#fa4" : "#4cf";
 syncSciHud()
 }
 const MAX_FOOD = 30;
@@ -81,15 +81,13 @@ $("s-terr").classList.contains("active") ? simFrame || startSimLoop() : stopSimL
 function stopSimLoop() {
 simFrame && cancelAnimationFrame(simFrame), simFrame = null
 }
-let boxLW = 360,
+let boxLW = 360, boxOX = 0, boxOY = 0,
 boxLH = 300;
 // Fight box area = tierMax / 4 of the full box (T1 only 1/4, T4 open = full)
 const boxK = () => combatState ? Math.sqrt(min(tierMax, 4) / 4) : 1;
 function resizeBoxCV() {
-const dpr = window.devicePixelRatio || 1, st = boxCv.style, k = boxK();
-st.flex = st.width = st.height = st.margin = "";
-const rect = boxCv.getBoundingClientRect();
-boxLW = k * (rect.width || 360), boxLH = k * (rect.height || 300), k < 1 && (st.flex = "none", st.width = boxLW + "px", st.height = boxLH + "px", st.margin = "auto"), boxCv.width = floor(boxLW * dpr), boxCv.height = floor(boxLH * dpr), boxCx.setTransform(dpr, 0, 0, dpr, 0, 0)
+const dpr = window.devicePixelRatio || 1, k = boxK(), rect = boxCv.getBoundingClientRect(), W = rect.width || 360, H = rect.height || 300;
+boxLW = k * W, boxLH = k * H, boxOX = (W - boxLW) / 2, boxOY = (H - boxLH) / 2, boxCv.width = floor(W * dpr), boxCv.height = floor(H * dpr), boxCx.setTransform(dpr, 0, 0, dpr, dpr * boxOX, dpr * boxOY)
 }
 let boxW0 = 0, boxH0 = 0, boxC0 = !1;
 function rescaleBox() {
