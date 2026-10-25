@@ -28,7 +28,7 @@ const SCI_KEYS = [
 ];
 const sciShown = () => SCI_KEYS.filter(([, , , a, c]) => combatState ? c !== 0 : a);
 const VIZ_OFF = { zone: 0, vis: 0, vis1: 0, vis2: 0, visr: 1, bite: 1, dmg: 1, abi: 0, nam: 1, hp: 1, col: 0 };
-let scienceOn = !1;
+let scienceOn = !0;
 const sciNew = () => SCI_KEYS.reduce((o, [k]) => (o[k] = 0, o), {}),
 sciSt = [sciNew(), sciNew()],
 sciCur = () => sciSt[combatState ? 1 : 0];

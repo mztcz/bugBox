@@ -4,11 +4,13 @@ mktCart = [],
 mktTab = 1;
 function openMkt() {
 mktCart = [], mktTab = 1;
-mktPool = [1, 2, 3, 4, 5].map(T => Array.from({ length: 6 }, () => {
+mktPool = [1, 2, 3, 4, 5].map(mktRoll), renderMkt(), showScreen("s-mkt")
+}
+const mktRoll = T => Array.from({ length: 6 }, () => {
 const b = makeBug(genStats(T));
 return b.cost = round(bugValue(b) * (1 + .25 * starsOf(statSum(b))) + 10 * tierRate(T) * b.abilities.length), b
-})), renderMkt(), showScreen("s-mkt")
-}
+});
+function mktReroll() { mktCart = mktCart.filter(b => !mktPool[mktTab - 1].includes(b)), mktPool[mktTab - 1] = mktRoll(mktTab), renderMkt() }
 function setMktTab(t) { tierGate(t) && (mktTab = t, renderMkt()) }
 function mktApplyCard(div, btn, item) {
 const inCart = mktCart.includes(item);
@@ -22,7 +24,7 @@ doneBtn.textContent = n > 0 ? "Buy →" : "BugBox →", doneBtn.disabled = !1
 }
 function renderMkt() {
 const g = $("mkt-grid");
-$("mkt-tabs").innerHTML = [1, 2, 3, 4, 5, 6].map(t => `<button class="bt-tier${t === mktTab ? " prim" : ""}"${t < 6 ? lockAttr(t) : ""} onclick="setMktTab(${t})">${t < 6 ? "T" + t : "Items"}</button>`).join("");
+$("mkt-tabs").innerHTML = (mktTab < 6 ? '<button class="bt-tier" onclick="mktReroll()">↻ Reroll</button>' : "") + [1, 2, 3, 4, 5, 6].map(t => `<button class="bt-tier${t === mktTab ? " prim" : ""}"${t < 6 ? lockAttr(t) : ""} onclick="setMktTab(${t})">${t < 6 ? "T" + t : "Items"}</button>`).join("");
 g.innerHTML = "";
 if (mktTab > 5) return MKT_ITEMS.forEach(([icon, name, cost, desc], i) => {
 const div = document.createElement("div");
