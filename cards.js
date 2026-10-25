@@ -22,12 +22,12 @@ function bugCardBody(o) {
 const img = `<div style="flex-shrink:0;">${o.showHp ? hpBar(o.dead ? 0 : o.hpFrac) : ""}<div class="card-img" id="${o.imgId}"></div></div>`,
 s = round(statSum(o.statsObj)), t = tierOf(s), r = roleOf(o.statsObj),
 info = `<div class="card-info"><div class="card-line"${o.dead?' style="color:#555"':""}>T${t} \u00b7 ${r}</div><div class="card-line">${o.line3}</div></div>`;
-return `<div class="card-name">${o.name} <span style="color:${o.dead?"#555":STAR_COL[t]}">${'<span class="sx">★</span>'.repeat(starsOf(s))}</span><span class="card-lbl"></span></div><div class="card-head">${info}${img}</div>${statBars(o.statsObj, { dead: !!o.dead })}${abilLine(o.abilB, o.dead)}`
+return `<div class="card-name" style="color:${o.dead ? "" : TIER_COL[t]}">${o.name} <span style="color:${o.dead?"#555":STAR_COL[t]}">${'<span class="sx">★</span>'.repeat(starsOf(s))}</span><span class="card-lbl"></span></div><div class="card-head">${info}${img}</div>${statBars(o.statsObj, { dead: !!o.dead })}${abilLine(o.abilB, o.dead)}`
 }
 function makeBugCard(o) {
 const div = document.createElement("div");
 div.className = "card";
-o.style && (div.style = o.style), o.dead || div.style.setProperty("--tc", TIER_COL[tierOf(round(statSum(o.statsObj)))]);
+o.style && (div.style = o.style);
 div.innerHTML = bugCardBody(o);
 const ph = div.querySelector("#" + o.imgId);
 if (ph) { const cv = bugCardH(o.img, o.imgW, o.imgH); ph.appendChild(cv), cv.style.margin = "0" }
