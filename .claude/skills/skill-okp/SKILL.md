@@ -15,6 +15,6 @@ Run the steps in order. Stop and report if a step fails and cannot be fixed.
 5. **Main.** Merge the session branch into main and push:
    `git fetch origin main`, `git checkout main`, `git merge --no-edit <session-branch>`, `git push -u origin main`.
    On a merge conflict, resolve it, rerun step 1, then push.
-6. **Report.** Write `vX.Y` and https://mztcz.github.io/bugBox/ . Add that GitHub Pages shows the new version with a delay (usually 1–2 minutes). Do not publish the test artifact. Offer to update it right away on request (URL in CLAUDE.md, section Workflow; only the changed .js/.css files) and give the extra cost: about 5 000 tokens + 300 tokens per 1 KB of changed files.
-7. **Session.** Do not delete the session branch (the proxy refuses it). Do not archive this session yourself: the final reply would be lost. Tell the user to archive it in the app. Never create a new session; the user creates sessions manually.
+6. **Report.** Write `vX.Y` and https://mztcz.github.io/bugBox/ . Nothing else: no Pages delay note, no test artifact offer. Do not publish the test artifact.
+7. **Session.** Do not delete the session branch (the proxy refuses it). Do not archive this session yourself: the final reply would be lost. Do not tell the user to archive it. Never create a new session; the user creates sessions manually.
 Retry `git push` / `git fetch` up to 4 times on network errors (2 s, 4 s, 8 s, 16 s).
