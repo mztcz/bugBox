@@ -24,7 +24,7 @@
 - Repo: https://github.com/mztcz/bugBox
 - Režim B (Claude Code, zápis do repa): commituj jen změněné soubory, push jen do session větve, žádný pull request. Do main jen přes okp (skill-okp). Commit zpráva: 1. řádek anglicky "vX.Y: nejdůležitější změny pro hráče", 1 prázdný řádek, pak anglický seznam změn od posledního commitu; commit při okp nese seznam změn celé session. Vše na gitu anglicky.
 - Po každém pushi do main napiš do odpovědi klikací testovací URL https://mztcz.github.io/bugBox/ a k ní verzi vX.Y, která je v main.
-- Po každé změně kódu a pushi do session větve je první řádek odpovědi klikací URL `https://raw.githack.com/mztcz/bugBox/<session větev>/index.html` a k ní verze vX.Y. Nová verze se tam ukáže po pár minutách (cache raw.githack).
+- Po každé změně kódu a pushi do session větve je první řádek odpovědi pod blokem SUM klikací URL `https://raw.githack.com/mztcz/bugBox/<session větev>/index.html` a k ní verze vX.Y. Nová verze se tam ukáže po pár minutách (cache raw.githack).
 - Testovací artefakt https://claude.ai/artifact/DAGsKmWecR1uCaAMeUMhoB jen na požádání: posílej jen soubory změněné od jeho poslední verze, URL zůstává. Odpověď, která ho vytvoří nebo aktualizuje, začíná řádkem: odkaz, verze vX.Y, přibližná cena v tokenech (odhad z velikosti obsahu, který prošel kontextem).
 - Režim A (chat bez zápisu do repa): hned bez ptaní naklonuj main. Když se `GAME_VERSION` liší od verze, kterou uvede uživatel, napiš to 1 řádkem a pracuj na klonu. Když klon zmizí, naklonuj znovu a zopakuj úpravy session. Když klonování selže, požádej o nahrání jen potřebných souborů.
 - Režim A dodávka: jen změněné soubory, každý zvlášť, nikdy .zip. Každý soubor kumulativní = originál + všechny úpravy session.
@@ -41,6 +41,9 @@
 - "vvv" od uživatele = v poslední odpovědi je chyba nebo neověřená informace; zkontroluj celou odpověď, ověř a oprav. Sám "vvv" nikdy nepiš.
 - [sug] = konkrétní návrh kdykoliv, když jde něco udělat výrazně lépe, rychleji, stručněji nebo za méně tokenů.
 - [tip] = když by mohl uživatel promptovat výrazně lépe.
+
+## Začátek odpovědi při změně kódu nebo souborů
+- Odpověď začíná blokem SUM: řádek "SUM: " + stručný seznam všech úprav kódu za celou session (bez slov velkými písmeny), prázdný řádek, 1–4 věty o změnách od poslední odpovědi, na novém řádku "vX.Y:". Pak URL a verze, pak hlavní text, na konec body sekce Konec každé odpovědi.
 
 ## Konec každé odpovědi
 1. 2 shrnující věty za celou zprávu (obě věty dohromady max 50 slov) + [proc] = 1 stručný návrh, jak poslední krok udělat jinak a lépe; jen když jde výrazně lépe, jinak vynech.
