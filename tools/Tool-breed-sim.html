@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}[hidden]{display:none!important}</style>
+<title>bugBox Breeding Sim</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: compact lab console; one control bar, charts, new-bug grid, log, table. Help only behind "?" buttons. Palette from brouci-dedicnost.html */
+:root{--bg:#17130f;--panel:#221c16;--panel2:#2c2419;--line:#3d332a;--fg:#efe7d4;--acc:#d9a02b;--good:#8ca83d;--bad:#b4553f;--mute:#8b8073;--dim:#7d7266;
+--a:#d9a02b;--b:#c4733a;--abil:#b79bd0;--yel:#e6c84a;--hl:#8fd0ff;--serif:Georgia,"Times New Roman",serif;--mono:ui-monospace,Menlo,Consolas,monospace;
+--sans:ui-sans-serif,system-ui,"Segoe UI",Roboto,sans-serif;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:13px/1.4 var(--sans);padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px));padding-block:10px 30px}
+.wrap{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
+h1{font:400 20px var(--serif);margin:0;display:flex;align-items:center;gap:8px}
+.ptitle{font:10px var(--mono);letter-spacing:.16em;color:var(--dim);margin-bottom:6px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.help{font-size:12px;line-height:1.5;color:var(--mute);background:var(--panel2);border:1px solid var(--line);padding:8px 10px;margin:0 0 8px;max-width:80ch}
+.help p{margin:0 0 4px}
+.q{width:20px;height:20px;padding:0;border-radius:50%;font:11px var(--mono);color:var(--dim);background:transparent;border:1px solid var(--line);flex:none}
+.ctl,.panel{background:var(--panel);border:1px solid var(--line);padding:10px;min-width:0}
+.ctl{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.ctl label{display:flex;gap:4px;align-items:center;font:11px var(--mono);color:var(--mute)}
+select,button{font:12px var(--mono);background:var(--panel2);color:var(--fg);border:1px solid var(--line);padding:6px 10px;border-radius:0}
+select{padding:4px 6px}
+button{cursor:pointer}
+button:hover,button:focus-visible{border-color:var(--acc);outline:none}
+button.ghost{background:transparent;color:var(--mute)}
+.btns,.seg{display:flex;gap:4px;flex-wrap:wrap}
+.seg button.on{border-color:var(--acc);background:var(--bg)}
+.status{width:100%;padding-top:8px;border-top:1px solid var(--line);font:11px var(--mono);color:var(--mute);font-variant-numeric:tabular-nums}
+.status b{color:var(--fg);font-weight:600}
+.nb{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}
+.card{background:var(--panel);border:1px solid var(--line);padding:8px;min-width:0}
+.card.on{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc) inset}
+.card[data-c]{cursor:pointer}
+.par{display:grid;grid-template-columns:1fr 1fr;gap:8px;background:var(--panel2);border-color:var(--acc)}
+.chead{display:flex;justify-content:space-between;align-items:baseline;gap:6px;margin-bottom:2px}
+.pw{font:10px var(--mono);color:var(--dim);white-space:nowrap}
+.pw b{font-size:16px;color:var(--fg)}
+.code{font:9px var(--mono);letter-spacing:.14em;color:var(--acc)}
+.cname{font:15px/1.1 var(--serif)}
+.cmeta{font:10px var(--mono);color:var(--dim);text-align:right}
+.tn{position:relative;width:100%;height:100%;background:var(--panel2);border:1px solid var(--line);padding:4px 6px;overflow:hidden}
+.tn.hl{border-color:var(--hl);box-shadow:0 0 0 1px var(--hl) inset}
+.tn.off{opacity:.45}
+.tn.gone{opacity:.35;filter:grayscale(1);border-style:dashed}
+.tn.sa,.tn.sb{border-color:var(--a);box-shadow:0 0 0 2px var(--a) inset}
+.tn.sb{border-color:var(--b);box-shadow:0 0 0 2px var(--b) inset}
+.tn.sa::after,.tn.sb::after{content:"A";position:absolute;top:4px;left:55%;font:700 12px var(--mono);color:var(--a)}
+.tn.sb::after{content:"B";color:var(--b)}
+.tn.on{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc) inset}
+.cmeta.l{text-align:left;margin-bottom:4px}
+.tn.cp{border-style:dotted;padding:3px 5px}
+.tn.cp .cname{font-size:11px}
+.tn.cp .pw b{font-size:12px}
+.badge{color:var(--good)}
+.sr{display:grid;grid-template-columns:3.2ch 1fr 2.2ch;gap:5px;align-items:center;margin-bottom:2px;font:10px var(--mono);font-variant-numeric:tabular-nums}
+.sr.m{grid-template-columns:3.2ch 1fr 2.2ch 1.2ch 2.6ch}
+.sr>span:first-child{color:var(--dim)}
+.sr>span{text-align:right}
+.sr>span:first-child{text-align:left}
+.strip{display:flex;overflow:hidden}
+.cell{height:9px;flex:1;border-right:1px solid var(--bg)}
+.cell:last-child{border-right:none}
+.abl{margin-top:4px;font:10px var(--mono);color:var(--abil);min-height:1.3em}
+.log{font:10px var(--mono);color:var(--mute);max-height:110px;overflow:auto;white-space:pre-wrap;font-variant-numeric:tabular-nums}
+.charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:10px}
+canvas{width:100%;height:165px;display:block}
+.leg{display:flex;flex-wrap:wrap;gap:2px 10px;font:10px var(--mono);color:var(--mute);margin-top:4px;padding-left:30px}
+.leg i{display:inline-block;width:10px;height:3px;vertical-align:middle;margin-right:4px}
+.pop{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font:10px var(--mono);font-variant-numeric:tabular-nums}
+th,td{padding:2px 6px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--dim);font-weight:400}
+td.ab{color:var(--abil);white-space:normal;min-width:100px}
+.mated{color:var(--abil)}
+.seg.sm button{padding:2px 8px;font-size:11px}
+.tree{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;flex-direction:column}
+.tree[hidden]{display:none}
+.tbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:calc(8px + env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) 8px max(12px,env(safe-area-inset-left,0px));border-bottom:1px solid var(--line);background:var(--panel);font:11px var(--mono);color:var(--mute)}
+.tbar span{min-width:5ch;text-align:center}
+.tsc{flex:1;overflow:auto;padding-bottom:env(safe-area-inset-bottom,0px)}
+.tsc svg{display:block}
+</style>
+
+<div class="wrap">
+<h1>bugBox Breeding Sim <button class="q" data-h="h0" aria-label="Help">?</button></h1>
+<div class="help" id="h0" hidden><p>Start: T1 bugs from the Market. Each mating pairs the two unmated bugs with the highest Pwr (stat sum). The child is unmated and can mate in the same round.</p><p>A round ends after the set number of matings, or when fewer than 2 unmated bugs remain. Then all bugs can mate again.</p><p>Can mate after N rounds: a child born in round R can mate from round R + N. 0 = already in the round it is born.</p><p>Box full: mating goes on, and for every new child the weakest bug (lowest Pwr, never the new child) is removed.</p><p>m+ = 1 mating. s+ = finish the round (all its matings; if the round is over, run the whole next round). s+10 = 10 whole rounds. ▶ / ■ = start / stop automatic matings at the chosen speed.</p><p>G = generation counted along the longest line of ancestors (max of parents + 1). g = counted along the shortest line (min of parents + 1). G1 × G7 → G8 (g2).</p><p>All 4 methods run in parallel from the same start bugs. Cards, log and table show the selected method. Abilities follow the game rules (lab.js v74.63) in every method.</p></div>
+
+<div class="ctl" id="ctl">
+<label>Method</label><div class="seg" id="models"></div><button class="q" data-h="hM" aria-label="Methods help">?</button>
+<label>Min bugs <select id="nStart"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option></select></label>
+<label>Max bugs <select id="cap"><option>5</option><option>10</option><option>20</option><option>30</option><option>50</option><option selected>100</option><option>200</option><option>500</option></select></label>
+<label>Can mate after <select id="mat"><option selected>0</option><option>1</option><option>2</option><option>3</option></select> rounds</label>
+<label>Mates/round <select id="nMate"><option value="0" selected>max</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>8</option><option>10</option></select></label>
+<label>Display:</label><label><input type="checkbox" id="showNb" checked>Bug stats</label>
+<label><input type="checkbox" id="showCh" checked>Charts</label>
+<label><input type="checkbox" id="allM">Other methods</label><label><input type="checkbox" id="trC">Tree</label>
+<div class="btns" id="ctlBtns"><button id="s1">m+</button><button id="sR">s+</button><button id="s10">s+10</button><button id="play" aria-label="Start">▶</button><select id="spd" aria-label="Matings per second"><option value="1">1/s</option><option value="3" selected>3/s</option><option value="10">10/s</option><option value="30">30/s</option></select><button id="rst" class="ghost">Restart</button></div>
+<div class="help" id="hM" hidden style="width:100%"></div>
+<div class="status" id="status"></div>
+</div>
+
+<section class="panel" id="chPanel"><div class="ptitle">CHARTS · 1 step = <div class="seg sm" id="xMode"><button data-v="m" class="on">m</button><button data-v="s">s</button></div> · zoom <div class="seg sm"><button id="cO" aria-label="Zoom out">−</button><button id="cI" aria-label="Zoom in">+</button></div><span id="cZ">1×</span> <button class="q" data-h="hC" aria-label="Charts help">?</button></div>
+<div class="help" id="hC" hidden><p>1 step = m: x = mating number, dotted line = start of a round. 1 step = s: x = round number, each point = state at the end of the round.</p><p>Zoom: pinch with 2 fingers on a chart (or + / −, Ctrl + wheel), drag with 1 finger or the mouse to move along the x axis. At the right end the window follows new matings. All 3 charts move together.</p><p>Red line = box full, the weakest bugs are removed from here on.</p><p>Other methods comparison: solid line = population average Pwr, dashed line = best Pwr of each method.</p></div>
+<div class="charts">
+<div><canvas id="c1"></canvas><div class="leg" id="l1"></div></div>
+<div><canvas id="c2"></canvas><div class="leg" id="l2"></div></div>
+<div><canvas id="c3"></canvas><div class="leg" id="l3"></div></div>
+</div></section>
+<section class="panel" id="nbPanel"><div class="ptitle">NEW BUGS <select id="nbR"></select> <button class="q" data-h="hN" aria-label="New bugs help">?</button></div>
+<div class="help" id="hN" hidden><p>All children of the chosen round. Tap a child: its parents (A left, B right) take its place and the child moves one slot on. Tap either one again to hide the parents.</p><p>Columns right of a stat bar: value, then A or B = the parent the .5 was rounded towards (green = rounded up, red = rounded down), then the mutation (+ or −). One block = 1 stat point; the bar length grows 5 → 10 → 20 once a stat reaches 6 or 11.</p></div>
+<div class="nb" id="nb"></div></section>
+<div class="tree" id="tree" hidden><div class="tbar" id="tbar"><button id="trX">← Back</button><button id="zO" aria-label="Zoom out">−</button><span id="zL">100%</span><button id="zI" aria-label="Zoom in">+</button><button id="zF">Fit</button><button class="q" data-h="hT" aria-label="Tree help">?</button><span>view</span><div class="seg sm" id="tView"><button data-v="r" class="on">rows</button><button data-v="u">uncrossed</button><button data-v="a">ancestors</button><button data-v="c">chain</button></div><span>rows</span><div class="seg sm" id="tRow"><button data-v="r" class="on">round</button><button data-v="G">G</button><button data-v="g">g</button><button data-v="P">Pwr</button></div><span>align</span><div class="seg sm" id="tAl"><button data-v="l" class="on">left</button><button data-v="c">center</button><button data-v="p">Right</button><button data-v="w">Crown</button><button data-v="m">Mid</button></div></div><div class="help" id="hT" hidden><p>Family tree of the selected method. The Tree checkbox opens it full screen; ← Back returns. Scroll in both directions, zoom with − / + / Fit or pinch. m+, s+, s+10 and ▶ work here too.</p><p>View: rows = one row per round (inside a round one row per G, lower G above), or per G, g, Pwr; align: left = child one card to the right of its left parent, center = one parent (the younger one) in the middle and the child mirrored on the other side of it from the other parent, so both parents and the child are evenly spaced; if that place is taken or more than one card beyond the widest card so far, the other parent becomes the middle one, then the child goes to the middle between its parents, Right = child to the right of its right parent, Crown = each row centred on one common axis and ordered by where the parents stand (a balanced crown), Mid = each child right under the middle point between its parents, a taken place goes to the nearest free one alternately right and left. uncrossed = the same rows reordered so fewer lines cross. ancestors = only the last tapped bug (or the best one) and its ancestors, each bug once, one bug per row by number (lower number always higher), root at the bottom. chain = each round as one line of its children; the line between neighbours is the round's mating chain, dotted small boxes above a child = copies of its other parent(s).</p><p>Tap like the game lab (only bugs that have not mated in this round and are mature): 1st tap = parent A. 2nd tap on another bug = parent B, on empty space = clear. With A and B picked, m+ mates them in this method (the other methods do one automatic mating) and the new child gets an amber frame. A 3rd tap on A or B keeps only that one and shows its line back to the start bugs: its 2 parents are framed light blue, the lines above them light blue; a 3rd tap anywhere else clears both.</p><p>Normal = can mate now, faded = in the box but cannot mate this round, grey dashed = no longer in the box. Lines from both parents meet in the child's top left corner. Line colour: green = child has higher Pwr than this parent, red = lower, yellow = equal.</p></div><div class="tsc" id="trSc"></div></div>
+<section class="panel"><div class="ptitle">LOG</div><div class="log" id="log"></div></section>
+<section class="panel pop"><div class="ptitle">BUGS · sort <div class="seg sm" id="pSort"><button data-v="n">Name</button><button data-v="G">G</button><button data-v="g">g</button><button data-v="P" class="on">Pwr</button></div></div><div id="pop"></div></section>
+</div>
+
+<script>
+const {floor,min,max,random,round}=Math, $=id=>document.getElementById(id);
+const SK=["con","str","agi","per","int"], SN=["CON","STR","AGI","PER","INT"], STAT_LIM=[3,5,7,10,13], STAT_SUM_MAX=50;
+const ri=n=>floor(random()*n), rsign=()=>random()<.5?-1:1, clamp=(v,a,b)=>max(a,min(b,v));
+const shuf=a=>{for(let i=a.length-1;i>0;i--){const j=floor(random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const statSum=o=>SK.reduce((s,k)=>s+o[k],0), tierOf=s=>min(5,floor(s/10)+1), tierLim=T=>STAT_LIM[T-1];
+const starsOf=s=>s>=STAT_SUM_MAX?5:s<10?0:max(0,s%10-5);
+function genStats(T,S=T>1?10*(T-1)+min(ri(10),ri(10)):7+ri(3)){const lim=tierLim(T),ks=shuf(SK.slice()),s={};S=min(S,5*lim);
+for(let n=4;n>=0;n--){const lo=max(1,S-lim*n);S-=s[ks[n]]=lo+ri(min(lim,S-n)-lo+1)}return s}
+const capSum=o=>{let ks;while(statSum(o)>STAT_SUM_MAX&&(ks=SK.filter(k=>o[k]>1)).length)o[ks[ri(ks.length)]]--;return o};
+const mutQ4=()=>{const r=random();return r<.25?-1:r<.5?0:r<.75?1:2};
+const gameStats=up=>(a,b,c)=>{const avg={};
+SK.forEach(k=>{const s=a[k]+b[k],h=s%2&&(up||rsign());c[k]=avg[k]=(s+h)/2,h&&(c.meta[k+"P"]=h>0===a[k]>b[k]?"A":"B",c.meta[k+"U"]=h>0)});
+shuf(SK.slice()).slice(0,2).forEach(k=>c[k]=clamp(c[k]+mutQ4(),1,20));capSum(c);return avg};
+const METHODS={
+A:{name:"Current game (lab.js v74.63)",note:"Parents' average; an odd sum rounds .5 up or down at random. 2 random stats mutate −1 / 0 / +1 / +2 (25 % each). Stats 1–20, sum max 50. Drift +0.20 / stat / generation.",fn:gameStats(0)},
+B:{name:"Current game, .5 rounds up",note:"Same as A, but an odd sum always rounds .5 up. Drift +0.20 / stat / generation plus +0.5 on every odd sum.",fn:gameStats(1)},
+C:{name:"Average + shifted mutation",note:"Base = parents' average (.5 rounds up). Every stat mutates −1 (20 %), 0 (40 %), +1 (30 %), +2 (10 %). Stats 1–20, sum max 50. Drift +0.30 / stat / generation.",
+fn:(a,b,c)=>{const avg={};SK.forEach(k=>{const r=random();avg[k]=round((a[k]+b[k])/2);c[k]=clamp(avg[k]+(r<.2?-1:r<.6?0:r<.9?1:2),1,20)});capSum(c);return avg}},
+D:{name:"Two embryos, the stronger survives",note:"Each stat from a random parent, mutation −1 (25 %) / +1 (25 %), no bonus. Two embryos form, the one with the higher sum is born. Stats 1–20, sum max 50. Drift ≈ +0.11 / stat / generation, slows down at high values.",
+fn:(a,b,c)=>{const draw=()=>{const s={},base={};SK.forEach(k=>{const r=random();base[k]=random()<.5?a[k]:b[k];s[k]=clamp(base[k]+(r<.25?-1:r<.5?1:0),1,20)});return [s,base]};
+const x=draw(),y=draw(),[s,base]=statSum(x[0])>=statSum(y[0])?x:y;Object.assign(c,s);capSum(c);return base}}};
+const COL={A:"#d9a02b",B:"#8ca83d",C:"#6fa8c9",D:"#b79bd0"};
+const ABILITIES={};[["dash","Dash","agi"],["jump","Jump","agi"],["knockout","Knock Out","str"],["kickback","Kick Back","str"],["flanking","Flanking","int"],["strongbite","Strong Bite","str"],["swiftbite","Swift Bite","agi"],["backflip","Backflip","agi"],["grab","Grab","str"],["mark","Mark","int"],["phoenix","Phoenix","con"],["fake","Fake Death","int"],["loud","Loud","per"],["cry","Cry","per"],["v360","360","per"],["braced","Braced","con"],["focus","Focus","int"],["tank","Tank","str"],["steadfast","Steadfast","agi"],["flee","Flee","int"],["resilient","Resilient","con"],["chitin","Chitin","con"]].forEach(([id,name,stat])=>ABILITIES[id]={name,stat});
+const ABIL_MAX=4, ABIL_INHERIT_ONE=.5, ABIL_INHERIT_BOTH=.75, ABIL_ROLL_CHANCE=[.25,.2,.1,.05,0], ABIL_BY_STAT={};
+SK.forEach(k=>ABIL_BY_STAT[k]=Object.keys(ABILITIES).filter(id=>ABILITIES[id].stat===k));
+const abilOrder=b=>SK.filter(k=>b[k]>=5).sort((x,y)=>b[y]-b[x]||(x<y?-1:1));
+function rollAbilities(b,out,used){for(const k of abilOrder(b)){if(out.length>=ABIL_MAX)break;if(used.has(k)||!(random()<(ABIL_ROLL_CHANCE[out.length]||0)))continue;
+const pool=ABIL_BY_STAT[k].filter(id=>!out.includes(id));pool.length&&(out.push(pool[ri(pool.length)]),used.add(k))}return out}
+function inheritAbilities(child,a,b){const pa=a.abilities,pb=b.abilities,out=[],used=new Set();
+for(const k of abilOrder(child)){if(out.length>=ABIL_MAX)break;
+for(const c of shuf(ABIL_BY_STAT[k].map(id=>({id,n:pa.includes(id)+pb.includes(id)})).filter(c=>c.n)))
+if(random()<(c.n===2?ABIL_INHERIT_BOTH:ABIL_INHERIT_ONE)){out.push(c.id),used.add(k);break}}
+rollAbilities(child,out,used);child.abilities=out}
+let bid=1;
+const makeBug=o=>{const b={id:bid,name:"Bug "+bid++,gen:1,g:1,r:-9,mated:0,meta:{},abilities:[],...o};o.abilities||rollAbilities(b,b.abilities,new Set());return b};
+function computeOffspring(a,b,m){const child={id:bid,name:"Bug "+bid++,gen:max(a.gen,b.gen)+1,g:min(a.g,b.g)+1,mated:0,meta:{}},avg=METHODS[m].fn(a,b,child);
+SK.forEach(k=>child.meta[k]=child[k]-avg[k]);inheritAbilities(child,a,b);return child}
+
+let S,SIMS={},cur="A";
+const scaleOf=(o,s)=>max(s,...SK.map(k=>o[k]>=11?20:o[k]>=6?10:5));
+const K=()=>+$("nMate").value||Infinity, unmated=()=>S.bugs.filter(b=>!b.mated&&b.r+ +$("mat").value<=S.round);
+const cap=()=>+$("cap").value;
+const canMate=()=>S.mates<K()&&unmated().length>=2;
+function restart(){play(0);tA=tB=tLin=tNew=0;bid=1;const base=JSON.stringify(Array.from({length:+$("nStart").value},()=>makeBug(genStats(1))));
+for(const m in METHODS){S=SIMS[m]={m,bid,bugs:JSON.parse(base),round:1,mates:0,n:0,hist:[],rStarts:[0],mt:[],scale:5,log:[]};
+S.start=S.bugs.slice();S.bugs.forEach(b=>S.scale=scaleOf(b,S.scale));S.log.push(`Market: bought ${S.bugs.map(b=>`${b.name} (${statSum(b)})`).join(", ")}`);snap(null)}S=SIMS[cur];render()}
+function snap(child){const sums=S.bugs.map(statSum),best=S.bugs.reduce((x,y)=>statSum(y)>statSum(x)?y:x);
+S.hist.push({best:max(...sums),avg:sums.reduce((a,b)=>a+b,0)/sums.length,child:child?statSum(child):null,bs:SK.map(k=>best[k]),
+bA:best.abilities.length,cA:child?child.abilities.length:null,pA:S.bugs.reduce((a,b)=>a+b.abilities.length,0)/S.bugs.length})}
+function newRound(){S.bugs.forEach(b=>b.mated=0);S.mates=0;S.round++;S.rStarts.push(S.n);S.log.push(`— Round ${S.round} —`)}
+function step(){
+if(!canMate()){newRound();
+if(!canMate()){if(!S.bugs.some(b=>b.r+ +$("mat").value>S.round)){S.round--;S.rStarts.pop();S.log.pop();S.log.push("Needs 2 bugs to mate.");return 0}S.log[S.log.length-1]+=" no mature pair";return 1}}
+mate(...shuf(unmated()).sort((x,y)=>statSum(y)-statSum(x)));return 1}
+function mate(a,b){const c=computeOffspring(a,b,S.m);
+c.r=S.round;a.mated=b.mated=1;S.bugs.push(c);S.scale=scaleOf(c,S.scale);S.mates++;S.n++;let rm="";
+if(S.bugs.length>cap()){const w=shuf(S.bugs.filter(x=>x!==c)).sort((x,y)=>statSum(x)-statSum(y))[0];S.bugs.splice(S.bugs.indexOf(w),1);S.fullAt??=S.n;rm=` · removed ${w.name} (${statSum(w)})`}
+const s=statSum(c),pt=max(tierOf(statSum(a)),tierOf(statSum(b)));
+c.badge=tierOf(s)>pt?"▲ NEW TIER":tierOf(s)===pt&&s>max(statSum(a),statSum(b))&&starsOf(s)?"★".repeat(starsOf(s)):"";
+S.mt.push({r:S.round,a,b,c});S.log.push(`#${S.n} R${S.round}: ${a.name} (${statSum(a)}) × ${b.name} (${statSum(b)}) → ${c.name} (${s}) T${tierOf(s)}${c.badge?" "+c.badge:""}${c.abilities.length?" ["+c.abilities.map(i=>ABILITIES[i].name).join(", ")+"]":""}${rm}`);
+snap(c);if(!canMate())S.log.push(`End of round ${S.round} (${S.bugs.length} bugs).`)}
+const canPick=b=>S.bugs.includes(b)&&!b.mated&&b.r+ +$("mat").value<=S.round;
+function manual(){const [a,b]=[tA,tB].map(id=>S.bugs.find(x=>x.id===id));if(!a||!b||!canPick(a)||!canPick(b))return;
+for(const m in METHODS){S=SIMS[m];bid=S.bid;m===cur?(canMate()||newRound(),mate(a,b),tNew=S.bugs.at(-1).id):step();S.bid=bid}S=SIMS[cur];tA=tB=tLin=0;render()}
+function stepAll(){let ok=1;for(const m in METHODS){S=SIMS[m];bid=S.bid;ok=step()&&ok;S.bid=bid}S=SIMS[cur];return ok}
+function run(n){for(let i=0;i<n&&stepAll();i++);render()}
+function nextRound(k){for(;k--;){let i=0;do{if(!stepAll())return render()}while(canMate()&&++i<500)}render()}
+
+let nbR=0,selC=0,xm="m",pSort="P",tRow="r",tAl="l",tView="r",tA=0,tB=0,cz=1,cp=1,tm=0,tLin=0,tNew=0,tZ=1,tW=1,tH=1;
+function tree(){const born={},all=[...S.start,...S.mt.map(x=>(born[x.c.id]=x.r,x.c))],alive=new Set(S.bugs.map(b=>b.id)),par={},kids={},anc=new Set(),
+NW=160,NH=110,CH=34,CWs=76,CW=NW+24,RH=NH+120,N=[],E=[],at={};
+S.mt.forEach(x=>{par[x.c.id]=[x.a,x.b];[x.a,x.b].forEach(p=>(kids[p.id]=kids[p.id]||[]).push(x.c))});
+const up=id=>{if(anc.has(id))return;anc.add(id);(par[id]||[]).forEach(p=>up(p.id))};tLin&&up(tLin);const pl=(par[tLin]||[]).map(p=>p.id);
+const add=(b,x,y,cp)=>{const n={b,x,y,cp,w:cp?CWs:NW,h:cp?CH:NH};N.push(n);cp||(at[b.id]=n);return n},lab=[];
+if(tView==="a"){const root=all.find(b=>b.id===(tLin||tA))||S.bugs.reduce((x,y)=>statSum(y)>statSum(x)?y:x),set=new Set(),xs={[root.id]:0},walk=b=>set.has(b)||(set.add(b),(par[b.id]||[]).forEach(walk));walk(root);
+const list=[...set].sort((a,b)=>a.id-b.id);[...list].reverse().forEach(b=>(par[b.id]||[]).forEach((p,k)=>xs[p.id]??=xs[b.id]+(k?1:-1)*CW/2));
+list.forEach((b,i)=>add(b,xs[b.id],30+i*(NH+40)));lab.push([30+(list.length-1)*(NH+40),"root"]);list.forEach(b=>(par[b.id]||[]).forEach(p=>E.push([at[p.id],at[b.id],"j"])))}
+else if(tView==="c"){let y=30;lab.push([y,"start"]);S.start.forEach((b,i)=>add(b,i*CW,y));y+=NH+60;
+for(let r=1;r<=S.round;r++){const ms=S.mt.filter(x=>x.r===r);if(!ms.length)continue;lab.push([y,"round "+r]);let prev=null;
+ms.forEach((x,i)=>{const c=add(x.c,i*CW,y+CH+30);[x.a,x.b].filter(p=>p!==prev?.b).forEach((p,k)=>E.push([add(p,c.x+k*(CWs+8),y,1),c,"v"]));prev&&[x.a,x.b].includes(prev.b)&&E.push([prev,c,"h"]);prev=c});y+=CH+30+NH+80}}
+else{const key=tRow==="r"?b=>(born[b.id]||0)*1e3+b.gen:{G:b=>b.gen,g:b=>b.g,P:statSum}[tRow];
+const vals=[...new Set(all.map(key))].sort((a,b)=>a-b),rows=vals.map(v=>all.filter(b=>key(b)===v)),idx={};
+if(tView==="u")for(let k=0;k<6;k++){const rs=k%2?[...rows].reverse():rows;rs.forEach(row=>{row.forEach((b,i)=>idx[b.id]??=i);const nb=b=>(k%2?kids[b.id]||[]:par[b.id]||[]).filter(q=>idx[q.id]!=null).map(q=>idx[q.id]),bc=b=>{const v=nb(b);return v.length?v.reduce((s,x)=>s+x,0)/v.length:idx[b.id]};
+row.sort((p,q)=>bc(p)-bc(q)).forEach((b,i)=>idx[b.id]=i)})}
+rows.forEach((row,r)=>{const y=30+r*RH,v=vals[r],used=[];let lx=-CW;lab.push([y,tRow==="r"?(r&&floor(vals[r-1]/1e3)===floor(v/1e3)?"":floor(v/1e3)?"round "+floor(v/1e3)+" · ":"start · ")+"G"+v%1e3:{G:"G",g:"g",P:"Pwr"}[tRow]+" "+v]);
+const mid=b=>{const ps=(par[b.id]||[]).map(p=>at[p.id]).filter(Boolean);return ps.length?ps.reduce((s,p)=>s+p.x,0)/ps.length:null},c0=i=>(i-(row.length-1)/2)*CW,ct=tView!=="u"&&tAl;
+if(ct==="w")return row.map((b,i)=>[b,mid(b)??c0(i)]).sort((p,q)=>p[1]-q[1]).forEach(([b],i)=>add(b,c0(i),y));
+row.forEach((b,i)=>{const ps=(par[b.id]||[]).map(p=>at[p.id]).filter(Boolean),[m,o]=ps.length>1&&ps[1].b.gen>ps[0].b.gen?[ps[1],ps[0]]:ps;
+let x=ct==="m"?mid(b)??c0(i):tView==="u"||!m?lx+CW:tAl==="l"?min(...ps.map(p=>p.x))+CW:tAl==="p"?max(...ps.map(p=>p.x))+CW:(()=>{const lo=min(...N.map(n=>n.x))-CW,hi=max(...N.map(n=>n.x))+CW,cs=o?[2*m.x-o.x,2*o.x-m.x,(m.x+o.x)/2]:[m.x];return cs.find(v=>v>=lo&&v<=hi&&!used.some(u=>Math.abs(u-v)<CW))??clamp(cs[0],lo,hi)})();
+for(let k=1;used.some(u=>Math.abs(u-x)<CW);k++)x+=ct==="m"?(k%2?k:-k)*CW:CW;used.push(x);lx=max(lx,x);add(b,x,y)})});
+S.mt.forEach(x=>[x.a,x.b].forEach(p=>at[p.id]&&E.push([at[p.id],at[x.c.id],"j"])))}
+const x0=min(...N.map(n=>n.x));N.forEach(n=>n.x+=8-x0);const W=tW=16+max(...N.map(n=>n.x+n.w)),H=tH=40+max(...N.map(n=>n.y+n.h));
+const col=(p,c)=>{const a=statSum(p.b),b=statSum(c.b);return b>a?"good":b<a?"bad":"yel"};
+const ln=([p,c,t])=>{const on=anc.has(c.b.id),d=t==="h"?`M${p.x+p.w} ${p.y+p.h/2}L${c.x} ${c.y+c.h/2}`:t==="v"?`M${p.x+p.w/2} ${p.y+p.h}L${p.x+p.w/2} ${c.y}`:`M${p.x+p.w/2} ${p.y+p.h}L${c.x} ${c.y}`;
+return `<path d="${d}" fill="none" stroke="var(--${tLin&&on?"hl":col(p,c)})" stroke-opacity="${tLin?on?1:.08:.7}" stroke-width="${on?1.8:1.2}"/>`};
+return `<svg width="${W*tZ}" height="${H*tZ}" viewBox="0 0 ${W} ${H}" font-family="ui-monospace,monospace" font-size="10">${lab.map(([y,t])=>`<text x="8" y="${y-8}" fill="var(--dim)">${t}</text>`).join("")}${E.map(ln).join("")}${N.map(({b,x,y,w,h,cp})=>
+`<g data-t="${b.id}" style="cursor:pointer" ><foreignObject x="${x}" y="${y}" width="${w}" height="${h}"><div xmlns="http://www.w3.org/1999/xhtml" class="tn${cp?" cp":""}${b.id===tA?" sa":b.id===tB?" sb":b.id===tNew?" on":pl.includes(b.id)?" hl":""}${!alive.has(b.id)?" gone":canPick(b)?"":" off"}">${cp?`<div class="chead"><div class="cname">${b.name}</div><div class="pw"><b>${statSum(b)}</b></div></div>`:node(b)}</div></foreignObject></g>`).join("")}</svg>`}
+function bars(b,showMeta){
+return SK.map((k,i)=>{const v=b[k],m=b.meta[k],p=b.meta[k+"P"];let cells="";
+for(let j=1;j<=S.scale;j++){const on=j<=v;cells+=`<div class="cell" style="background:${on?"var(--acc)":"var(--panel2)"};opacity:${on?(.35+.65*j/S.scale).toFixed(2):1}"></div>`}
+return `<div class="sr${showMeta?" m":""}"><span>${SN[i]}</span><div class="strip">${cells}</div><span>${v}</span>${showMeta?`<span style="color:var(--${b.meta[k+"U"]?"good":"bad"})">${p||""}</span><span style="color:var(--${m>0?"good":"bad"})">${m?(m>0?"+":"")+m:""}</span>`:""}</div>`}).join("")}
+function card(b,on){
+return `<div class="card${on?" on":""}" data-c="${b.id}">${head(b,1)}${bars(b,1)}<div class="abl">${b.abilities.map(i=>"⬢ "+ABILITIES[i].name).join(" ")}</div></div>`}
+const gl=b=>`G${b.gen} (g${b.g})`;
+const head=(b,fx)=>{const s=statSum(b),st="★".repeat(starsOf(s));return `<div class="chead"><div class="cname">${b.name}</div><div class="pw">Pwr <b>${s}</b></div></div><div class="cmeta l">T${tierOf(s)} · ${gl(b)}${st?` <span${fx&&b.badge[0]==="★"?' class="badge"':""}>${st}</span>`:""}${fx&&b.badge[0]==="▲"?` <span class="badge">${b.badge}</span>`:""}</div>`};
+const node=b=>head(b)+bars(b,0);
+const mini=(b,r)=>`<div><div class="code">PARENT <span style="color:var(--${r.toLowerCase()})">${r}</span></div>${node(b)}</div>`;
+
+function chart(id,legId,yT,series,yMax,yTicks,note){const cv=$(id),dpr=devicePixelRatio||1,W=cv.clientWidth,H=cv.clientHeight;cv.width=W*dpr;cv.height=H*dpr;
+const g=cv.getContext("2d");g.scale(dpr,dpr);const L=30,R=8,T=18,B=30,ia=xm==="m"?S.hist.map((h,i)=>i):[0,...S.rStarts.slice(1),...(S.n>S.rStarts.at(-1)?[S.n]:[])],N=cN=ia.length,w=cWn=max(2,Math.ceil(N/cz)),o=max(0,round(cp*(N-w))),idx=ia.slice(o,o+w),n=idx.length-1,xs=i=>L+(W-L-R)*(n?(i-o)/n:0),ys=v=>T+(H-T-B)*(1-v/yMax);
+const cs=getComputedStyle(document.documentElement);g.font="10px "+cs.getPropertyValue("--mono");g.fillStyle=cs.getPropertyValue("--dim");g.strokeStyle=cs.getPropertyValue("--line");g.lineWidth=1;
+yTicks.forEach(v=>{g.beginPath();g.moveTo(L,ys(v)+.5);g.lineTo(W-R,ys(v)+.5);g.stroke();g.textAlign="right";g.fillText(v,L-4,ys(v)+3)});
+g.setLineDash([2,3]);(xm==="m"?S.rStarts.slice(1).filter(i=>i>=o&&i<=o+n):[]).forEach(i=>{g.beginPath();g.moveTo(xs(i)+.5,T);g.lineTo(xs(i)+.5,H-B);g.stroke()});g.setLineDash([]);
+const fp=S.fullAt==null?-1:xm==="m"?S.fullAt:ia.findIndex(i=>i>=S.fullAt);if(fp>=o&&fp<=o+n){const x=xs(fp)+.5;g.save();g.globalAlpha=.6;g.strokeStyle=g.fillStyle=cs.getPropertyValue("--bad");g.beginPath();g.moveTo(x,T);g.lineTo(x,H-B);g.stroke();g.textAlign=x>W-40?"right":"left";g.fillText("full",x>W-40?x-3:x+3,T+8);g.restore()}
+g.textAlign="center";const st=max(1,Math.ceil(n/8));for(let i=o;i<=o+n;i+=st)g.fillText(i,xs(i),H-18);g.fillText(xm==="m"?"mating #":"round #",L+(W-L-R)/2,H-3);g.textAlign="left";g.fillText(yT,L,10);
+series.forEach(([lab,col,f,dots,hist=S.hist,dash])=>{g.strokeStyle=g.fillStyle=col;g.lineWidth=1.6;g.setLineDash(dash?[5,4]:[]);g.beginPath();let on=0;
+idx.forEach((hi,j)=>{const i=o+j,v=f(hist[hi]);if(v==null)return;dots?(g.fillRect(xs(i)-1.5,ys(v)-1.5,3,3)):(on?g.lineTo(xs(i),ys(v)):g.moveTo(xs(i),ys(v)),on=1)});dots||g.stroke()});
+g.setLineDash([]);$(legId).innerHTML=series.filter(x=>x[0]).map(([lab,col])=>`<span><i style="background:${col}"></i>${lab}</span>`).join("")+(note?`<span>${note}</span>`:"")}
+
+function render(){const h=S.hist[S.hist.length-1],all=$("allM").checked;
+$("models").innerHTML=Object.keys(METHODS).map(m=>`<button class="${m===cur?"on":""}" data-m="${m}"><b style="color:${COL[m]}">${m}</b></button>`).join("");
+const bb=S.bugs.reduce((x,y)=>statSum(y)>statSum(x)?y:x);
+$("status").innerHTML=`R <b>${S.round}</b>, mates <b>${S.n}</b> (+${S.mates}), bugs <b>${S.bugs.length}</b>/${cap()}, Pwr <b>${h.best}</b>, G${bb.gen}, g${bb.g}`;
+$("nbPanel").hidden=!$("showNb").checked;$("chPanel").hidden=!$("showCh").checked;
+const rs=[...new Set(S.mt.map(x=>x.r))],nr=rs.includes(nbR)?nbR:rs[rs.length-1];
+$("nbR").innerHTML=`<option value="0">latest</option>`+rs.map(r=>`<option value="${r}"${r===nbR?" selected":""}>R${r} (${S.mt.filter(x=>x.r===r).length})</option>`).join("");
+$("nb").innerHTML=rs.length?S.mt.filter(x=>x.r===nr).map(({a,b,c})=>(c.id===selC?`<div class="card par" data-c="${c.id}">${mini(a,"A")}${mini(b,"B")}</div>`:"")+card(c,c.id===selC)).join(""):"<div class='cmeta'>Press Step.</div>";
+if($("showCh").checked){const yM=Math.min(50,Math.ceil((max(...Object.values(SIMS).map(x=>x.hist[x.hist.length-1].best))+2)/10)*10);
+chart("c1","l1","Pwr (stat sum)",all?Object.keys(METHODS).flatMap(m=>[[m,COL[m],x=>x.avg,0,SIMS[m].hist],["",COL[m],x=>x.best,0,SIMS[m].hist,1]]):[["best Pwr","#8ca83d",x=>x.best],["avg Pwr","#d9a02b",x=>x.avg],["child","#efe7d4",x=>x.child,1]],yM,[0,10,20,30,40,50].filter(v=>v<=yM),all?"solid avg, dashed best":"");
+const sM=Math.max(5,...S.hist.flatMap(x=>x.bs)),sY=sM<=5?5:sM<=10?10:20;
+chart("c2","l2","stat value of the best bug",SK.map((k,i)=>["best "+SN[i],["#b4553f","#d9a02b","#8ca83d","#6fa8c9","#b79bd0"][i],x=>x.bs[i]]),sY,sY===5?[0,1,2,3,4,5]:sY===10?[0,2,4,6,8,10]:[0,5,10,15,20]);
+chart("c3","l3","number of abilities",[["best bug abil.","#8ca83d",x=>x.bA],["avg abil.","#d9a02b",x=>x.pA],["child abil.","#b79bd0",x=>x.cA,1]],4,[0,1,2,3,4])}
+[tA,tB]=[tA,tB].filter(id=>id&&canPick(S.bugs.find(x=>x.id===id))).concat(0,0);tA||(tLin=0);$("tree").hidden||($("trSc").innerHTML=tree());
+$("log").textContent=S.log.slice(-60).join("\n");$("log").scrollTop=1e9;
+const [sf,sd]={n:[b=>b.id,1],G:[b=>b.gen,-1],g:[b=>b.g,-1],P:[statSum,-1]}[pSort],sorted=[...S.bugs].sort((x,y)=>sd*(sf(x)-sf(y))||x.id-y.id),pp={};S.mt.forEach(x=>pp[x.c.id]=[statSum(x.a),statSum(x.b)]);
+const vs=(b,s,p=pp[b.id])=>p?s>max(...p)?' style="color:var(--good)"':s<min(...p)?' style="color:var(--bad)"':"":"";
+$("pop").innerHTML=`<table><tr><th>Name</th><th>G</th><th>Pwr</th><th>T</th>${SN.map(s=>`<th>${s}</th>`).join("")}<th>Abilities</th><th></th></tr>${sorted.map(b=>{const s=statSum(b),t=tierOf(s);
+return `<tr${vs(b,s)}><td class="nm">${b.name}</td><td>${gl(b)}</td><td>${s}</td><td>${t}</td>${SK.map(k=>`<td>${b[k]}</td>`).join("")}<td class="ab">${b.abilities.map(i=>ABILITIES[i].name).join(", ")}</td><td class="mated">${b.mated?"mated":""}</td></tr>`}).join("")}</table>`}
+
+$("models").onclick=e=>{const b=e.target.closest("[data-m]");b&&(cur=b.dataset.m,S=SIMS[cur],tA=tB=tLin=tNew=0,render())};
+$("allM").onchange=render;
+const seg=(id,f)=>$(id).onclick=e=>{const b=e.target.closest("[data-v]");b&&($(id).querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b)),f(b.dataset.v),render())};
+seg("xMode",v=>xm=v);seg("pSort",v=>pSort=v);seg("tRow",v=>tRow=v);seg("tAl",v=>tAl=v);seg("tView",v=>tView=v);
+const sc=$("trSc"),zoom=z=>{z=clamp(z,.1,4);const f=z/tZ,w=sc.clientWidth,h=sc.clientHeight,l=(sc.scrollLeft+w/2)*f-w/2,t=(sc.scrollTop+h/2)*f-h/2,v=sc.querySelector("svg");
+tZ=z;$("zL").textContent=round(z*100)+"%";v&&(v.setAttribute("width",tW*z),v.setAttribute("height",tH*z));sc.scrollLeft=l;sc.scrollTop=t};
+$("zI").onclick=()=>zoom(tZ*1.25);$("zO").onclick=()=>zoom(tZ/1.25);$("zF").onclick=()=>zoom(min(sc.clientWidth/tW,sc.clientHeight/tH));
+let pz=null;const td=e=>Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
+sc.addEventListener("touchstart",e=>{e.touches.length===2&&(pz=[td(e),tZ])},{passive:true});
+sc.addEventListener("touchmove",e=>{if(pz&&e.touches.length===2){e.preventDefault();zoom(pz[1]*td(e)/pz[0])}},{passive:false});
+sc.addEventListener("touchend",e=>{e.touches.length<2&&(pz=null)});
+sc.addEventListener("wheel",e=>{if(e.ctrlKey){e.preventDefault();zoom(tZ*(e.deltaY<0?1.1:1/1.1))}},{passive:false});
+$("trX").onclick=()=>{$("tree").hidden=true;$("trC").checked=false;document.body.style.overflow="";$("ctl").insertBefore($("ctlBtns"),$("hM"));$("ctl").append($("status"))};
+sc.onclick=e=>{const g=e.target.closest("[data-t]"),id=g?+g.dataset.t:0;
+const ok=id&&canPick(S.bugs.find(x=>x.id===id));tNew=0;
+if(tA&&tB)id===tA||id===tB?(tA=id,tB=0,tLin=id):tA=tB=tLin=0;else if(tA)id===tA?tLin=id:ok?(tB=id,tLin=0):tA=tLin=0;else ok&&(tA=id);render()};
+$("trC").onchange=()=>{$("tree").hidden=false;document.body.style.overflow="hidden";$("tbar").append($("ctlBtns"),$("status"));render()};
+document.querySelectorAll(".q").forEach(q=>q.onclick=()=>{const h=$(q.dataset.h);h.hidden=!h.hidden});
+$("hM").innerHTML=Object.keys(METHODS).map(m=>`<p><b style="color:${COL[m]}">${m} ${METHODS[m].name}:</b> ${METHODS[m].note}</p>`).join("");
+$("nbR").onchange=e=>{nbR=+e.target.value;render()};
+$("nb").onclick=e=>{const c=e.target.closest("[data-c]");c&&(selC=selC===+c.dataset.c?0:+c.dataset.c,render())};
+const play=on=>{clearInterval(tm);tm=on?setInterval(()=>{stepAll()||play(0);render()},1000/$("spd").value):0;$("play").textContent=tm?"■":"▶";$("play").ariaLabel=tm?"Stop":"Start"};
+$("play").onclick=()=>play(!tm);$("spd").onchange=()=>tm&&play(1);
+const cZoom=z=>{cz=clamp(z,1,64);$("cZ").textContent=round(cz*10)/10+"×";render()};
+$("cI").onclick=()=>cZoom(cz*2);$("cO").onclick=()=>cZoom(cz/2);
+let cN=1,cWn=1,g0=null;const ptr=new Map(),gest=()=>{const p=[...ptr.values()];return{n:p.length,x:p.reduce((s,q)=>s+q.x,0)/(p.length||1),d:p.length>1?Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y):0,z:cz,p:cp}};
+["c1","c2","c3"].forEach(id=>{const cv=$(id),set=e=>ptr.set(e.pointerId,{x:e.clientX,y:e.clientY});cv.style.touchAction="pan-y";
+cv.onpointerdown=e=>{set(e);cv.setPointerCapture(e.pointerId);g0=gest()};
+cv.onpointerup=cv.onpointercancel=e=>{ptr.delete(e.pointerId);g0=gest()};
+cv.onpointermove=e=>{if(!ptr.has(e.pointerId))return;set(e);const g=gest();if(!g0||g.n!==g0.n)return void(g0=g);
+if(g.n===2&&g0.d>10)cZoom(g0.z*g.d/g0.d);else if(g.n===1&&cN>cWn){cp=clamp(g0.p-(g.x-g0.x)/(cv.clientWidth-38)*(cWn-1)/(cN-cWn),0,1);render()}};
+cv.addEventListener("wheel",e=>{if(e.ctrlKey){e.preventDefault();cZoom(cz*(e.deltaY<0?1.2:1/1.2))}},{passive:false})});
+$("s1").onclick=()=>tA&&tB?manual():run(1);$("s10").onclick=()=>nextRound(10);$("sR").onclick=()=>nextRound(1);
+$("rst").onclick=$("nStart").onchange=restart;$("mat").onchange=$("cap").onchange=$("nMate").onchange=$("showNb").onchange=$("showCh").onchange=render;
+addEventListener("resize",()=>S&&render());
+restart();run(3);
+</script>
