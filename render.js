@@ -161,7 +161,7 @@ const [a0, a1] = teamAlive(ents);
 infoEl.textContent = `Fight #${fightNum} \u2014 YOURS: ${a0} alive \u00b7 ${a1} alive :ENEMY \u2014 food ${foodLeft}`
 }
 function teamAlive(ents) {
-const live = ents.filter(e => { const c = C.combat.get(e); return !c.dead || c.phoenixT > 0 || c.fakeT > 0 });
+const live = ents.filter(e => { const c = C.combat.get(e); return !c.dead || c.phoenixT > 0 });
 const n = tm => live.filter(e => tm === C.team.get(e).team).length, h = tm => { let c = 0, m = 0; ents.forEach(e => { const cb = C.combat.get(e); tm === C.team.get(e).team && (c += max(0, cb.curHp), m += cb.maxHp) }); return round(100 * c / (m || 1)) };
 return [n(0), n(1), h(0), h(1)]
 }

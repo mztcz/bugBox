@@ -216,10 +216,10 @@ g.strokeStyle = "#4a5a28", g.lineWidth = 1.4;
 for (let i = 1; i <= seg; i++) { const x = -r * .95 + 1.9 * r * i / (seg + 1); g.beginPath(), g.moveTo(x, -r * thick), g.lineTo(x, r * thick), g.stroke() }
 }],
 [[0,1,2,3,4], (g, r, v) => {
-const n = pick([3, 4, 5, 3, 7], v), sz = pick([.5, .45, .4, .25, .91], v), stem = pick([1, 1, 1, 0, 1], v);
+const n = pick([3, 4, 5, 3, 4], v), sz = pick([.5, .45, .4, .25, .91], v), stem = pick([1, 1, 1, 0, 1], v);
 stem && (g.strokeStyle = "#3a6a28", g.lineWidth = 1.6, g.beginPath(), g.moveTo(0, 0), g.lineTo(0, r), g.stroke());
 g.fillStyle = "#3a7a2a";
-for (let i = 0; i < n; i++) { const a = -1.57 + i / n * TAU;
+for (let i = 0; i < n; i++) { const a = (4 === v ? -.785 : -1.57) + i / n * TAU;
 g.beginPath(), g.ellipse(cos(a) * r * sz * .5, sin(a) * r * sz * .5, r * sz * .6, r * sz * .5, a, 0, 7), g.fill() }
 }, 3],
 [[0,1,2,3,4], (g, r, v) => {
