@@ -125,6 +125,7 @@ Open `index.html`. All paths are relative, so it works from a local folder or fr
 - `.claude/settings.json` = 3 hooks: **hook-context-compress** (PreCompact: full-context reminder), **hook-okp-start** (UserPromptSubmit, `tool-smoke-test.cjs --arm`: prompt okp sets the token, any other prompt removes it), **hook-okp-block** (PreToolUse on Skill, `tool-smoke-test.cjs --gate`: skill okp needs the token).
 - **skill-okp** `.claude/skills/skill-okp/SKILL.md` = end-of-session routine triggered by "okp".
 - **agent-skoukni-kod** `.claude/agents/agent-skoukni-kod.md` = read-only review subagent; run only when the user writes "skoukniKod" (Agent tool, `subagent_type: agent-skoukni-kod`).
+- **tool-breed-sim** `tools/Tool-breed-sim.html` = standalone breeding simulator page, not loaded by the game: greedy best-with-best mating per round, 4 inheritance methods compared side by side, charts, family tree with lab-style parent pick. Game rules inside are copies from `lab.js`, `bug.js`, `abilities.js`.
 `style.css` has few, very long lines — prefer `grep -o` with a short context over `grep -n`. The `.js` files are multi-line; `grep -n` is safe.
 
 ### Saved data
