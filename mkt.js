@@ -8,13 +8,13 @@ mktPool = [1, 2, 3, 4, 5].map(mktRoll), renderMkt(), showScreen("s-mkt")
 }
 const mktRoll = T => Array.from({ length: 6 }, () => {
 const b = makeBug(genStats(T));
-return b.cost = round(bugValue(b) * (1 + .25 * starsOf(statSum(b))) + 10 * tierRate(T) * b.abilities.length), b
+return b.cost = round(bugValue(statSum(b)) * (1 + .25 * starsOf(statSum(b))) + 10 * tierRate(T) * b.abilities.length), b
 });
 function mktReroll() { mktCart = mktCart.filter(b => !mktPool[mktTab - 1].includes(b)), mktPool[mktTab - 1] = mktRoll(mktTab), renderMkt() }
 function setMktTab(t) { tierGate(t) && (mktTab = t, renderMkt()) }
 function mktApplyCard(div, btn, item) {
 const inCart = mktCart.includes(item);
-btn.className = "card-bt bt-sel", btn.textContent = inCart ? "✓ In cart — remove" : "Buy $" + item.cost, div.classList.toggle("card-sel", inCart), div.classList.toggle("card-off", !inCart && money < item.cost)
+btn.className = "card-bt bt-sel", btn.textContent = inCart ? "✓ In cart — remove" : "Buy $" + item.cost, div.classList.toggle("card-sel", inCart), div.classList.toggle("card-off", !dev && !inCart && money < item.cost)
 }
 function updateMktFooter() {
 const n = mktCart.length;
@@ -52,7 +52,7 @@ e.stopPropagation(), toggleCart(item, div)
 function toggleCart(item, div) {
 if (mktCart.includes(item)) mktCart = mktCart.filter(x => x !== item), money += item.cost;
 else {
-if (money < item.cost) return flashBlocked(div), void toast("Not enough money!");
+if (!dev && money < item.cost) return flashBlocked(div), void toast("Not enough money!");
 money -= item.cost, mktCart.push(item)
 }
 [...$("mkt-grid").children].forEach((d, i) => mktApplyCard(d, d.lastChild, mktPool[mktTab - 1][i])), updateMktFooter(), updateMoney()
@@ -60,7 +60,7 @@ money -= item.cost, mktCart.push(item)
 const OVER_DELAY = 3000;
 let overTimer = null;
 function cheapestOnShelf() { return mktPool.flat().reduce((m, it) => min(m, it.cost), 1 / 0) }
-function runIsOver() { return !bugsOwned.length && !mktCart.length && money < cheapestOnShelf() }
+function runIsOver() { return !dev && !bugsOwned.length && !mktCart.length && money < cheapestOnShelf() }
 function cancelOverWatch() { overTimer && (clearTimeout(overTimer), overTimer = null) }
 function armOverWatch() {
 cancelOverWatch();

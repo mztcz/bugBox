@@ -114,7 +114,9 @@ wakeToFight(e)
 }
 if (cb.stunT > 0) return;
 let target = null,
-minD2 = 1 / 0;
+minD2 = 1 / 0,
+lockOk = 0;
+const bossAI = tm.team && BOSS[fightMode], inCone = oe => { const op = C.pos.get(oe); return abs(norm(atan2(op.y - p.y, op.x - p.x) - p.dir)) < FRONT_CONE };
 const focusOn = hasAbil(b, "focus");
 let focusHp = 1 / 0;
 const visR = visRangeOf(b),
@@ -132,10 +134,8 @@ const os = snap.get(oe),
 dx = os.x - myS.x,
 dy = os.y - myS.y,
 d2 = dx * dx + dy * dy;
-if (d2 >= visR2) return;
-if (!focusOn && d2 >= minD2) return;
-const va = norm(atan2(dy, dx) - myS.dir);
-if (abs(va) <= fovHalf) consider(oe, d2);
+if (d2 >= visR2 || abs(norm(atan2(dy, dx) - myS.dir)) > fovHalf) return;
+oe === cb.lockE && (lockOk = 1), consider(oe, d2);
 });
 if (cb.avengeE >= 0) {
 if (!liveE(cb.avengeE)) cb.avengeE = -1;
@@ -162,6 +162,7 @@ if (cb.pickE >= 0) {
 liveE(cb.pickE) ? target = cb.pickE : cb.pickE = -1
 }
 }
+bossAI && (cb.lockE = target = cb.pickE >= 0 && inCone(cb.pickE) ? cb.pickE : lockOk ? cb.lockE : target);
 cb.flyE >= 0 && (liveE(cb.flyE) ? target = cb.flyE : cb.flyE = -1);
 let minD = 1 / 0;
 cb.curTarget = target == null ? -1 : target;
@@ -259,15 +260,7 @@ const tm2 = ensureMorph(tb), L = tm2.bodyLength + tm2.headSize;
 cb.flyT = 1, cb.flyDx = tp.x + cos(toT) * L - p.x, cb.flyDy = tp.y + sin(toT) * L - p.y, cb.flySp = PI * (5 / 6 + random() / 3), cb.flyE = target, cb.airT = cb.airMs = ABILITIES.jump.dur, airT = 1;
 abilFire(e, "jump");
 }
-const inRange = minD <= attackReach * (cb.wasInRange ? 1.1 : 1);
-cb.wasInRange = inRange ? 1 : 0;
-if (inRange && facingOK && !airT) {
-if (cb.bitePrep > 0) cb.bitePrep -= dt;
-cb.prepVisT = 20;
-} else if (!inRange) {
-cb.bitePrep = max(cb.bitePrep, 0);
-}
-if (inRange && facingOK && cb.bitePrep <= 0 && !airT) {
+const bite = (target, tb, tp, tcb, toT) => {
 if (!biteDodged(b, p, tb, tp, tm.team)) {
 let strongMult = 1;
 if (cb.strongPend) { strongMult = 2; cb.strongPend = 0 }
@@ -285,7 +278,20 @@ biteDone(cb, b, tm.team, cb.swiftPend ? .5 : 1), cb.swiftPend = 0;
 if (abilReady(e, "strongbite") && !cb.strongPend) { cb.strongPend = 1; abilFire(e, "strongbite") }
 if (abilReady(e, "swiftbite") && !cb.swiftPend) { cb.swiftPend = 1; abilFire(e, "swiftbite") }
 if (abilReady(e, "loud")) { cb.loudT = ABILITIES.loud.dur; abilFire(e, "loud") }
+};
+const inRange = minD <= attackReach * (cb.wasInRange ? 1.1 : 1);
+cb.wasInRange = inRange ? 1 : 0;
+const opp = bossAI && !(inRange && facingOK) && ents.find(oe => {
+const ocb = C.combat.get(oe), op = C.pos.get(oe);
+return oe !== target && !ocb.dead && ocb.curHp > 0 && C.team.get(oe).team !== tm.team && hypot(op.x - p.x, op.y - p.y) <= engageDist + bugRadius(C.bug.get(oe)) && inCone(oe)
+}), canBite = inRange && facingOK || opp;
+if (canBite && !airT) {
+if (cb.bitePrep > 0) cb.bitePrep -= dt;
+cb.prepVisT = 20;
+} else if (!inRange && !opp) {
+cb.bitePrep = max(cb.bitePrep, 0);
 }
+canBite && cb.bitePrep <= 0 && !airT && (opp ? bite(opp, C.bug.get(opp), C.pos.get(opp), C.combat.get(opp), atan2(C.pos.get(opp).y - p.y, C.pos.get(opp).x - p.x)) : bite(target, tb, tp, tcb, toT));
 } else {
 cb.aimLock = 0, cb.aimTarget = -1;
 cb.dashT = 0, cb.dashHitPend = 0;

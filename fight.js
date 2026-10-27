@@ -17,10 +17,11 @@ const b = bosses[k] = makeBug({ ...genStats(enemyTier, S), hue: rf(0, 45), hpMul
 }
 return [bosses[k]]
 }
-const entryFee = T => 1 === fightMode && 1 === T ? 0 : 2 * T * tierRate(T) * (BOSS[fightMode] ? 1 : fightTeam.length);
+const foeN = () => BOSS[fightMode] ? 1 : +fightMode || max(1, fightTeam.length), prizeK = () => (BOSS[fightMode] || [1])[0],
+entryFee = T => 1 === fightMode && 1 === T ? 0 : 2 * T * tierRate(T) * foeN();
 const keepHp = () => ecsQuery("team", "combat").forEach(e => { const c = C.combat.get(e); C.team.get(e).team || c.dead || (C.bug.get(e).curHp = max(1, round(c.curHp))) });
 function startFight(btn, T) {
-if (money < entryFee(T)) return flashBlocked(btn), void toast("Not enough money!");
+if (!dev && money < entryFee(T)) return flashBlocked(btn), void toast("Not enough money!");
 money -= entryFee(T), enemyTier = T, updateMoney(), keepHp();
 bgPick(), fightNum++, enemies = buildEnemies(), groundMarks = [], dmgPops = [], fightDone = !1, fightMs = 0, foodLeft = 3, combatState = !0, simSpd = 1, tickDebt = 0, syncSpeedLabel();
 markEggsReady();
@@ -28,10 +29,14 @@ showScreen("s-terr"), resizeBoxCV(), spawnTerr(), toast("Morituri te salutant")
 }
 function endFight() {
 resultTimer && (clearTimeout(resultTimer), resultTimer = null);
-dev && combatState && bugsOwned.forEach(b => b.mated = 0), keepHp();
+dev && combatState && bugsOwned.forEach(b => b.mated = 0), keepHp(), buryDead(bugsInTerrView().filter(f => 0 === f.team && f.dead));
 combatState = !1, tickDebt = 0, simSpd = speedBeforePause, ecsQuery("team").forEach(ecsKill), restoreTerrWorld(), resizeBoxCV(), ov("ov-res", 0), syncHud(!0)
 }
-const tallyFight = (lb, f) => (lb.fights = (lb.fights || 0) + 1, lb.killsTotal = (lb.killsTotal || 0) + (f.killsThis || 0));
+const tallyFight = (lb, f) => (lb.fights = (lb.fights || 0) + 1, lb.killsTotal = (lb.killsTotal || 0) + (f.killsThis || 0)),
+buryDead = dead => dead.forEach(f => {
+const lb = ownedById(f.b.id);
+lb && (lb.losses++, tallyFight(lb, f), bugsOwned = bugsOwned.filter(b => b.id !== f.b.id), run.end = `${lb.name} died in fight T${enemyTier}`)
+});
 function showFightResult() {
 resultTimer = null;
 if (!combatState) return;
@@ -49,14 +54,11 @@ dead0.length && achStep("lost", [1, 10], "lost", dead0.length);
 addKills(allPlayer.reduce((s, f) => s + (f.killsThis || 0), 0));
 const rt = $("res-title"),
 rb = $("res-body");
-rt.textContent = won ? "VICTORY!" : "DEFEAT", rt.style.color = won ? "#44ff88" : "#ff4444", won && SFX.win(), dead0.forEach(f => {
-const lb = ownedById(f.b.id);
-lb && (lb.losses++, tallyFight(lb, f), bugsOwned = bugsOwned.filter(b => b.id !== f.b.id), run.end = `${lb.name} died in fight T${enemyTier}`)
-});
+rt.textContent = won ? "VICTORY!" : "DEFEAT", rt.style.color = won ? "#44ff88" : "#ff4444", won && SFX.win(), buryDead(dead0);
 let html = "";
 if (won) {
 "boss" === fightMode && enemyTier >= tierMax && enemyTier < 5 && toast(`Tier ${enemyTier} boss is defeated. T${tierMax = enemyTier + 1} opens`);
-const prize = allEnemy.reduce((s, f) => s + bugValue(f.b), 0) * (BOSS[fightMode] || [1])[0];
+const prize = allEnemy.reduce((s, f) => s + bugValue(statSum(f.b)), 0) * prizeK();
 money += prize, alive0.forEach(f => {
 const lb = ownedById(f.b.id);
 lb && (lb.wins++, tallyFight(lb, f), achSurvive(lb))

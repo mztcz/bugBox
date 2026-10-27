@@ -6,7 +6,7 @@ const TIER_COL = ["", "", "#cc7722", "#cccc22", "#00ff66", "#22dddd"];
 const statSum = o => SK.reduce((s, k) => s + o[k], 0);
 const STAT_SUM_MAX = 50, STAT_LIM = [3, 5, 7, 10, 13];
 const tierOf = s => min(5, floor(s / 10) + 1), bossSum = T => T > 4 ? STAT_SUM_MAX : 10 * T - 1,
-tierRate = T => 2 ** T, bugValue = b => { const s = statSum(b); return tierRate(tierOf(s)) * s },
+tierRate = T => 2 ** T, bugValue = s => tierRate(tierOf(s)) * s,
 starsOf = s => s >= STAT_SUM_MAX ? 5 : s < 10 ? 0 : max(0, s % 10 - 5), ROLES = [["Bulwark", "Ripper", "Scuttler", "Scout", "Scarab"], ["Tough", "Strong", "Swift", "Sentry", "Smart"], ["Eggshell", "Weakling", "Slug", "Mole", "Drone"], ["Fragile", "Weak", "Slow", "Blind", "Dumb"]],
 roleOf = o => { const i = shuf([0, 1, 2, 3, 4]).sort((a, b) => o[SK[b]] - o[SK[a]]), v = i.map(j => o[SK[j]]), R = (g, j) => ROLES[g][i[j]];
 return v[1] >= v[2] + 2 ? R(1, 1) + " " + R(0, 0) : v[0] >= v[1] + 2 ? R(0, 0) : v[3] <= v[2] - 2 ? R(3, 3) + " " + R(2, 4) : v[4] <= v[3] - 2 ? R(2, 4) : "Brawler" };
