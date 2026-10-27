@@ -205,7 +205,7 @@ g.bezierCurveTo(r * .4, r * .55, r * .15, r * .6, 0, r);
 g.bezierCurveTo(-r * .15, r * .6, -r * .4, r * .55, -r * lob, r * .35);
 g.bezierCurveTo(-r * .95, -r * .1, -r * .5, -r * .8, 0, -r), g.fill();
 g.strokeStyle = "#c8e8b0", g.lineWidth = .9, g.globalAlpha = .5;
-for (const s of [-1, 0, 1]) { g.beginPath(), g.moveTo(0, r * .5), g.lineTo(s * r * .6, -r * .5), g.stroke() }
+for (const s of [-1, 0, 1]) { g.beginPath(), g.moveTo(0, r * .5), g.lineTo(s * r * (s ? .42 : .6), -r * (s ? .2 : .5)), g.stroke() }
 g.globalAlpha = 1;
 }],
 [[0,1,2,3,4], (g, r, v) => {
@@ -220,7 +220,7 @@ const n = pick([3, 4, 5, 3, 7], v), sz = pick([.5, .45, .4, .25, .91], v), stem 
 stem && (g.strokeStyle = "#3a6a28", g.lineWidth = 1.6, g.beginPath(), g.moveTo(0, 0), g.lineTo(0, r), g.stroke());
 g.fillStyle = "#3a7a2a";
 for (let i = 0; i < n; i++) { const a = -1.57 + i / n * TAU;
-g.beginPath(), g.ellipse(cos(a) * r * sz * .7, sin(a) * r * sz * .7, r * sz * .6, r * sz * .5, a, 0, 7), g.fill() }
+g.beginPath(), g.ellipse(cos(a) * r * sz * .5, sin(a) * r * sz * .5, r * sz * .6, r * sz * .5, a, 0, 7), g.fill() }
 }, 3],
 [[0,1,2,3,4], (g, r, v) => {
 const n = pick([6, 12, 10, 9, 16], v), pl = pick([1, .75, .95, 1, 1.1], v), core = pick(["#e8c830", "#c8a018", "#d8b820", "#d0a828", "#f4c079"], v);

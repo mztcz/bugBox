@@ -18,10 +18,10 @@ const SCI_KEYS = [
 ["vis1", "VIS 1", "vision range of your bugs", 0, 1],
 ["vis2", "VIS 2", "vision range of enemy bugs", 0, 1],
 ["visr", "VIS R", "ability range rings (mark, cry, loud)", 0, 1],
+["zone", "ZONE", "flank sectors + engage ring", 0],
 ["abi", "ABI", "ability cooldown readout", 1],
 ["nam", "NAME", "bug names", 1],
 ["hp", "HP", "HP bars", 1],
-["zone", "ZONE", "flank sectors + engage ring", 0],
 ["bite", "BITE", "bite wind-up bar", 1],
 ["dmg", "DMG", "floating damage numbers", 0],
 ["col", "COL", "team colours instead of bug hue", 0]
