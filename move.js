@@ -5,6 +5,7 @@ const turningOf = b => TAU / statLin(b, "agi", 5.99, .5) * sf(b);
 const STUCK_CHECK_MS = 2000;
 const SLIDE_K = .25;
 const CORPSE_SLOW = .5;
+const PULL_STRONG = PI / 9, PULL_WEAK = PI / 36, WALL_NEAR = .15;
 const COMBAT_STEP_MS = 16, MAX_STEPS_PER_FRAME = 64;
 const wallNext = e => random() < statLin(C.bug.get(e), "int", .5, .05) && think(e) || decide(e);
 const facing = (p, a) => max(0, cos(a - p.dir));
@@ -41,6 +42,10 @@ return
 }
 if (ru) return void decide(e);
 v.angVel += .9 * (random() - .5) * dtS, v.angVel *= .95, v.wanderAngle += v.angVel;
+if (combatState && t.seekX == null) {
+const fx = p.x / boxLW, fy = p.y / boxLH, r = (t.mid ? PULL_WEAK : PULL_STRONG) * dtS;
+(!t.mid || min(fx, 1 - fx, fy, 1 - fy) < WALL_NEAR) && (v.wanderAngle += clamp(norm(atan2(boxLH / 2 - p.y, boxLW / 2 - p.x) - v.wanderAngle), -r, r))
+}
 let vx = cos(v.wanderAngle),
 vy = sin(v.wanderAngle);
 [vx, vy] = rockAvoid(p, vx, vy, obs);
@@ -205,6 +210,7 @@ resolveObstacles(ents, dtS);
 ents.forEach(e => {
 clampToBox(e);
 const p = C.pos.get(e), v = C.vel.get(e), t = C.walk.get(e);
+combatState && v.lx != null && (p.x - boxLW / 2) * (v.lx - boxLW / 2) <= 0 && abs(p.y / boxLH - .5) <= .25 && (t.mid = 1);
 v.v = hypot(p.x - (v.lx ?? p.x), p.y - (v.ly ?? p.y)), v.lx = p.x, v.ly = p.y;
 t.top && drag?.e !== e && !ents.some(o => o !== e && hypot(C.pos.get(o).x - p.x, C.pos.get(o).y - p.y) < engageDistOf(C.bug.get(o)) + bugRadius(C.bug.get(e))) && (t.top = 0)
 })
@@ -264,20 +270,12 @@ p.x += cos(p.dir) * s, p.y += sin(p.dir) * s
 clampToBox(e)
 })
 }
-const SEEK_REACH = 40, SEEK_CROSS = .45, SEEK_CONE = PI / 3;
-function seekPick(t, p) {
-for (let i = 0; i < 9; i++) {
-const a = p.dir + rf(-SEEK_CONE, SEEK_CONE), d = rf(.25, .5) * boxLW, x = p.x + cos(a) * d, y = p.y + sin(a) * d;
-if (x > 40 && x < boxLW - 40 && y > 40 && y < boxLH - 40) return t.seekX = x, t.seekY = y
-}
-const far = p.x < boxLW / 2;
-t.seekX = far ? boxLW * (1 - SEEK_CROSS) + random() * (boxLW * SEEK_CROSS - 40) : 40 + random() * (boxLW * SEEK_CROSS - 40);
-t.seekY = 40 + random() * (boxLH - 80)
-}
-function sysSeek(ents) {
+const SEEK_REACH = 40;
+function sysGoToPoint(ents) {
 ents.forEach(e => {
 const p = C.pos.get(e), v = C.vel.get(e), t = C.walk.get(e);
-(t.seekX == null || hypot(t.seekX - p.x, t.seekY - p.y) < SEEK_REACH) && seekPick(t, p);
+if (t.seekX == null) return;
+if (hypot(t.seekX - p.x, t.seekY - p.y) < SEEK_REACH) return void(t.seekX = t.seekY = null);
 v.wanderAngle = atan2(t.seekY - p.y, t.seekX - p.x), v.angVel = 0
 })
 }

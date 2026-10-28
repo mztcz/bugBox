@@ -17,7 +17,9 @@ ecsQuery("bug", "pos", "combat").forEach(e => {
 const cb = C.combat.get(e), t = C.walk.get(e), p = C.pos.get(e);
 if (cb.dead) return;
 combatState && (achieve("scare"), achStep("scared", [5], "scared"), achieve({ 5: "scare5x", 10: "terrify", 15: "ptsd" }[cb.scares = (cb.scares || 0) + 1]));
-flee(e, (floor(atan2(p.y - boxLH / 2, p.x - boxLW / 2) / HALF_PI) + random()) * HALF_PI, 1), cb.stunT = 0, t.seekX = boxLW / 2 + rf(-30, 30), t.seekY = boxLH / 2 + rf(-30, 30)
+const cx = p.x < boxLW / 4 ? 0 : p.x > boxLW * .75 ? boxLW : null, cy = p.y < boxLH / 4 ? 0 : p.y > boxLH * .75 ? boxLH : null, k = cx != null && cy != null ? ri(3) : 0,
+c = k && { x: k > 1 ? boxLW - cx : cx, y: k > 1 ? cy : boxLH - cy, j: 0 };
+flee(e, c ? atan2(c.y - p.y, c.x - p.x) : (floor(atan2(p.y - boxLH / 2, p.x - boxLW / 2) / HALF_PI) + random()) * HALF_PI, 1, c), cb.stunT = 0, t.seekX = boxLW / 2 + rf(-30, 30), t.seekY = boxLH / 2 + rf(-30, 30)
 })
 }
 const abilReady = (e, id) => { const cb = C.combat.get(e); return !cb.muted && hasAbil(C.bug.get(e), id) && !(cb.cd[id] > 0) };
@@ -177,6 +179,8 @@ flee(e, p.dir + rf(45, 110) * PI / 180 * rsign()), cb.aimLock = 0, cb.aimTarget 
 }
 if ("fleeing" === t.act) {
 if (cb.fleeT != null) return void(turnToward(e, cb.fleeT, turn) && (cb.fleeT = null));
+const fc = cb.fleeC, v = C.vel.get(e);
+fc && (v.angVel += .9 * (random() - .5) * dtS, v.angVel *= .95, cb.fleeA = atan2(fc.y - p.y, fc.x - p.x) + (fc.j += v.angVel));
 const fT = hurt(e) && seenFood(b, p);
 return go(fT ? cb.fleeA + max(-PI / 6, min(PI / 6, norm(atan2(fT.y - p.y, fT.x - p.x) - cb.fleeA))) : cb.fleeA), void(cb.mvSpd *= RUSH)
 }

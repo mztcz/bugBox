@@ -25,12 +25,12 @@ if (!dev && money < entryFee(T)) return flashBlocked(btn), void toast("Not enoug
 money -= entryFee(T), enemyTier = T, updateMoney(), keepHp();
 bgPick(), fightNum++, enemies = buildEnemies(), groundMarks = [], dmgPops = [], fightDone = !1, fightMs = 0, foodLeft = 3, combatState = !0, simSpd = 1, tickDebt = 0, syncSpeedLabel();
 markEggsReady();
-showScreen("s-terr"), resizeBoxCV(), spawnTerr(), toast("Morituri te salutant")
+showScreen("s-box"), resizeBoxCV(), spawnBox()
 }
 function endFight() {
 resultTimer && (clearTimeout(resultTimer), resultTimer = null);
-dev && combatState && bugsOwned.forEach(b => b.mated = 0), keepHp(), buryDead(bugsInTerrView().filter(f => 0 === f.team && f.dead));
-combatState = !1, tickDebt = 0, simSpd = speedBeforePause, ecsQuery("team").forEach(ecsKill), restoreTerrWorld(), resizeBoxCV(), ov("ov-res", 0), syncHud(!0)
+dev && combatState && bugsOwned.forEach(b => b.mated = 0), keepHp(), buryDead(bugsInBoxView().filter(f => 0 === f.team && f.dead));
+combatState = !1, tickDebt = 0, simSpd = speedBeforePause, ecsQuery("team").forEach(ecsKill), restoreBoxWorld(), resizeBoxCV(), ov("ov-res", 0), syncHud(!0)
 }
 const tallyFight = (lb, f) => (lb.fights = (lb.fights || 0) + 1, lb.killsTotal = (lb.killsTotal || 0) + (f.killsThis || 0)),
 buryDead = dead => dead.forEach(f => {
@@ -41,7 +41,7 @@ function showFightResult() {
 resultTimer = null;
 if (!combatState) return;
 wbKeep();
-const all = bugsInTerrView(),
+const all = bugsInBoxView(),
 alive0 = all.filter(f => 0 === f.team && !f.dead),
 dead0 = all.filter(f => 0 === f.team && f.dead),
 alive1 = all.filter(f => 1 === f.team && !f.dead),
@@ -105,7 +105,7 @@ ctx.putImageData(id, 0, 0)
 }
 return div
 };
-const btnRow = `<div style="display:flex;gap:8px;">\n    <button class="nav-mkt bt bt-mkt f1">Market 🛒</button>\n    <button class="nav-terr bt bt-terr f1">BugBox</button>\n    <button class="nav-lab bt bt-lab f1">Breed 🧬</button>\n    ${bugsOwned.length?'<button class="warn bt f1" onclick="openBoo(true,lastSurvivors);showScreen(\'s-boo\');">↺ Fight</button>':""}\n  </div>`;
+const btnRow = `<div style="display:flex;gap:8px;">\n    <button class="nav-mkt bt bt-mkt f1">Market 🛒</button>\n    <button class="nav-box bt bt-box f1">BugBox</button>\n    <button class="nav-lab bt bt-lab f1">Breed 🧬</button>\n    ${bugsOwned.length?'<button class="warn bt f1" onclick="openBoo(true,lastSurvivors);showScreen(\'s-boo\');">↺ Fight</button>':""}\n  </div>`;
 bugsOwned.length || (html += '<p style="color:#ffdd44;font-size:10px;margin-bottom:8px;">⚠ No bugs left! Visit the Market.</p>'), html += btnRow + `<div style="height:10px;"></div>`;
 html += `<div class="grid2">\n    <div>\n      <div class="lbl-yours">YOUR BUGS</div>\n      <div id="rc-player-col" class="col4"></div>\n    </div>\n    <div>\n      <div class="lbl-enemy">ENEMY BUGS</div>\n      <div id="rc-enemy-col" class="col4"></div>\n    </div>\n  </div>` + btnRow + `<div id="res-cnt" style="position:absolute;right:6px;bottom:4px;font-size:8px;color:#44ccff;">${run.wins}/${fightNum}</div>`
 rb.innerHTML = html;
@@ -117,7 +117,7 @@ ov("ov-res", 1)
 }
 function leaveFight() {
 if (labSt.larva) { const l = labSt.larva; l.dead || ownedById(l.id) || bugsOwned.push(l), labSt.larva = null }
-wbKeep(), endFight(), fightTeam = fightTeam.filter(b => ownedById(b.id)), openTerr()
+wbKeep(), endFight(), fightTeam = fightTeam.filter(b => ownedById(b.id)), openBox()
 }
 function checkFightEnd() {
 const ents = ecsQuery("team", "combat");

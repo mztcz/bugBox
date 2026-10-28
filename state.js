@@ -6,7 +6,7 @@ return t.slide = null, t.act = act, t.actT = ms
 const intMs = e => statLin(C.bug.get(e), "int", 5e3, 500);
 const think = (e, k = 1) => setAct(e, "thinking", k * intMs(e) + rf(-250, 250));
 const aiAct = t => "fighting" === t.act || "fleeing" === t.act;
-const newDir = e => C.vel.get(e).wanderAngle = random() * TAU;
+const newDir = e => C.vel.get(e).wanderAngle = C.pos.get(e).dir + rsign() * rf(0, TAU / 3);
 const SN = ["CON", "STR", "AGI", "PER", "INT"];
 let dzAnim = 0,
 money = 500,

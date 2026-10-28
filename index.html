@@ -42,7 +42,7 @@ if(typeof window[n]==="undefined")bar().textContent+="NOT LOADED: "+n+"\n"})
 <div class="sep"></div>
 <span>Budget:</span><span class="money" id="mkt-money">$500</span>
 <span class="dim" id="mkt-cart-info">0 bugs selected</span>
-<button class="nav-terr bt" id="bt-buy" style="margin-left:auto;">BugBox →</button>
+<button class="nav-box bt" id="bt-buy" style="margin-left:auto;">BugBox →</button>
 </div>
 <div class="scroll">
 <p style="font-size:9px;color:#555566;margin-bottom:10px;">
@@ -52,20 +52,20 @@ if(typeof window[n]==="undefined")bar().textContent+="NOT LOADED: "+n+"\n"})
 <div class="mkt-grid" id="mkt-grid"></div>
 </div>
 </div>
-<div class="screen" id="s-terr">
+<div class="screen" id="s-box">
 <div class="topbar">
-<span class="title" id="terr-title" style="color:#4f8;">BUGBOX</span>
+<span class="title" id="box-title" style="color:#4f8;">BUGBOX</span>
 <div class="sep"></div>
-<span class="money" id="terr-money">$0</span>
+<span class="money" id="box-money">$0</span>
 <button class="nav-lab bt bt-lab" id="bt-lab" style="margin-left:auto;">↓ BREED 🧬</button>
-<button class="nav-mkt bt bt-mkt" id="bt-terr-mkt">Market 🛒</button>
+<button class="nav-mkt bt bt-mkt" id="bt-box-mkt">Market 🛒</button>
 <button class="warn bt" id="bt-boo">⚔ BOOKER →</button>
 <button class="warn bt" id="bt-leave" style="display:none;margin-left:auto;">← Leave</button>
 </div>
-<canvas id="terr-canvas"></canvas>
-<div id="terr-bar" style="position:relative;">
+<canvas id="box-canvas"></canvas>
+<div id="box-bar" style="position:relative;">
 <button class="warn bt" id="bt-next" style="display:none;position:absolute;right:6px;bottom:100%;margin-bottom:6px;">NEXT →</button>
-<div id="terr-bar-row" style="justify-content:flex-end;">
+<div id="box-bar-row" style="justify-content:flex-end;">
 <button class="bt" id="bt-fow" style="display:none;" title="fog of war: hide everything outside the focused bug's field of view">👁 FOW</button>
 <button class="bt" id="bt-set">⚙ Settings</button>
 <button id="bt-bg" class="bt" style="display:none;">🖼 BG</button>
@@ -74,7 +74,7 @@ if(typeof window[n]==="undefined")bar().textContent+="NOT LOADED: "+n+"\n"})
 <button id="bt-speed" class="bt">Speed 1×</button>
 <button id="bt-pause" class="bt" style="display:none;" title="pause the fight, then step it one 16 ms tick at a time">❚❚ PAUSE</button>
 </div>
-<span id="terr-info">— select a bug to inspect —</span>
+<span id="box-info">— select a bug to inspect —</span>
 </div>
 <div id="hud-sci" style="display:none;position:absolute;right:6px;top:40px;z-index:40;flex-direction:column;align-items:stretch;gap:2px;"></div>
 <div id="ov-res">
@@ -89,7 +89,7 @@ if(typeof window[n]==="undefined")bar().textContent+="NOT LOADED: "+n+"\n"})
 <span class="money" id="lab-money"></span>
 <button class="bt" id="bt-unmate">Unmate</button>
 <button class="nav-mkt bt bt-mkt" style="margin-left:auto;">Market 🛒</button>
-<button class="nav-terr bt bt-terr">↑ BugBox</button>
+<button class="nav-box bt bt-box">↑ BugBox</button>
 </div>
 <div class="lab-layout" id="lab-layout">
 </div>
@@ -101,7 +101,7 @@ if(typeof window[n]==="undefined")bar().textContent+="NOT LOADED: "+n+"\n"})
 <span class="money" id="boo-money">$0</span>
 <span id="boo-info" style="color:#888;font-size:10px;"></span>
 <button id="bt-boo-mkt" class="nav-mkt bt bt-mkt" style="margin-left:auto;display:none;">← Market</button>
-<button id="bt-boo-terr" class="nav-terr bt bt-terr" style="margin-left:auto;">← BugBox</button>
+<button id="bt-boo-box" class="nav-box bt bt-box" style="margin-left:auto;">← BugBox</button>
 <div style="display:flex;flex-direction:column;align-items:center;"><button class="warn bt" id="bt-combat" disabled>⚔ FIGHT →</button><span id="boo-fee" style="color:#888;font-size:9px;"></span></div>
 </div>
 <div class="boo-layout">
@@ -159,7 +159,7 @@ Looks like you have ran out of bugs to kill... Good!
 <p><b style="color:#ffdd44;">STATS</b><br>
 CON toughness · STR power · AGI speed · PER perception · INT wits</p>
 <p><b style="color:#ffdd44;">FEEDING</b><br>
-Drop food in the terrarium: each item restores 1/5 of max HP.</p>
+Drop food in the box: each item restores 1/5 of max HP.</p>
 <p><b style="color:#ffdd44;">BREEDING</b><br>
 Pick two bugs (Parent A + B) to hatch a new Gen+1 larva. Only full-HP bugs can mate. Each stat is the parents' average, then 2 stats mutate.</p>
 <p><b style="color:#ffdd44;">FIGHT TIERS</b><br>
@@ -264,7 +264,7 @@ Bug palette
 <script src="drawbug.js"></script>
 <script src="mkt.js"></script>
 <script src="ecs.js"></script>
-<script src="terr.js"></script>
+<script src="box.js"></script>
 <script src="bg.js"></script>
 <script src="obst.js"></script>
 <script src="move.js"></script>

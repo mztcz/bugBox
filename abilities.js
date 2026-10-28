@@ -60,11 +60,11 @@ function wakeToFight(e) {
 const t = C.walk.get(e);
 t && !aiAct(t) && (t.scanRemain = 0, t.seekX = t.turnA = null, setAct(e, "fighting"))
 }
-function flee(e, a, panic) {
+function flee(e, a, panic, corner) {
 const t = C.walk.get(e), cb = C.combat.get(e), p = C.pos.get(e), ms = 2e3 + intMs(e);
 if ("fleeing" === t.act) return void(panic && (t.actT += ms));
 wakeToFight(e), setAct(e, "fleeing", ms);
-cb.fleeA = a, cb.fleeX = p.x, cb.fleeY = p.y, cb.fleeT = panic ? p.dir + norm(a - p.dir) / 2 : null
+cb.fleeA = a, cb.fleeC = corner, cb.fleeX = p.x, cb.fleeY = p.y, cb.fleeT = panic ? p.dir + norm(a - p.dir) / 2 : null
 }
 function biteNoticed(te) {
 wakeToFight(te);

@@ -73,7 +73,7 @@ const btn = div.querySelector(".bt-sel");
 btn && (btn.textContent = isA || isB ? "Deselect" : "Select"), div.classList.toggle("card-sel", isA || isB), div.classList.toggle("card-off", !canParent(b))
 }
 function breedNow() {
-if (boxFull()) return void toast("Terrarium full");
+if (boxFull()) return void toast("Box full");
 labSt.pA && labSt.pB ? (labSt.larva = makeBug({
 ...computeOffspring(labSt.pA, labSt.pB),
 wins: 0,
@@ -91,7 +91,7 @@ function labPick(b, div, grid, addOnly) {
 const selected = labSt.pA?.id === b.id || labSt.pB?.id === b.id;
 if (selected && addOnly) return;
 if (!selected && !canParent(b)) return void flashBlocked(div);
-if (!selected && boxFull()) return flashBlocked(div), void toast("Terrarium full");
+if (!selected && boxFull()) return flashBlocked(div), void toast("Box full");
 labSt.pA?.id === b.id ? (labSt.pA = labSt.pB, labSt.pB = null) : labSt.pB?.id === b.id ? labSt.pB = null : labSt.pA ? labSt.pB ? (labSt.pA = labSt.pB, labSt.pB = b) : labSt.pB = b : labSt.pA = b, labApplyAll(grid)
 }
 const BREED_SORT = [

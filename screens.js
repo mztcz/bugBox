@@ -20,21 +20,21 @@ OV_PAUSE.includes(id) && (on ? ovSpd < 0 && (ovSpd = simSpd, simSpd = 0) : ovSpd
 }
 function showScreen(id) {
 "s-mkt" === id || cancelOverWatch();
-"s-terr" === id || markEggsReady();
-("s-terr" !== id || !combatState) && ov("ov-res", 0);
-"s-terr" !== id || combatState || (simSpd = 1, tickDebt = 0, syncSpeedLabel());
+"s-box" === id || markEggsReady();
+("s-box" !== id || !combatState) && ov("ov-res", 0);
+"s-box" !== id || combatState || (simSpd = 1, tickDebt = 0, syncSpeedLabel());
 document.querySelectorAll(".screen").forEach(s => s.classList.remove("active")), $(id).classList.add("active"), syncSimLoop();
-if ("s-terr" === id) {
+if ("s-box" === id) {
 combatState || hatchReadyEggs();
 const wantCombat = combatState;
 requestAnimationFrame(() => {
 requestAnimationFrame(() => {
-combatState === wantCombat && (combatState && ecsQuery("bug").length ? resizeBoxCV() : spawnTerr())
+combatState === wantCombat && (combatState && ecsQuery("bug").length ? resizeBoxCV() : spawnBox())
 })
 })
 }
 }
 function updateMoney() {
-["mkt", "terr", "lab", "boo"].forEach(k => { const el = $(k + "-money"); el.textContent = "$" + money, el.style.color = money < 0 ? "#f44" : "" });
+["mkt", "box", "lab", "boo"].forEach(k => { const el = $(k + "-money"); el.textContent = "$" + money, el.style.color = money < 0 ? "#f44" : "" });
 money >= 1000 && achieve("rich1k"), money >= 5000 && achieve("rich5k")
 }

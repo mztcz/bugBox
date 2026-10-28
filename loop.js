@@ -15,7 +15,7 @@ simFrame = requestAnimationFrame(simLoop);
 const real = simLastT ? min(ts - simLastT, 100) : 16.67;
 simLastT = ts;
 drawBoxBackdrop();
-if (!combatState) ecsQuery("bug").length !== bugsOwned.length && spawnTerr();
+if (!combatState) ecsQuery("bug").length !== bugsOwned.length && spawnBox();
 tickDebt += real * simSpd / COMBAT_STEP_MS;
 let guard = 0;
 while (tickDebt >= 1 && guard++ < MAX_STEPS_PER_FRAME) {
@@ -36,7 +36,7 @@ drag?.moved && drag.e === e || C.combat.get(e)?.fakeT > 0 || (t.actT -= "walking
 });
 fight && sysCombatAI(dt);
 const ents = fight ? all.filter(e => !aiAct(C.walk.get(e)) && !C.combat.get(e).dead) : all;
-fight && sysSeek(ents);
+sysGoToPoint(ents);
 sysSteer(dt, ents), sysMove(dtS, all);
 fight || (sysRareAct(dt, ents), sysMate(dt, ents)), sysFeed();
 sysResolve(all, dtS)

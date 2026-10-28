@@ -1,4 +1,4 @@
-const boxCv = $("terr-canvas"),
+const boxCv = $("box-canvas"),
 boxCx = boxCv.getContext("2d");
 let simFrame = null,
 inspected = null,
@@ -55,28 +55,28 @@ sciShown().map(([k, lbl, tip]) => sciBtn(k, lbl, tip, sciCur()[k])).join("")
 }
 let hudWas = null;
 const HUD_FIGHT_ONLY = ["bt-leave", "bt-pause", "bt-bg"],
-HUD_BOX_ONLY = ["bt-lab", "bt-boo", "bt-terr-mkt"];
+HUD_BOX_ONLY = ["bt-lab", "bt-boo", "bt-box-mkt"];
 function syncHud(force) {
 const c = combatState;
 if (c === hudWas && !force) return;
 hudWas = c;
 HUD_FIGHT_ONLY.forEach(id => $(id).style.display = c && (dev || "bt-bg" !== id) ? "" : "none");
 HUD_BOX_ONLY.forEach(id => $(id).style.display = c ? "none" : "");
-$("terr-title").style.color = c ? "#fa4" : "#4f8", $("terr-title").textContent = c && { mc: "MORTAL COMBAT T", boss: "BOSS FIGHT T", rb: "RAID BOSS T", wb: "WORLD BOSS T" }[fightMode] + enemyTier || "BUGBOX", $("bt-next").style.display = "none";
+$("box-title").style.color = c ? "#fa4" : "#4f8", $("box-title").textContent = c && { mc: "MORTAL COMBAT T", boss: "BOSS FIGHT T", rb: "RAID BOSS T", wb: "WORLD BOSS T" }[fightMode] + enemyTier || "BUGBOX", $("bt-next").style.display = "none";
 boxCv.style.borderColor = c ? boxK() < 1 ? "transparent" : "#fa4" : "#4cf";
 syncSciHud()
 }
 const MAX_FOOD = 30;
 function canPlaceFood() { return combatState ? foodLeft > 0 && !fightDone : ecsQuery("food").length < MAX_FOOD }
 function spawnDmgPop(p, amount, team, a) { dmgPops.push({ p, x: 0, y: 0, amount, team, a, t: 1 }) }
-function openTerr() {
-simLastT = 0, updateMoney(), achOwn(0), showScreen("s-terr")
+function openBox() {
+simLastT = 0, updateMoney(), achOwn(0), showScreen("s-box")
 }
 function startSimLoop() {
 simFrame && cancelAnimationFrame(simFrame), simLastT = 0, tickDebt = 0, simFrame = requestAnimationFrame(simLoop)
 }
 function syncSimLoop() {
-$("s-terr").classList.contains("active") ? simFrame || startSimLoop() : stopSimLoop()
+$("s-box").classList.contains("active") ? simFrame || startSimLoop() : stopSimLoop()
 }
 function stopSimLoop() {
 simFrame && cancelAnimationFrame(simFrame), simFrame = null
@@ -97,7 +97,7 @@ ecsQuery("pos").forEach(e => { const p = C.pos.get(e); p.x *= sx, p.y *= sy })
 }
 boxW0 = boxLW, boxH0 = boxLH, boxC0 = combatState
 }
-function bugsInTerrView() {
+function bugsInBoxView() {
 return ecsQuery("bug", "pos").map(e => {
 const b = C.bug.get(e),
 p = C.pos.get(e),
@@ -166,7 +166,7 @@ return eachObstacle((o, p) => ({ r: o.r, kind: o.kind, v: o.v, rot: o.rot, x: p.
 function snapFood() {
 return ecsQuery("food", "pos").map(e => { const p = C.pos.get(e); return { x: p.x, y: p.y } })
 }
-function restoreTerrWorld() {
+function restoreBoxWorld() {
 if (!savedWorld) return;
 ecsQuery("obstacle").forEach(e => ecsKill(e));
 ecsQuery("food").forEach(e => ecsKill(e));
@@ -174,14 +174,14 @@ savedWorld.obs.forEach(spawnObst);
 savedWorld.food.forEach(f => ecsSpawn({ food: {}, pos: { x: f.x, y: f.y, dir: 0 } }));
 savedWorld = null
 }
-function spawnTerr() {
+function spawnBox() {
 resizeBoxCV(), rescaleBox();
 if (combatState) {
 savedWorld = savedWorld || { obs: snapObstacles(), food: snapFood() };
 ecsClear(), inspected = null;
 genObstacles(!0)
 } else {
-restoreTerrWorld();
+restoreBoxWorld();
 ecsQuery("obstacle").length || genObstacles(!1)
 }
 if (!combatState) {

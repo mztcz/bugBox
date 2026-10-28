@@ -111,7 +111,7 @@ let toastQ = [], toastBot = 96;
 const toastLbl = (el = $("toast")) => (el.textContent = toastQ[0], el.style.boxShadow = toastQ.slice(1, 4).map((_, i) => (i = 3 * i + 3, `${i}px ${-i}px 0 -1px #0d0d2a,${i}px ${-i}px 0 #3a3aff`)).join() || "none");
 function toast(m) { toastQ.push(m) > 1 ? toastLbl() : toastNext() }
 function toastNext() {
-const el = $("toast"), r = $("terr-canvas").getBoundingClientRect();
+const el = $("toast"), r = $("box-canvas").getBoundingClientRect();
 r.height && (toastBot = innerHeight - r.bottom + 10), el.style.bottom = toastBot + "px";
 toastLbl(), el.classList.add("show"), setTimeout(() => (el.classList.remove("show"), setTimeout(() => (toastQ.shift(), toastQ.length && toastNext()), 300)), 2000)
 }

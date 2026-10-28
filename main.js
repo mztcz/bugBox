@@ -30,13 +30,13 @@ if (tapT.length >= 3) return tapT = [], void panicAll()
 }
 inspected = null
 }, window.addEventListener("resize", () => {
-$("s-terr").classList.contains("active") && !combatState ? spawnTerr() : resizeBoxCV()
+$("s-box").classList.contains("active") && !combatState ? spawnBox() : resizeBoxCV()
 }), $("bt-boo").onclick = () => {
 openBoo(), showScreen("s-boo")
 }, document.addEventListener("click", e => {
 if (e.target.closest(".bt-mkt")) return combatState && leaveFight(), openMkt();
 if (e.target.closest(".bt-lab")) return combatState && leaveFight(), openLab();
-e.target.closest(".bt-terr") && leaveFight()
+e.target.closest(".bt-box") && leaveFight()
 }), document.addEventListener("click", closeKill), $("bt-combat").onclick = e => startFight(e.currentTarget, "mc" === fightMode ? 1 : enemyTier), $("bt-next").onclick = e => startFight(e.currentTarget, enemyTier + 1);
 $("bt-speed").onclick = () => {
 const seq = [.5, 1, 2, 4, 16],
@@ -48,8 +48,8 @@ simSpd === 0 ? simSpd = speedBeforePause : (speedBeforePause = simSpd, simSpd = 
 tickDebt = 0, syncSpeedLabel()
 }, $("bt-leave").onclick = () => {
 achieve("abandon");
-const survivors = bugsInTerrView().filter(f => 0 === f.team && !f.dead).map(f => f.b);
-endFight(), spawnTerr(), openBoo(!0, survivors), showScreen("s-boo")
+const survivors = bugsInBoxView().filter(f => 0 === f.team && !f.dead).map(f => f.b);
+endFight(), spawnBox(), openBoo(!0, survivors), showScreen("s-boo")
 }, updateMoney();
 $("bt-des").onclick = openDz, $("bt-bg").onclick = bgPick, $("bt-unmate").onclick = () => (bugsOwned.forEach(b => b.mated = 0), renderLab());
 $("s-intro1").onclick = e => (dev = e.target.closest(".press-key") ? 0 : 1, dev || ($("bt-des").style.display = "none"), openMkt());

@@ -15,7 +15,7 @@ enemyTier = n, fightTeam = fightTeam.filter(bossFit), updateBooUI(), renderBooGr
 function updateBooUI() {
 const empty = !bugsOwned.length;
 $("bt-boo-mkt").style.display = empty ? "" : "none";
-$("bt-boo-terr").style.marginLeft = empty ? "0" : "auto";
+$("bt-boo-box").style.marginLeft = empty ? "0" : "auto";
 document.querySelectorAll("#s-boo .bt-mode").forEach((el, i) => el.className = "bt-mode" + (!empty && fightMode === MODES[i] ? " prim" : ""));
 $("tier-row").innerHTML = Array.from({ length: 5 }, (_, i) => `<button class="bt-tier${!empty && i + 1 === enemyTier ? " prim" : ""}"${lockAttr(i + 1)} onclick="setTier(${i + 1})">T${i + 1}</button>`).join("");
 $("boo-info").textContent = empty ? "" : `${fightTeam.length}/${isFinite(teamMax()) ? teamMax() : "∞"} selected — ${"mc" === fightMode ? "T1→T5" : `T${enemyTier}`}`;

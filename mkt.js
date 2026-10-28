@@ -68,12 +68,12 @@ if (!runIsOver()) return;
 overTimer = setTimeout(() => {
 overTimer = null;
 if (!runIsOver()) return;
-if (boxEggs.length) return void(openTerr());
+if (boxEggs.length) return void(openBox());
 ov("ov-over", 1)
 }, OVER_DELAY)
 }
 function mktDone() {
 if (!mktCart.length && !bugsOwned.length) return void toast("Buy at least 1 bug to start!");
 bugsOwned.push(...mktCart);
-achStep("bought", [10, 25], "buy", mktCart.length), achOwn(mktCart.length), mktCart.forEach(achBug), mktCart = [], updateMoney(), openTerr()
+achStep("bought", [10, 25], "buy", mktCart.length), achOwn(mktCart.length), mktCart.forEach(achBug), mktCart = [], updateMoney(), openBox()
 }
