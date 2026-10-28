@@ -54,10 +54,8 @@ keepHp();
 dead0.length && achStep("lost", [1, 10], "lost", dead0.length);
 const kills = allPlayer.reduce((s, f) => s + (f.killsThis || 0), 0);
 addKills(kills);
-const rt = $("res-title"),
-rb = $("res-body");
+const rt = $("res-title");
 rt.textContent = won ? "VICTORY!" : "DEFEAT", rt.style.color = won ? "#44ff88" : "#ff4444", won && SFX.win(), buryDead(dead0);
-let html = "";
 if (won) {
 "boss" === fightMode && enemyTier >= tierMax && enemyTier < 5 && toast(`Tier ${enemyTier} boss is defeated. T${tierMax = enemyTier + 1} opens`);
 const prize = allEnemy.reduce((s, f) => s + bugValue(statSum(f.b)), 0) * prizeK();
@@ -68,11 +66,18 @@ lb && (lb.wins++, tallyFight(lb, f), achSurvive(lb))
 }
 updateMoney();
 achFight(won, dead0.length, alive0.length), achOwn(0), bugsOwned.forEach(b => b.mated = 0);
-match.ms += fightMs, match.kills += kills, match.foes.push(...allEnemy);
+match.ms += fightMs, match.kills += kills;
 if (won && "mc" === fightMode && enemyTier < 5) {
+match.foes.push(...allEnemy);
 for (let n = 1 + ri(3); n--;) ecsSpawn({ food: {}, pos: { x: 30 + random() * (boxLW - 60), y: 30 + random() * (boxLH - 60), dir: 0 } });
 return void($("bt-next").style.display = "")
 }
+renderResult(), $("bt-res").style.display = "", won ? offerObst() : ov("ov-res", 1)
+}
+// Result screen body from the live fight box (HP after feeding) + enemies of earlier MC steps
+function renderResult() {
+const all = bugsInBoxView();
+let html = "";
 match.prize && (html += `<p style="color:#44ff88;font-size:10px;margin-bottom:8px;">+$${match.prize}</p>`);
 scienceOn && (html += `<p style="color:#888;font-size:10px;margin-bottom:8px;">Time ${fmtT(match.ms)}</p>`);
 const buildCard = (f, isPlayer) => {
@@ -113,12 +118,11 @@ return div
 const btnRow = `<div style="display:flex;gap:8px;">\n    <button class="nav-mkt bt bt-mkt f1">Market 🛒</button>\n    <button class="nav-box bt bt-box f1">BugBox</button>\n    <button class="nav-lab bt bt-lab f1">Breed 🧬</button>\n    ${bugsOwned.length?'<button class="warn bt f1" onclick="leaveToBoo()">↺ Fight</button>':""}\n  </div>`;
 bugsOwned.length || (html += '<p style="color:#ffdd44;font-size:10px;margin-bottom:8px;">⚠ No bugs left! Visit the Market.</p>'), html += btnRow + `<div style="height:10px;"></div>`;
 html += `<div class="grid2">\n    <div>\n      <div class="lbl-yours">YOUR BUGS</div>\n      <div id="rc-player-col" class="col4"></div>\n    </div>\n    <div>\n      <div class="lbl-enemy">ENEMY BUGS</div>\n      <div id="rc-enemy-col" class="col4"></div>\n    </div>\n  </div>` + btnRow + `<div id="res-cnt" style="position:absolute;right:6px;bottom:4px;font-size:8px;color:#44ccff;">${run.wins}/${fightNum}</div>`
-rb.innerHTML = html;
+$("res-body").innerHTML = html;
 const playerCol = $("rc-player-col"),
 enemyCol = $("rc-enemy-col");
-allPlayer.forEach(f => ("mc" === fightMode && (f.killsThis = match.kills), playerCol.appendChild(buildCard(f, !0))));
-match.foes.forEach(f => enemyCol.appendChild(buildCard(f, !1)));
-$("bt-res").style.display = "", won ? offerObst() : ov("ov-res", 1)
+all.forEach(f => 0 === f.team && ("mc" === fightMode && (f.killsThis = match.kills), playerCol.appendChild(buildCard(f, !0))));
+match.foes.concat(all.filter(f => 1 === f.team)).forEach(f => enemyCol.appendChild(buildCard(f, !1)))
 }
 // Shared exit from the fight box (Leave, result buttons, nav buttons, card hold); during a running fight it counts as abandon
 function leaveFight() {

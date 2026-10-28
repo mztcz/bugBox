@@ -153,7 +153,9 @@ boxCx.restore()
 })
 }
 drawCooldowns();
-if (inCombat && scienceOn) { const [a0, a1, h0, h1] = teamAlive(ents); boxCx.save(), boxCx.fillStyle = "#fff", boxCx.font = "9px 'Courier New'", boxCx.textAlign = "center", boxCx.textBaseline = "top", boxCx.fillText(`${a0} (${h0}%) : ${a1} (${h1}%)`, boxLW / 2, 4), boxCx.fillText(fmtT(fightMs), boxLW / 2, 15), boxCx.restore() }
+if (inCombat && scienceOn) { const [a0, a1, h0, h1] = teamAlive(ents); boxCx.save(), boxCx.fillStyle = "#fff", boxCx.font = "9px 'Courier New'", boxCx.textAlign = "center", boxCx.textBaseline = "top";
+const y = boxK() < 1 ? -24 : 4;
+boxCx.fillText(`${a0} (${h0}%) : ${a1} (${h1}%)`, boxLW / 2, y), boxCx.fillText(fmtT(fightMs), boxLW / 2, y + 11), boxCx.restore() }
 const infoEl = $("box-info");
 if (inspected) { infoEl.innerHTML = inspectLine(inspected); return }
 if (!inCombat) return void(infoEl.textContent = `${bugsOwned.length} bug${1!==bugsOwned.length?"s":""} \u2014 select a bug to inspect`);

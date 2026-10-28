@@ -177,7 +177,7 @@ const cv = document.createElement("canvas"), cx = cv.getContext("2d"), d = devic
 let parts = [], left = src.length, last = performance.now();
 cv.style = "position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:400", cv.width = W * d, cv.height = H * d, cx.scale(d, d), document.body.appendChild(cv);
 src.forEach(([x0, x1, y], i) => setTimeout(() => {
-left--;
+left--, SFX.hatch();
 for (let j = 0; j < 55; j++) { const a = rf(-.95 * PI, -.05 * PI), v = rf(260, 620); parts.push({ x: rf(x0, x1), y: y, vx: cos(a) * v * FX_SPREAD[lv], vy: sin(a) * v, w: rf(5, 9) * k, h: rf(3, 6) * k, r: rf(0, 6), vr: rf(-10, 10), c: FX_COL[j % 6], t: 0, life: rf(1.8, 2.8) }) }
 }, 190 * i));
 requestAnimationFrame(function step(now) {

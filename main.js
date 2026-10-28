@@ -46,7 +46,7 @@ speedBeforePause = next, simSpd === 0 || (simSpd = next), tickDebt = 0, syncSpee
 }, $("bt-pause").onclick = () => {
 simSpd === 0 ? simSpd = speedBeforePause : (speedBeforePause = simSpd, simSpd = 0);
 tickDebt = 0, syncSpeedLabel()
-}, $("bt-leave").onclick = leaveToBoo, $("bt-res").onclick = () => ov("ov-res", 1), $("ov-res").onclick = e => e.target.closest(".res-content") || ov("ov-res", 0), updateMoney();
+}, $("bt-leave").onclick = leaveToBoo, $("bt-res").onclick = () => (renderResult(), ov("ov-res", 1)), $("ov-res").onclick = e => e.target.closest(".res-content") || ov("ov-res", 0), updateMoney();
 $("bt-des").onclick = openDz, $("bt-bg").onclick = bgPick, $("bt-unmate").onclick = () => (bugsOwned.forEach(b => b.mated = 0), renderLab());
 $("s-intro1").onclick = e => (dev = e.target.closest(".press-key") ? 0 : 1, dev || ($("bt-des").style.display = "none"), openMkt());
 $("bt-set").onclick = () => {
