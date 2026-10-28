@@ -34,8 +34,8 @@ combatState = !1, tickDebt = 0, simSpd = speedBeforePause, ecsQuery("team").forE
 }
 const tallyFight = (lb, f) => (lb.fights = (lb.fights || 0) + 1, lb.killsTotal = (lb.killsTotal || 0) + (f.killsThis || 0)),
 buryDead = dead => dead.forEach(f => {
-const lb = ownedById(f.b.id);
-lb && (lb.losses++, tallyFight(lb, f), bugsOwned = bugsOwned.filter(b => b.id !== f.b.id), run.end = `${lb.name} died in fight T${enemyTier}`)
+const lb = ownedById(f.b.id), c = C.combat.get(f.eid);
+lb && !c.buried && (c.buried = 1, tallyFight(lb, f), hasAbil(lb, "fake") ? lb.curHp = 1 : (lb.losses++, bugsOwned = bugsOwned.filter(b => b.id !== f.b.id), run.end = `${lb.name} died in fight T${enemyTier}`))
 });
 function showFightResult() {
 resultTimer = null;

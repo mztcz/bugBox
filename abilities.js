@@ -47,7 +47,7 @@ if (d2 >= vr * vr) return !1;
 if (hasAbil(b, "v360") && d2 < vr * vr * .0625) return !0;
 return abs(norm(atan2(dy, dx) - p.dir)) <= fovHalfOf(b)
 }
-const liveE = x => { const c = C.combat.get(x); return c && !c.dead && c.curHp > 0 && !(c.fakeT > 0) };
+const liveE = x => { const c = C.combat.get(x); return c && !c.dead && c.curHp > 0 };
 const memMsOf = b => statLin(b, "int", 3e3, 12e3), scanOf = b => statLin(b, "int", 0, PI);
 const huntTierOf = b => { const i = b.int; return i <= 3 ? 1 : i <= 6 ? 2 : i <= 8 ? 3 : 4 };
 const rollVar = () => .8 + .4 * random();
@@ -79,9 +79,7 @@ seesPoint(C.bug.get(oe), C.pos.get(oe), tp.x, tp.y) && wakeToFight(oe)
 })
 }
 function applyBite(cb, ab, p, te, tb, tp, mult, atkTeam, atkE) {
-const tcb = C.combat.get(te);
-if (tcb.fakeT > 0) return;
-const fd = abs(norm(atan2(p.y - tp.y, p.x - tp.x) - tp.dir)),
+const tcb = C.combat.get(te), fd = abs(norm(atan2(p.y - tp.y, p.x - tp.x) - tp.dir)),
 flankMult = fd < PI / 3 ? 1 : fd < TAU / 3 ? 1.5 : 2;
 if (atkE != null && (tcb.flankA > 0 || fd >= PI / 3 && tb.int < 5)) { tcb.avengeE = atkE, tcb.avengeA = atan2(p.y - tp.y, p.x - tp.x), tcb.flankA > 0 && flankEnd(tcb) }
 let dmg = statLin(ab, "str", 1, 10) * rollVar() * flankMult * mult;
@@ -94,7 +92,7 @@ tcb.imX -= tcb.hitDy * sh, tcb.imY += tcb.hitDx * sh;
 spawnDmgPop(tp, dmg, atkTeam, ha);
 hasAbil(tb, "cry") && (tcb.callT = ABILITIES.cry.dur, tcb.callR = callRadius(tb), tcb.callTeam = atkTeam ? 0 : 1, tcb.callCry = 1, tcb.callX = tp.x, tcb.callY = tp.y);
 if (tcb.curHp <= 0 && !(hasAbil(tb, "phoenix") && !tcb.phoenixUsed && !tcb.muted)) {
-tcb.dead = !0, tcb.curHp = 0, cb.killsThis = (cb.killsThis || 0) + 1, cb.memT = 0, cb.searchPhase = 0;
+tcb.dead = !0, tcb.curHp = 0, tcb.fakeT = 0, cb.killsThis = (cb.killsThis || 0) + 1, cb.memT = 0, cb.searchPhase = 0;
 groundMarks.push({ x: tp.x, y: tp.y, hue: tb.hue, t: 1 })
 }
 }
