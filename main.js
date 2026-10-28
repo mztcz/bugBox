@@ -34,9 +34,9 @@ $("s-box").classList.contains("active") && !combatState ? spawnBox() : resizeBox
 }), $("bt-boo").onclick = () => {
 openBoo(), showScreen("s-boo")
 }, document.addEventListener("click", e => {
-if (e.target.closest(".bt-mkt")) return combatState && leaveFight(), openMkt();
-if (e.target.closest(".bt-lab")) return combatState && leaveFight(), openLab();
-e.target.closest(".bt-box") && leaveFight()
+if (e.target.closest(".bt-mkt")) return leaveFight(), openMkt();
+if (e.target.closest(".bt-lab")) return leaveFight(), openLab();
+e.target.closest(".bt-box") && (leaveFight(), openBox())
 }), document.addEventListener("click", closeKill), $("bt-combat").onclick = e => startFight(e.currentTarget, "mc" === fightMode ? 1 : enemyTier), $("bt-next").onclick = e => startFight(e.currentTarget, enemyTier + 1);
 $("bt-speed").onclick = () => {
 const seq = [.5, 1, 2, 4, 16],
@@ -46,11 +46,7 @@ speedBeforePause = next, simSpd === 0 || (simSpd = next), tickDebt = 0, syncSpee
 }, $("bt-pause").onclick = () => {
 simSpd === 0 ? simSpd = speedBeforePause : (speedBeforePause = simSpd, simSpd = 0);
 tickDebt = 0, syncSpeedLabel()
-}, $("bt-leave").onclick = () => {
-achieve("abandon");
-const survivors = bugsInBoxView().filter(f => 0 === f.team && !f.dead).map(f => f.b);
-endFight(), spawnBox(), openBoo(!0, survivors), showScreen("s-boo")
-}, updateMoney();
+}, $("bt-leave").onclick = leaveToBoo, $("bt-res").onclick = () => ov("ov-res", 1), $("ov-res").onclick = e => e.target.closest(".res-content") || ov("ov-res", 0), updateMoney();
 $("bt-des").onclick = openDz, $("bt-bg").onclick = bgPick, $("bt-unmate").onclick = () => (bugsOwned.forEach(b => b.mated = 0), renderLab());
 $("s-intro1").onclick = e => (dev = e.target.closest(".press-key") ? 0 : 1, dev || ($("bt-des").style.display = "none"), openMkt());
 $("bt-set").onclick = () => {
@@ -73,7 +69,7 @@ document.addEventListener("pointerdown", e => {
 const c = e.target.closest(".pick-grid .card, #boo-grid .card");
 c && hold(500, () => {
 const b = bugOfCard(c);
-b && (achieve("find"), closeKill(), leaveFight(), cardDrag = 1, requestAnimationFrame(() => requestAnimationFrame(() => {
+b && (achieve("find"), closeKill(), leaveFight(), openBox(), cardDrag = 1, requestAnimationFrame(() => requestAnimationFrame(() => {
 const en = ecsQuery("bug").find(x => C.bug.get(x) === b), [cx, cy] = boxPt(e);
 inspected = b, cardDrag && en != null && dragAt({ e: en, kind: "bug", pad: 21 }, cx, cy)
 })))

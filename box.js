@@ -47,7 +47,7 @@ const sciBtn = (k, lbl, tip, on) =>
 `<button title="${tip}" onclick="${k?`toggleSci('${k}')`:"toggleSciAll()"}" style="font:8px 'Courier New';padding:2px 4px;cursor:pointer;border:1px solid #2a2a4a;background:${on?"#2b4":"#0a0a12"};color:${on?"#031":"#9ab"};">${lbl}</button>`;
 function syncSciHud() {
 const el = $("hud-sci");
-const show = scienceOn && !(combatState && fightDone);
+const show = scienceOn;
 el.style.display = show ? "flex" : "none";
 if (!show) return;
 el.innerHTML = sciBtn(null, "ALL", "turn every toggle below on or off", allSci()) +
@@ -62,12 +62,12 @@ if (c === hudWas && !force) return;
 hudWas = c;
 HUD_FIGHT_ONLY.forEach(id => $(id).style.display = c && (dev || "bt-bg" !== id) ? "" : "none");
 HUD_BOX_ONLY.forEach(id => $(id).style.display = c ? "none" : "");
-$("box-title").style.color = c ? "#fa4" : "#4f8", $("box-title").textContent = c && { mc: "MORTAL COMBAT T", boss: "BOSS FIGHT T", rb: "RAID BOSS T", wb: "WORLD BOSS T" }[fightMode] + enemyTier || "BUGBOX", $("bt-next").style.display = "none";
+$("box-title").style.color = c ? "#fa4" : "#4f8", $("box-title").textContent = c && { mc: "MORTAL COMBAT T", boss: "BOSS FIGHT T", rb: "RAID BOSS T", wb: "WORLD BOSS T" }[fightMode] + enemyTier || "BUGBOX", $("bt-next").style.display = $("bt-res").style.display = "none";
 boxCv.style.borderColor = c ? boxK() < 1 ? "transparent" : "#fa4" : "#4cf";
 syncSciHud()
 }
 const MAX_FOOD = 30;
-function canPlaceFood() { return combatState ? foodLeft > 0 && !fightDone : ecsQuery("food").length < MAX_FOOD }
+function canPlaceFood() { return combatState ? foodLeft > 0 : ecsQuery("food").length < MAX_FOOD }
 function spawnDmgPop(p, amount, team, a) { dmgPops.push({ p, x: 0, y: 0, amount, team, a, t: 1 }) }
 function openBox() {
 simLastT = 0, updateMoney(), achOwn(0), showScreen("s-box")
@@ -137,21 +137,20 @@ function genObstacles(inCombat) {
 const placed = [];
 for (let i = 1 + ri(3); i--;) spawnObst(placeObst(rnd(obstKinds), placed, inCombat))
 }
+// After a win: pick 1 of 3 new obstacle kinds (None = skip) into the saved peaceful world, then the result screen
 function offerObst() {
 const left = shuf(OBST.map((_, k) => k).filter(k => !obstKinds.includes(k)));
-left.length >= 3 && (obstOffer = left.slice(0, 3))
-}
-function showObstOffer() {
-const d = document.createElement("div"), row = document.createElement("div");
+if (left.length < 3) return ov("ov-res", 1);
+const d = document.createElement("div"), row = document.createElement("div"), done = () => (d.remove(), ov("ov-res", 1));
 d.style = "position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:160;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px";
 d.innerHTML = '<div class="dos-title" style="font-size:15px">CHOOSE AN OBSTACLE</div>', row.style = "display:flex;gap:8px", d.appendChild(row);
-obstOffer.forEach(k => {
+left.slice(0, 3).forEach(k => {
 const b = document.createElement("button"), cv = document.createElement("canvas"), g = cv.getContext("2d");
 cv.width = cv.height = 56, cv.style = "display:block;margin:0 auto 4px", g.translate(28, 28), OBST[k][1](g, 20, OBST[k][0][0]);
-b.appendChild(cv), b.append(OBST_NAME[k]), b.onclick = () => {
-obstKinds.push(k), savedWorld ? placeObst(k, savedWorld.obs, 0) : spawnObst(placeObst(k, snapObstacles(), 0)), d.remove()
-}, row.appendChild(b)
-}), obstOffer = null, document.body.appendChild(d)
+b.appendChild(cv), b.append(OBST_NAME[k]), b.onclick = () => (obstKinds.push(k), savedWorld.obs.push({ kind: k }), done()), row.appendChild(b)
+});
+const no = document.createElement("button");
+no.className = "bt", no.textContent = "None", no.onclick = done, d.appendChild(no), document.body.appendChild(d)
 }
 function bugEntity(b, x, y, dir, tm) {
 return {
@@ -169,14 +168,6 @@ return eachObstacle((o, p) => ({ r: o.r, kind: o.kind, v: o.v, rot: o.rot, x: p.
 function snapFood() {
 return ecsQuery("food", "pos").map(e => { const p = C.pos.get(e); return { x: p.x, y: p.y } })
 }
-function restoreBoxWorld() {
-if (!savedWorld) return;
-ecsQuery("obstacle").forEach(e => ecsKill(e));
-ecsQuery("food").forEach(e => ecsKill(e));
-savedWorld.obs.forEach(spawnObst);
-savedWorld.food.forEach(f => ecsSpawn({ food: {}, pos: { x: f.x, y: f.y, dir: 0 } }));
-savedWorld = null
-}
 function spawnBox() {
 resizeBoxCV(), rescaleBox();
 if (combatState) {
@@ -184,7 +175,12 @@ savedWorld = savedWorld || { obs: snapObstacles(), food: snapFood() };
 ecsClear(), inspected = null;
 genObstacles(!0)
 } else {
-restoreBoxWorld();
+if (savedWorld) {
+ecsQuery("obstacle").forEach(ecsKill), ecsQuery("food").forEach(ecsKill);
+savedWorld.obs.forEach(o => spawnObst(o.x == null ? placeObst(o.kind, snapObstacles(), 0) : o));
+savedWorld.food.forEach(f => ecsSpawn({ food: {}, pos: { x: f.x, y: f.y, dir: 0 } }));
+savedWorld = null
+}
 ecsQuery("obstacle").length || genObstacles(!1)
 }
 if (!combatState) {

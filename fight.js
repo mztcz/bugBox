@@ -1,5 +1,5 @@
 const BOSS = { boss: [1.5, 1], rb: [3, 10], wb: [3, 50] }, weekOf = () => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate() - (d.getDay() + 6) % 7).toDateString() };
-let bosses = {}, wbWeek = "";
+let bosses = {}, wbWeek = "", match = null;
 try { const s = JSON.parse(localStorage.getItem("bugbox_wb")); s && (wbWeek = s.week, Object.entries(s.bugs).forEach(([k, b]) => bosses[k] = { ...b, id: bid++, role: b.role || roleOf(b) })) } catch (e) {}
 function wbKeep() {
 if ("wb" !== fightMode || !combatState) return;
@@ -23,6 +23,8 @@ const keepHp = () => ecsQuery("team", "combat").forEach(e => { const c = C.comba
 function startFight(btn, T) {
 if (!dev && money < entryFee(T)) return flashBlocked(btn), void toast("Not enough money!");
 money -= entryFee(T), enemyTier = T, updateMoney(), keepHp();
+// one match = one fight, or all steps of one MC
+"mc" === fightMode && T > 1 && match || (match = { foes: [], prize: 0, kills: 0, ms: 0 });
 bgPick(), fightNum++, enemies = buildEnemies(), groundMarks = [], dmgPops = [], fightDone = !1, fightMs = 0, foodLeft = 3, combatState = !0, simSpd = 1, tickDebt = 0, syncSpeedLabel();
 markEggsReady();
 showScreen("s-box"), resizeBoxCV(), spawnBox()
@@ -30,7 +32,7 @@ showScreen("s-box"), resizeBoxCV(), spawnBox()
 function endFight() {
 resultTimer && (clearTimeout(resultTimer), resultTimer = null);
 dev && combatState && bugsOwned.forEach(b => b.mated = 0), keepHp(), buryDead(bugsInBoxView().filter(f => 0 === f.team && f.dead));
-combatState = !1, tickDebt = 0, simSpd = speedBeforePause, ecsQuery("team").forEach(ecsKill), restoreBoxWorld(), resizeBoxCV(), ov("ov-res", 0), syncHud(!0)
+combatState = !1, tickDebt = 0, simSpd = speedBeforePause, ecsQuery("team").forEach(ecsKill), ov("ov-res", 0), syncHud(!0)
 }
 const tallyFight = (lb, f) => (lb.fights = (lb.fights || 0) + 1, lb.killsTotal = (lb.killsTotal || 0) + (f.killsThis || 0)),
 buryDead = dead => dead.forEach(f => {
@@ -48,10 +50,10 @@ alive1 = all.filter(f => 1 === f.team && !f.dead),
 won = alive0.length > 0 && 0 === alive1.length,
 allPlayer = all.filter(f => 0 === f.team),
 allEnemy = all.filter(f => 1 === f.team);
-lastSurvivors = alive0.length ? alive0.map(f => f.b) : null;
 keepHp();
 dead0.length && achStep("lost", [1, 10], "lost", dead0.length);
-addKills(allPlayer.reduce((s, f) => s + (f.killsThis || 0), 0));
+const kills = allPlayer.reduce((s, f) => s + (f.killsThis || 0), 0);
+addKills(kills);
 const rt = $("res-title"),
 rb = $("res-body");
 rt.textContent = won ? "VICTORY!" : "DEFEAT", rt.style.color = won ? "#44ff88" : "#ff4444", won && SFX.win(), buryDead(dead0);
@@ -59,18 +61,20 @@ let html = "";
 if (won) {
 "boss" === fightMode && enemyTier >= tierMax && enemyTier < 5 && toast(`Tier ${enemyTier} boss is defeated. T${tierMax = enemyTier + 1} opens`);
 const prize = allEnemy.reduce((s, f) => s + bugValue(statSum(f.b)), 0) * prizeK();
-money += prize, alive0.forEach(f => {
+money += prize, match.prize += prize, alive0.forEach(f => {
 const lb = ownedById(f.b.id);
 lb && (lb.wins++, tallyFight(lb, f), achSurvive(lb))
-}), offerObst(), updateMoney(), html += `<p style="color:#44ff88;font-size:10px;margin-bottom:8px;">+$${prize}</p>`
-} else updateMoney();
-scienceOn && (html += `<p style="color:#888;font-size:10px;margin-bottom:8px;">Time ${fmtT(fightMs)}</p>`);
+})
+}
+updateMoney();
 achFight(won, dead0.length, alive0.length), achOwn(0), bugsOwned.forEach(b => b.mated = 0);
+match.ms += fightMs, match.kills += kills, match.foes.push(...allEnemy);
 if (won && "mc" === fightMode && enemyTier < 5) {
 for (let n = 1 + ri(3); n--;) ecsSpawn({ food: {}, pos: { x: 30 + random() * (boxLW - 60), y: 30 + random() * (boxLH - 60), dir: 0 } });
 return void($("bt-next").style.display = "")
 }
-simSpd = 0;
+match.prize && (html += `<p style="color:#44ff88;font-size:10px;margin-bottom:8px;">+$${match.prize}</p>`);
+scienceOn && (html += `<p style="color:#888;font-size:10px;margin-bottom:8px;">Time ${fmtT(match.ms)}</p>`);
 const buildCard = (f, isPlayer) => {
 const b = f.b,
 isDead = f.dead,
@@ -105,19 +109,26 @@ ctx.putImageData(id, 0, 0)
 }
 return div
 };
-const btnRow = `<div style="display:flex;gap:8px;">\n    <button class="nav-mkt bt bt-mkt f1">Market 🛒</button>\n    <button class="nav-box bt bt-box f1">BugBox</button>\n    <button class="nav-lab bt bt-lab f1">Breed 🧬</button>\n    ${bugsOwned.length?'<button class="warn bt f1" onclick="openBoo(true,lastSurvivors);showScreen(\'s-boo\');">↺ Fight</button>':""}\n  </div>`;
+const btnRow = `<div style="display:flex;gap:8px;">\n    <button class="nav-mkt bt bt-mkt f1">Market 🛒</button>\n    <button class="nav-box bt bt-box f1">BugBox</button>\n    <button class="nav-lab bt bt-lab f1">Breed 🧬</button>\n    ${bugsOwned.length?'<button class="warn bt f1" onclick="leaveToBoo()">↺ Fight</button>':""}\n  </div>`;
 bugsOwned.length || (html += '<p style="color:#ffdd44;font-size:10px;margin-bottom:8px;">⚠ No bugs left! Visit the Market.</p>'), html += btnRow + `<div style="height:10px;"></div>`;
 html += `<div class="grid2">\n    <div>\n      <div class="lbl-yours">YOUR BUGS</div>\n      <div id="rc-player-col" class="col4"></div>\n    </div>\n    <div>\n      <div class="lbl-enemy">ENEMY BUGS</div>\n      <div id="rc-enemy-col" class="col4"></div>\n    </div>\n  </div>` + btnRow + `<div id="res-cnt" style="position:absolute;right:6px;bottom:4px;font-size:8px;color:#44ccff;">${run.wins}/${fightNum}</div>`
 rb.innerHTML = html;
 const playerCol = $("rc-player-col"),
 enemyCol = $("rc-enemy-col");
-allPlayer.forEach(f => playerCol.appendChild(buildCard(f, !0)));
-allEnemy.forEach(f => enemyCol.appendChild(buildCard(f, !1)));
-ov("ov-res", 1)
+allPlayer.forEach(f => ("mc" === fightMode && (f.killsThis = match.kills), playerCol.appendChild(buildCard(f, !0))));
+match.foes.forEach(f => enemyCol.appendChild(buildCard(f, !1)));
+$("bt-res").style.display = "", won ? offerObst() : ov("ov-res", 1)
 }
+// Shared exit from the fight box (Leave, result buttons, nav buttons, card hold); during a running fight it counts as abandon
 function leaveFight() {
+if (!combatState) return;
+fightDone || achieve("abandon");
 if (labSt.larva) { const l = labSt.larva; l.dead || ownedById(l.id) || bugsOwned.push(l), labSt.larva = null }
-wbKeep(), endFight(), fightTeam = fightTeam.filter(b => ownedById(b.id)), openBox()
+wbKeep(), endFight(), fightTeam = fightTeam.filter(b => ownedById(b.id))
+}
+function leaveToBoo() {
+const survivors = bugsInBoxView().filter(f => 0 === f.team && !f.dead).map(f => f.b);
+leaveFight(), openBoo(!0, survivors), showScreen("s-boo")
 }
 function checkFightEnd() {
 const ents = ecsQuery("team", "combat");
@@ -129,6 +140,6 @@ const c = C.combat.get(e);
 if (c.curHp <= 0) { c.dead = !0, c.curHp = 0, c.phoenixT = 0, c.fakeT = 0, clearActionState(c) }
 else if (c.dead) { c.phoenixT = 0, c.fakeT = 0 }
 });
-fightDone = !0, syncSciHud(), resultTimer = setTimeout(showFightResult, 1000)
+fightDone = !0, resultTimer = setTimeout(showFightResult, 1000)
 }
 }
