@@ -81,13 +81,16 @@ $("s-box").classList.contains("active") ? simFrame || startSimLoop() : stopSimLo
 function stopSimLoop() {
 simFrame && cancelAnimationFrame(simFrame), simFrame = null
 }
-let boxLW = 360, boxOX = 0, boxOY = 0,
+let boxLW = 360, boxOX = 0, boxOY = 0, boxS = 1,
 boxLH = 300;
+// Fixed game world (full box area in game px, side ratio follows the window within 1:2..2:1); the canvas only zooms it (boxS)
+const BOX_AREA = 26e4, BOX_RATIO_MIN = .5, BOX_RATIO_MAX = 2;
 // Fight box area = tierMax / 4 of the full box (T1 only 1/4, T4 open = full)
 const boxK = () => combatState ? Math.sqrt(min(tierMax, 4) / 4) : 1;
 function resizeBoxCV() {
-const dpr = window.devicePixelRatio || 1, k = boxK(), rect = boxCv.getBoundingClientRect(), W = rect.width || 360, H = rect.height || 300;
-boxLW = k * W, boxLH = k * H, boxOX = (W - boxLW) / 2, boxOY = (H - boxLH) / 2, boxCv.width = floor(W * dpr), boxCv.height = floor(H * dpr), boxCx.setTransform(dpr, 0, 0, dpr, dpr * boxOX, dpr * boxOY)
+const dpr = window.devicePixelRatio || 1, k = boxK(), rect = boxCv.getBoundingClientRect(), W = rect.width || 360, H = rect.height || 300,
+ar = clamp(W / H, BOX_RATIO_MIN, BOX_RATIO_MAX), FW = Math.sqrt(BOX_AREA * ar), FH = BOX_AREA / FW, z = dpr * (boxS = min(W / FW, H / FH));
+boxLW = k * FW, boxLH = k * FH, boxOX = (W / boxS - boxLW) / 2, boxOY = (H / boxS - boxLH) / 2, boxCv.width = floor(W * dpr), boxCv.height = floor(H * dpr), boxCx.setTransform(z, 0, 0, z, z * boxOX, z * boxOY)
 }
 let boxW0 = 0, boxH0 = 0, boxC0 = !1;
 function rescaleBox() {

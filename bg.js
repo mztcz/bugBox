@@ -216,10 +216,10 @@ function bgPick() {
 bgM = ri(3), bgT = ri(BG_METHODS[bgM].t.length), bgV = ri(2), bgC = ri(BG_COLOR.length), bgS = ri(1e9)
 }
 function drawBg() {
-const key = [bgM, bgT, bgV, bgC, bgS, boxLW, boxLH].join(",");
+const key = [bgM, bgT, bgV, bgC, bgS, boxLW, boxLH, boxS].join(",");
 if (key !== bgKey) {
 bgKey = key;
-const dpr = window.devicePixelRatio || 1, m = BG_METHODS[bgM];
+const dpr = (window.devicePixelRatio || 1) * boxS, m = BG_METHODS[bgM];
 bgCv.width = max(1, round(boxLW * dpr)), bgCv.height = max(1, round(boxLH * dpr));
 const g = bgCv.getContext("2d");
 g.setTransform(dpr, 0, 0, dpr, 0, 0);
