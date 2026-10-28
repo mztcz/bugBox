@@ -94,6 +94,7 @@ hpFrac: isDead ? 0 : f.curHp / f.maxHp,
 imgId: imgId,
 img: b
 });
+div.dataset.bid = b.id;
 isPlayer || !BOSS[fightMode] || (div.querySelector(".card-lbl").innerHTML = ` <span style="color:#fa4">(${({ boss: "Boss", rb: "Raid Boss", wb: "World Boss" })[fightMode]})</span>`);
 if (isDead) {
 div.style.borderColor = "#442222";

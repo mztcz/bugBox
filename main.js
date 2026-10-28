@@ -66,8 +66,13 @@ const t = e.changedTouches[0];
 e.target.closest(".card") && hypot(t.clientX - tap0.clientX, t.clientY - tap0.clientY) < 20 && (e.preventDefault(), e.target.click())
 });
 document.addEventListener("pointerdown", e => {
-const c = e.target.closest(".pick-grid .card, #boo-grid .card");
+const c = e.target.closest(".pick-grid .card, #boo-grid .card, #res-body .card");
 c && hold(500, () => {
+// result card: close the result and focus that bug (alive or corpse) in the fight box
+if (c.closest("#res-body")) {
+const en = ecsQuery("bug").find(x => String(C.bug.get(x).id) === c.dataset.bid);
+return void(ov("ov-res", 0), en != null && (inspected = C.bug.get(en), achieve("find")))
+}
 const b = bugOfCard(c);
 b && (achieve("find"), closeKill(), leaveFight(), openBox(), cardDrag = 1, requestAnimationFrame(() => requestAnimationFrame(() => {
 const en = ecsQuery("bug").find(x => C.bug.get(x) === b), [cx, cy] = boxPt(e);
