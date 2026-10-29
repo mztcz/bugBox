@@ -160,7 +160,7 @@ const live = ents.filter(e => { const c = C.combat.get(e); return !c.dead || c.p
 const n = tm => live.filter(e => tm === C.team.get(e).team).length, h = tm => { let c = 0, m = 0; ents.forEach(e => { const cb = C.combat.get(e); tm === C.team.get(e).team && (c += max(0, cb.curHp), m += cb.maxHp) }); return round(100 * c / (m || 1)) };
 return [n(0), n(1), h(0), h(1)]
 }
-// young: egg, larva (grub, caterpillar, worm), pupa / cocoon, shells and husks
+// young: egg, larva (animated only while crawling, y.mv) (grub, caterpillar, worm), pupa / cocoon, shells and husks
 const eggShape = (c, r) => (c.fillStyle = "#8d8a80", c.beginPath(), c.ellipse(0, 0, r, r * .74, 0, 0, 7), c.fill(), c.fillStyle = "#a5a298", c.beginPath(), c.ellipse(-r * .22, -r * .22, r * .4, r * .28, 0, 0, 7), c.fill()),
 wob = y => y.ready && y.wait < YOUNG_SHAKE ? sin(y.t * 34) * .12 * (1 - y.wait / YOUNG_SHAKE) : 0,
 zigPath = (c, z) => (c.beginPath(), pathPts(c, z.length, i => z[i])),
@@ -168,14 +168,14 @@ inLarva = (c, p, f) => (c.save(), c.translate(p.x, p.y), c.rotate(p.dir + HALF_P
 const LARVA = [(c, y, p) => {
 const [L, w] = lSize(y);
 inLarva(c, p, () => {
-for (let i = 6; i >= 1; i--) { const u = i / 6, r = w * (1 - .45 * u * u) * (1 + .12 * sin(y.t * 7 - i * .9)); c.fillStyle = i % 2 ? "#eadcc0" : "#dccba9", c.beginPath(), c.ellipse(sin(u * PI) * w * .25, -L / 2 + u * L, r, r * .7, 0, 0, 7), c.fill(), c.strokeStyle = "rgba(110,80,40,.35)", c.lineWidth = .4, c.stroke() }
+for (let i = 6; i >= 1; i--) { const u = i / 6, r = w * (1 - .45 * u * u) * (1 + .12 * sin(y.mv * 7 - i * .9)); c.fillStyle = i % 2 ? "#eadcc0" : "#dccba9", c.beginPath(), c.ellipse(sin(u * PI) * w * .25, -L / 2 + u * L, r, r * .7, 0, 0, 7), c.fill(), c.strokeStyle = "rgba(110,80,40,.35)", c.lineWidth = .4, c.stroke() }
 c.fillStyle = "#7a4a22", c.beginPath(), c.ellipse(0, -L / 2 - w * .1, w * .62, w * .55, 0, 0, 7), c.fill(), c.strokeStyle = "#3a2210", c.lineWidth = .6;
 for (const s of [-1, 1]) c.beginPath(), c.moveTo(s * w * .25, -L / 2 - w * .5), c.lineTo(s * w * .1, -L / 2 - w * .85), c.stroke()
 })
 }, (c, y, p) => {
 const w = lSize(y)[1], pts = larvaPts(y, p);
 for (let i = 7; i >= 0; i--) {
-const [x, yy] = pts[i], r = w * (i ? 1 - .3 * i / 8 : .8) * (1 + .06 * sin(y.t * 6 - i));
+const [x, yy] = pts[i], r = w * (i ? 1 - .3 * i / 8 : .8) * (1 + .06 * sin(y.mv * 6 - i));
 c.fillStyle = i ? `hsl(${y.bug.hue},55%,${i % 2 ? 60 : 52}%)` : `hsl(${y.bug.hue},40%,28%)`, c.beginPath(), c.arc(x, yy, r, 0, 7), c.fill();
 if (!i) continue;
 const nx = i < 7 ? pts[i - 1][0] - pts[i + 1][0] : 1, ny = i < 7 ? pts[i - 1][1] - pts[i + 1][1] : 0, l = hypot(nx, ny) || 1;
@@ -186,7 +186,7 @@ for (const s of [-1, 1]) c.beginPath(), c.arc(x - ny / l * r * .6 * s, yy + nx /
 const [L, w] = lSize(y);
 inLarva(c, p, () => {
 for (let i = 7; i >= 0; i--) {
-const u = i / 7, cy = -L / 2 + u * L, r = w * (.45 + .55 * sin(min(1, u * 1.3 + .15) * PI * .8)), x = sin(y.t * 5 + i * .8) * w * .35 * i / 8;
+const u = i / 7, cy = -L / 2 + u * L, r = w * (.45 + .55 * sin(min(1, u * 1.3 + .15) * PI * .8)), x = sin(y.mv * 5 + i * .8) * w * .35 * i / 8;
 c.fillStyle = i % 2 ? "#d9d2c2" : "#c9c0ad", c.beginPath(), c.ellipse(x, cy, r, r * .8, 0, 0, 7), c.fill();
 i % 2 || (c.strokeStyle = "rgba(70,60,45,.5)", c.lineWidth = .5, c.beginPath(), c.ellipse(x, cy, r * .95, r * .25, 0, PI * .1, PI * .9), c.stroke())
 }

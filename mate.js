@@ -71,7 +71,7 @@ mateSnap(m), m.hold -= dt;
 if (m.hold <= 0) {
 const bug = boxFull() || makeBug({ ...computeOffspring(sb, tb) });
 !1 === bug.dead && (ecsSpawn({
-young: { st: "egg", bug, pT: parentTier(sb, tb), r: min(bugLen(sb), bugLen(tb)) * .25, ck: ri(3), lt: ri(3), pv: ri(2), eaten: 0, ready: 0, t: 0, trail: [] },
+young: { st: "egg", bug, pT: parentTier(sb, tb), r: min(bugLen(sb), bugLen(tb)) * .25, ck: ri(3), lt: ri(3), pv: ri(2), eaten: 0, ready: 0, t: 0, mv: 0, trail: [] },
 pos: { x: (sp.x + tp.x) / 2, y: (sp.y + tp.y) / 2, dir: rf(-PI, PI) }, vel: {}
 }), achKids(sb, tb), achieve("mate"));
 pairEnd(m, 1)
@@ -148,7 +148,7 @@ if (hypot(f.x - p.x, f.y - p.y) < L * .5 + 5) return void(ecsKill(ecsQuery("food
 f || (p.x < m || p.x > boxLW - m || p.y < m || p.y > boxLH - m) && (y.tdir = atan2(boxLH / 2 - p.y, boxLW / 2 - p.x));
 turnToward(e, y.tdir ?? p.dir, LARVA_TURN * dtS);
 p.x = clamp(p.x + cos(p.dir) * LARVA_WALK * dtS, L / 2, boxLW - L / 2), p.y = clamp(p.y + sin(p.dir) * LARVA_WALK * dtS, L / 2, boxLH - L / 2);
-y.trail.unshift([p.x, p.y]), y.trail.length > 400 && y.trail.pop();
+y.mv += dtS, y.trail.unshift([p.x, p.y]), y.trail.length > 400 && y.trail.pop();
 if (y.eaten < 3 || (y.extra -= dtS) > 0) return;
 if (1 === y.lt) { const q = larvaPts(y, p), h = q[0], t = q[7]; p.x = (h[0] + t[0]) / 2, p.y = (h[1] + t[1]) / 2, p.dir = atan2(h[1] - t[1], h[0] - t[0]) }
 y.st = "pupating", y.t = 0
