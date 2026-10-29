@@ -8,7 +8,9 @@ walk: new Map,
 team: new Map,
 combat: new Map,
 food: new Map,
-obstacle: new Map
+obstacle: new Map,
+young: new Map,
+shell: new Map
 };
 function ecsClear() {
 C.entities.clear();

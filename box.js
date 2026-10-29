@@ -171,7 +171,7 @@ return ecsQuery("food", "pos").map(e => { const p = C.pos.get(e); return { x: p.
 function spawnBox() {
 resizeBoxCV(), rescaleBox();
 if (combatState) {
-savedWorld = savedWorld || { obs: snapObstacles(), food: snapFood() };
+savedWorld = savedWorld || { obs: snapObstacles(), food: snapFood(), young: ecsQuery("young", "pos").map(e => ({ ...C.young.get(e), pos: { ...C.pos.get(e) } })) };
 ecsClear(), inspected = null;
 genObstacles(!0)
 } else {
@@ -179,6 +179,7 @@ if (savedWorld) {
 ecsQuery("obstacle").forEach(ecsKill), ecsQuery("food").forEach(ecsKill);
 savedWorld.obs.forEach(o => spawnObst(o.x == null ? placeObst(o.kind, snapObstacles(), 0) : o));
 savedWorld.food.forEach(f => ecsSpawn({ food: {}, pos: { x: f.x, y: f.y, dir: 0 } }));
+savedWorld.young.forEach(({ pos, ...y }) => ecsSpawn({ young: y, pos, vel: {} }));
 savedWorld = null
 }
 ecsQuery("obstacle").length || genObstacles(!1)

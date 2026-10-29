@@ -21,7 +21,7 @@ const TAP_R = 29, TAP_MS = 1000;
 boxCv.onclick = e => {
 const [cx, cy] = boxPt(e);
 if (suppressClick) { suppressClick = !1; return }
-const hitE = nearest(["bug", "pos"], cx, cy, en => bugLen(C.bug.get(en))), hit = hitE != null && C.bug.get(hitE);
+const hitE = nearest(["bug", "pos"], cx, cy, en => bugLen(C.bug.get(en))) ?? nearest(["young", "pos"], cx, cy, youngR), hit = hitE != null && (C.bug.get(hitE) || C.young.get(hitE).bug);
 if (hit) { inspected = hit === inspected ? null : hit, inspected && achieve("inspect"); return }
 if (combatState) {
 const now = performance.now();

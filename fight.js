@@ -26,7 +26,7 @@ money -= entryFee(T), enemyTier = T, updateMoney(), keepHp();
 // one match = one fight, or all steps of one MC
 "mc" === fightMode && T > 1 && match || (match = { foes: [], prize: 0, kills: 0, ms: 0 });
 bgPick(), fightNum++, enemies = buildEnemies(), groundMarks = [], dmgPops = [], fightDone = !1, fightMs = 0, foodLeft = 3, combatState = !0, simSpd = 1, tickDebt = 0, syncSpeedLabel();
-markEggsReady();
+youngReady(1);
 showScreen("s-box"), resizeBoxCV(), spawnBox()
 }
 function endFight() {

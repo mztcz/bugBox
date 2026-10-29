@@ -68,7 +68,7 @@ if (!runIsOver()) return;
 overTimer = setTimeout(() => {
 overTimer = null;
 if (!runIsOver()) return;
-if (boxEggs.length) return void(openBox());
+if (youngAll().length) return void(openBox());
 ov("ov-over", 1)
 }, OVER_DELAY)
 }

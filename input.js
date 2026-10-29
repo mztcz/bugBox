@@ -14,6 +14,8 @@ function obstacleAt(cx, cy) { return nearest(["obstacle", "pos"], cx, cy, en => 
 function draggableAt(cx, cy) {
 let e = nearest(["bug", "pos"], cx, cy, en => bugLen(C.bug.get(en)));
 if (e != null) return { e: e, kind: "bug", pad: 21 };
+e = nearest(["young", "pos"], cx, cy, youngR);
+if (e != null) return { e: e, kind: "young", pad: 6 };
 e = nearest(["food", "pos"], cx, cy, () => 10);
 if (e != null) return { e: e, kind: "food", pad: 5 };
 e = obstacleAt(cx, cy);
@@ -34,8 +36,8 @@ if (!drag.moved && hypot(cx - drag.sx, cy - drag.sy) < DRAG_SLOP) return;
 drag.moved || achieve({ bug: "drag", obstacle: "dragObst" }[drag.kind]), drag.moved = !0;
 p.x = clamp(cx + drag.ox, drag.pad, boxLW - drag.pad);
 p.y = clamp(cy + drag.oy, drag.pad, boxLH - drag.pad);
-"bug" === drag.kind && (think(drag.e), C.walk.get(drag.e).dropStuck = C.walk.get(drag.e).top = 1);
-if ("food" !== drag.kind && hypot(cx - drag.sx, cy - drag.sy) > 6) {
+"bug" === drag.kind && (think(drag.e), C.walk.get(drag.e).dropStuck = C.walk.get(drag.e).top = 1), "young" === drag.kind && (C.young.get(drag.e).trail = []);
+if ("food" !== drag.kind && "young" !== drag.kind && hypot(cx - drag.sx, cy - drag.sy) > 6) {
 const a = atan2(cy - drag.sy, cx - drag.sx), d = drag.ha == null ? 0 : norm(a - drag.ha);
 drag.ha = a, drag.sx = cx, drag.sy = cy, abs(d) < 2 && (drag.turn = (drag.turn || 0) + d);
 const s = sign(drag.turn);

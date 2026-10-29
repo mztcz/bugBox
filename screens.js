@@ -20,12 +20,11 @@ OV_PAUSE.includes(id) && (on ? ovSpd < 0 && (ovSpd = simSpd, simSpd = 0) : ovSpd
 }
 function showScreen(id) {
 "s-mkt" === id || cancelOverWatch();
-"s-box" === id || markEggsReady();
 ("s-box" !== id || !combatState) && ov("ov-res", 0);
 "s-box" !== id || combatState || (simSpd = 1, tickDebt = 0, syncSpeedLabel());
 document.querySelectorAll(".screen").forEach(s => s.classList.remove("active")), $(id).classList.add("active"), syncSimLoop();
 if ("s-box" === id) {
-combatState || hatchReadyEggs();
+combatState || youngReady(0);
 const wantCombat = combatState;
 requestAnimationFrame(() => {
 requestAnimationFrame(() => {
