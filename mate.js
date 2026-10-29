@@ -95,7 +95,7 @@ t.pair = t.prepT = 0, ok && (C.bug.get(en).mated = 1), think(en, ok && en === s.
 }
 // fight start marks waiting eggs and pupae ready; each peaceful box open gives the ready ones a new 1–10 s window
 const youngReady = fight => youngAll().forEach(y => fight ? ("egg" === y.st || "pupa" === y.st) && (y.ready = 1) : y.ready && (y.wait = rf(1, 10)));
-const YOUNG_SHAKE = 1.6, LARVA_TURN = TAU / 5.99,
+const YOUNG_SHAKE = 1.6, LARVA_TURN = TAU / 5.99, LARVA_WALK = BASE_WALK / 3,
 ease = k => k < 0 ? 0 : k > 1 ? 1 : k * k * (3 - 2 * k),
 lSize = y => [bugLen(y.bug) * (.5 + .1 * y.eaten), ensureMorph(y.bug).bodyWidth * (.55 + .08 * y.eaten) + 1.2],
 youngR = en => { const y = C.young.get(en); return "emerge" === y.st ? 0 : ("egg" === y.st ? y.r : "pupa" === y.st || "pupating" === y.st ? pupaGeo(y.bug)[1] : lSize(y)[0] * .6) + 10 },
@@ -137,17 +137,17 @@ cap = f => [...pts, [l[0] + f * ca * R * 2, l[1] + f * sa * R * 2], [pts[0][0] +
 piece(cap(1), ca * r * 3, sa * r * 3, rf(4, 7)), piece(cap(-1), -ca * r * .3, -sa * r * .3, 0), shards(5, 1)
 }
 }
-// larva: AGI 1 walk and turn, wanders, turns to food seen with the future bug's PER; 3 meals, 2.5–4 s more crawling, then pupates
+// larva: 1/3 of AGI 1 walk, AGI 1 turn, wanders, turns to food seen with the future bug's PER; 3 meals, 10–16 s more crawling, then pupates
 function larvaStep(e, y, p, dtS) {
 const L = lSize(y)[0], f = y.eaten < 3 && seenFood(y.bug, p), m = L + 14;
 if (y.chew > 0) return void(y.chew -= dtS);
 if (f) {
 y.tdir = atan2(f.y - p.y, f.x - p.x);
-if (hypot(f.x - p.x, f.y - p.y) < L * .5 + 5) return void(ecsKill(ecsQuery("food", "pos").find(fe => C.pos.get(fe) === f)), y.chew = .9, 3 === ++y.eaten && (y.extra = rf(2.5, 4)))
+if (hypot(f.x - p.x, f.y - p.y) < L * .5 + 5) return void(ecsKill(ecsQuery("food", "pos").find(fe => C.pos.get(fe) === f)), y.chew = .9, 3 === ++y.eaten && (y.extra = rf(10, 16)))
 } else (y.wt = (y.wt || 0) - dtS) <= 0 && (y.wt = rf(2, 4), y.tdir = p.dir + rf(-1, 1));
 f || (p.x < m || p.x > boxLW - m || p.y < m || p.y > boxLH - m) && (y.tdir = atan2(boxLH / 2 - p.y, boxLW / 2 - p.x));
 turnToward(e, y.tdir ?? p.dir, LARVA_TURN * dtS);
-p.x = clamp(p.x + cos(p.dir) * BASE_WALK * dtS, L / 2, boxLW - L / 2), p.y = clamp(p.y + sin(p.dir) * BASE_WALK * dtS, L / 2, boxLH - L / 2);
+p.x = clamp(p.x + cos(p.dir) * LARVA_WALK * dtS, L / 2, boxLW - L / 2), p.y = clamp(p.y + sin(p.dir) * LARVA_WALK * dtS, L / 2, boxLH - L / 2);
 y.trail.unshift([p.x, p.y]), y.trail.length > 400 && y.trail.pop();
 if (y.eaten < 3 || (y.extra -= dtS) > 0) return;
 if (1 === y.lt) { const q = larvaPts(y, p), h = q[0], t = q[7]; p.x = (h[0] + t[0]) / 2, p.y = (h[1] + t[1]) / 2, p.dir = atan2(h[1] - t[1], h[0] - t[0]) }
@@ -159,7 +159,7 @@ ecsQuery("young", "pos").forEach(e => {
 const y = C.young.get(e), p = C.pos.get(e);
 if (drag?.moved && drag.e === e) return;
 y.t += dtS;
-if (y.ready && (y.wait -= dtS) <= 0) return void(y.ready = y.t = 0, "egg" === y.st ? (crackEgg(y, p), y.st = "hatch") : y.st = "emerge");
+if (y.ready && (y.wait -= dtS) <= 0) return void(y.ready = y.t = 0, "egg" === y.st ? (crackEgg(y, p), y.st = "hatch") : (y.st = "emerge", SFX.hatch()));
 "hatch" === y.st ? y.t > .9 && (y.st = "larva", y.t = 0) : "larva" === y.st ? larvaStep(e, y, p, dtS) : "pupating" === y.st ? y.t > 4.8 && (y.st = "pupa") : "emerge" === y.st && y.t > 1.8 && emerge(e, y, p)
 });
 ecsQuery("shell", "pos").forEach(e => {
@@ -170,6 +170,6 @@ k > 0 && (p.x += s.vx * dtS * k, p.y += s.vy * dtS * k, s.rot += s.vr * dtS * k)
 // the bug joins bugsOwned only now
 function emerge(e, y, p) {
 const nb = y.bug, [x, yy, d] = bugAt(y, p, 1.8), be = ecsSpawn(bugEntity(nb, x, yy, p.dir, -1));
-nb.curHp = maxHpOf(nb), bugsOwned.push(nb), achOwn(1), achChild(nb, y.pT), achStep("hatched", [1, 10], "hatch"), trackDynasty(nb.gen), SFX.hatch();
+nb.curHp = maxHpOf(nb), bugsOwned.push(nb), achOwn(1), achChild(nb, y.pT), achStep("hatched", [1, 10], "hatch"), trackDynasty(nb.gen);
 C.walk.get(be).stride = .32 * d, think(be), shellAdd(p, { k: "husk", o: y }), ecsKill(e)
 }
