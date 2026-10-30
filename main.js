@@ -88,7 +88,7 @@ inspected = b, cardDrag && en != null && dragAt({ e: en, kind: "bug", pad: 21 },
 const s = TUT[tutStep], x = e.target, on = el => el?.contains?.(x);
 if (!s) return;
 "click" === k && setTimeout(tutCheck);
-if (!s.f || ("click" === k ? s.t().some(on) && !x.closest("#s-lab .card-img") || s.c?.(e) : on(s.p?.()))) return;
+if (!s.f || ("click" === k ? s.t().some(on) && !on(s.p?.()) && !x.closest("#s-lab .card-img") || s.c?.(e) : on(s.p?.()))) return;
 e.stopPropagation(), "click" === k && (s.x || tutBlink)(e)
 }, !0));
 ["pointerup", "pointercancel"].forEach(k => document.addEventListener(k, () => (clearTimeout(holdT), cardDrag && (cardDrag = 0, endDrag()))));
