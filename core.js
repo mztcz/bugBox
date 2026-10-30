@@ -1,4 +1,4 @@
-const GAME_VERSION = "74.86";
+const GAME_VERSION = "74.87";
 const {PI,random,max,min,hypot,sin,cos,atan2,round,abs,sign,pow,floor}=Math;
 const TAU=2*PI, HALF_PI=PI/2;
 const $ = id => document.getElementById(id);

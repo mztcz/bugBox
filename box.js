@@ -150,7 +150,10 @@ cv.width = cv.height = 56, cv.style = "display:block;margin:0 auto 4px", g.trans
 b.appendChild(cv), b.append(OBST_NAME[k]), b.onclick = () => (obstKinds.push(k), savedWorld.obs.push({ kind: k }), done()), row.appendChild(b)
 });
 const no = document.createElement("button");
-no.className = "bt", no.textContent = "None", no.onclick = done, d.appendChild(no), document.body.appendChild(d)
+no.className = "bt", no.textContent = "None", no.onclick = done, d.appendChild(no), document.body.appendChild(d);
+// 2 small confetti bursts at both sides of the title
+const r = d.firstChild.getBoundingClientRect();
+confetti([[r.left - 14, r.left - 4, r.bottom], [r.right + 4, r.right + 14, r.bottom]], 1)
 }
 function bugEntity(b, x, y, dir, tm) {
 return {
