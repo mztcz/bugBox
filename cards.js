@@ -117,7 +117,7 @@ toastLbl(), el.classList.add("show"), setTimeout(() => (el.classList.remove("sho
 }
 function flashBlocked(div, ms = 0) {
 div.classList.remove("blocked-fade"), div.classList.add("card-sel2", "blocked-fill"), setTimeout(() => requestAnimationFrame(() => requestAnimationFrame(() => {
-div.classList.add("blocked-fade"), div.classList.remove("blocked-fill")
+div.classList.add("blocked-fade"), div.classList.remove("blocked-fill", "card-sel2")
 })), ms), setTimeout(() => {
 div.classList.remove("card-sel2", "blocked-fill", "blocked-fade")
 }, ms + 350)
