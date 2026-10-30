@@ -73,7 +73,7 @@ match.foes.push(...allEnemy);
 for (let n = 1 + ri(3); n--;) ecsSpawn({ food: {}, pos: { x: 30 + random() * (boxLW - 60), y: 30 + random() * (boxLH - 60), dir: 0 } });
 return void($("bt-next").style.display = "")
 }
-13 === tutStep && tutGo(15), renderResult(), $("bt-res").style.display = "", won ? offerObst() : ov("ov-res", 1)
+[13, 15].includes(tutStep) && tutFought(alive0), renderResult(), $("bt-res").style.display = "", won ? offerObst() : ov("ov-res", 1)
 }
 // Result screen body from the live fight box (HP after feeding) + enemies of earlier MC steps
 function renderResult() {

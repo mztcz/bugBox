@@ -23,7 +23,7 @@ return e == null ? null : { e: e, kind: "obstacle", pad: C.obstacle.get(e).r }
 }
 function dragStart(e) {
 const [cx, cy] = boxPt(e), t = draggableAt(cx, cy);
-suppressClick = !1, t || hold(HOLD_MS, () => canPlaceFood() && (ecsSpawn({ food: {}, pos: { x: cx, y: cy, dir: 0 } }), SFX.feed(), combatState && foodLeft--, suppressClick = !0));
+suppressClick = !1, t || hold(HOLD_MS, () => canPlaceFood() && (ecsSpawn({ food: {}, pos: { x: cx, y: cy, dir: 0 } }), SFX.feed(), tutFed = 1, combatState && foodLeft--, suppressClick = !0));
 if (!t || combatState) return;
 dragAt(t, cx, cy);
 boxCv.setPointerCapture && boxCv.setPointerCapture(e.pointerId)

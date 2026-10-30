@@ -78,8 +78,8 @@ const b = bugOfCard(c);
 b && findBug(b, e, 1)
 })
 });
-// Find a bug: peaceful box + focus, dragIt = drag it with the finger while held
-const findBug = (b, e, dragIt) => (achieve("find"), closeKill(), leaveFight(), openBox(), cardDrag = dragIt, requestAnimationFrame(() => requestAnimationFrame(() => {
+// Find a bug: peaceful box + focus, dragIt = drag it with the finger while held; tutorial hold: 3 red hit flashes
+const findBug = (b, e, dragIt) => (dragIt && [8, 9].includes(tutStep) && [300, 700, 1100].forEach(ms => setTimeout(() => bugHit(b), ms)), achieve("find"), closeKill(), leaveFight(), openBox(), cardDrag = dragIt, requestAnimationFrame(() => requestAnimationFrame(() => {
 const en = ecsQuery("bug").find(x => C.bug.get(x) === b), [cx, cy] = boxPt(e);
 inspected = b, cardDrag && en != null && dragAt({ e: en, kind: "bug", pad: 21 }, cx, cy)
 })));

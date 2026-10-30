@@ -187,7 +187,7 @@ $("itab-ach").innerHTML = `<div style="color:#ffdd44;margin-bottom:6px;">${ACHIE
 }
 // Tutorial walkthrough (one game, not saved): tutStep 0 = off. Step: d first delay, t() blink targets (selected ones drop out), ok() = go to step "to" or the next one,
 // f = forced (only targets react, except the held element p; c(e) extra allowed click, p() element that may be held, x(e) action on any other click), h = flash ms, n = flashes before the next step
-let tutStep = 0, tutT = 0, tutN = 0, tutPar = null, tutKid = null, tutTint = null;
+let tutStep = 0, tutT = 0, tutN = 0, tutPar = null, tutKid = null, tutTint = null, tutFoc = null, tutMark = null, tutFed = 0;
 const scrOn = id => $(id).classList.contains("active"),
 kidCard = () => document.querySelector(`.pick-grid .card[data-bid="${tutKid.id}"]`),
 allSel = () => TUT[tutStep].t().every(x => x?.matches(".card-sel")),
@@ -203,18 +203,19 @@ TUT = {
 9: { f: 1, t: () => [$("s-lab").querySelector(".bt-box")], p: kidCard, x: e => kidCard().contains(e.target) ? findBug(tutKid, e, 0) : tutBlink(), ok: () => scrOn("s-box") },
 10: { f: 1, t: () => [tutPar], c: e => e.target === boxCv && tapHit(...boxPt(e)) === tutPar && !(suppressClick = !1), ok: () => inspected === tutPar },
 11: { f: 1, d: 1e3, t: () => [$("bt-boo")], ok: () => scrOn("s-boo") },
-12: { f: 1, t: () => [document.querySelector("#s-boo .bt-mode"), document.querySelector(`#boo-grid .card[data-bid="${tutPar.id}"]`), $("bt-combat")], ok: fightOn },
+12: { f: 1, t: () => { const c = document.querySelector(`#boo-grid .card[data-bid="${tutPar.id}"]`); return [c?.classList.contains("card-sel") ? $("bt-combat") : c] }, ok: fightOn },
 13: { t: () => [], ok: () => scrOn("s-boo") },
 14: { f: 1, t: () => [$("bt-combat")], ok: fightOn, to: 13 },
-15: { t: () => scrOn("s-box") && !combatState ? [$("bt-inf")] : [], ok: () => !combatState && "flex" === $("ov-inf").style.display },
-16: { t: () => [document.querySelector('.info-tab[data-tab="ach"]')], ok: () => "" === $("itab-ach").style.display }
+15: { h: 1e3, t: () => scrOn("s-box") && !combatState ? [foodFlash] : [], ok: () => tutFed },
+16: { t: () => scrOn("s-box") && !combatState ? [$("bt-inf")] : [], ok: () => !combatState && "flex" === $("ov-inf").style.display },
+17: { t: () => [document.querySelector('.info-tab[data-tab="ach"]')], ok: () => "" === $("itab-ach").style.display }
 };
 const tutTargets = () => TUT[tutStep].t().filter(x => x && !x.matches?.(".card-sel,.prim")),
-tutFlash = x => x.nodeType ? flashBlocked(x, TUT[tutStep].h) : bugFlash(x),
+tutFlash = x => x.nodeType ? flashBlocked(x, TUT[tutStep].h) : x.call ? x() : bugFlash(x),
 tutBlink = () => TUT[tutStep].n ? tutFlash(tutTargets()[0]) : tutLoop(0);
 function tutGo(n) {
 tutStep = n, tutN = 0, clearTimeout(tutT);
-if (17 === n) return tutStep = 0, void setTimeout(tutDone, 1e3);
+if (18 === n) return tutStep = 0, void setTimeout(tutDone, 1e3);
 n && (tutLoop(), tutCheck())
 }
 function tutCheck(re) {
@@ -230,7 +231,22 @@ ts[i] && tutFlash(ts[i]);
 }, d)
 }
 // bug in the box: red hit flash, then the blue tint + glow drawn by drawHit
-function bugFlash(b) { const en = entOf(b); en != null && (C.walk.get(en).hitT = 1, tutTint = { b, at: performance.now() + 200 }) }
+const bugHit = b => { const en = entOf(b); return en != null && (C.walk.get(en).hitT = 1) };
+function bugFlash(b) { bugHit(b) && (tutTint = { b, at: performance.now() + 200 }) }
+// blue food mark: in the front view cone of the wounded fighter tutFoc (cut to the box, off obstacles), else (or if the cone has no room) anywhere in the box
+function foodFlash() {
+const en = tutFoc && entOf(tutFoc), p = en != null && hpFrac(tutFoc) < 1 && C.pos.get(en);
+for (let i = 0; i < 60; i++) {
+const c = p && i < 30, a = c && p.dir + rf(-1, 1) * fovHalfOf(tutFoc), d = c && rf(bugLen(tutFoc) + 15, visRangeOf(tutFoc)),
+x = c ? p.x + d * cos(a) : rf(8, boxLW - 8), y = c ? p.y + d * sin(a) : rf(8, boxLH - 8);
+if (x > 8 && x < boxLW - 8 && y > 8 && y < boxLH - 8 && obstacleAt(x, y) == null) return void(tutMark = { x, y, at: performance.now() })
+}
+}
+// after a tutorial fight: the most wounded surviving player fighter gets the food hint
+function tutFought(alive) {
+const w = alive.filter(f => f.curHp < f.maxHp).sort((a, b) => a.curHp / a.maxHp - b.curHp / b.maxHp)[0];
+tutFoc = w && ownedById(w.b.id), tutGo(15)
+}
 function tutDone() {
 achieve("tutorial"), renderAchievements();
 const r = $("itab-ach").children[1].getBoundingClientRect();

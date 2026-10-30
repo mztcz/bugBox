@@ -48,6 +48,10 @@ boxCx.fillText(`${ABILITIES[id].name}${has?" "+(cd<=0?"\u2713":(cd/1000).toFixed
 // red hit flash; tutorial: blue tint with blue glow fading in 0.35 s
 const tint = (b, col, a, x, y, dir) => a > 0 && a <= 1 && drawMorphBug(boxCx, ensureMorph(b), col, x, y, dir + HALF_PI, { alpha: a, shadow: !1, glow: "#4cf" === col ? col : null }),
 drawHit = (b, t, x, y, dir) => (tint(b, "#ff2828", t.hitT, x, y, dir), tutTint?.b === b && tint(b, "#4cf", 1 - (performance.now() - tutTint.at) / 350, x, y, dir));
+const drawFood = (p, c1, c2) => {
+boxCx.fillStyle = c1, boxCx.beginPath(), boxCx.arc(p.x, p.y, 4, 0, 7), boxCx.fill();
+boxCx.fillStyle = c2, boxCx.beginPath(), boxCx.arc(p.x - 1, p.y - 1, 1.5, 0, 7), boxCx.fill()
+};
 function sysRender(inCombat) {
 const fe = inspected && (ecsQuery("bug", "pos").find(en => C.bug.get(en) === inspected || C.bug.get(en).id === inspected.id) ?? ecsQuery("young").find(en => C.young.get(en).bug === inspected));
 fe == null && (inspected = null), syncFowBtn();
@@ -57,11 +61,10 @@ groundMarks.forEach(m => {
 boxCx.globalAlpha = .4 * m.t, boxCx.fillStyle = `hsl(${m.hue},40%,18%)`, boxCx.fillRect(m.x - 8, m.y - 4, 16, 8), boxCx.globalAlpha = 1
 });
 }
-ecsQuery("food", "pos").forEach(e => {
-const p = C.pos.get(e);
-boxCx.fillStyle = "#c86", boxCx.beginPath(), boxCx.arc(p.x, p.y, 4, 0, 7), boxCx.fill();
-boxCx.fillStyle = "#eb9", boxCx.beginPath(), boxCx.arc(p.x - 1, p.y - 1, 1.5, 0, 7), boxCx.fill()
-});
+ecsQuery("food", "pos").forEach(e => drawFood(C.pos.get(e), "#c86", "#eb9"));
+// tutorial blue food mark: 1 s on, then fades in 0.35 s
+const mk = tutMark && !inCombat && 1 - max(0, performance.now() - tutMark.at - 1e3) / 350;
+mk > 0 && (boxCx.globalAlpha = mk, drawFood(tutMark, "#4cf", "#aef"), boxCx.globalAlpha = 1);
 ecsQuery("shell", "pos").forEach(drawShell), ecsQuery("young", "pos").forEach(drawYoung);
 const ents = inCombat ? ecsQuery("bug", "pos", "team", "combat") : ecsQuery("bug", "pos", "vel", "walk");
 const isGrey = e => { const c = C.combat.get(e); return c.dead || c.phoenixT > 0 || c.fakeT > 0 };
