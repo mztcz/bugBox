@@ -33,6 +33,7 @@ if(typeof window[n]==="undefined")bar().textContent+="NOT LOADED: "+n+"\n"})
 </div>
 <hr class="dos-hr">
 <div class="press-key" style="font-size:10px;">[ TAP TO ENTER ]</div>
+<div style="text-align:center;margin-top:6px;"><button id="bt-tut" class="bt" style="color:#556;border-color:#1a1a2e;">TUTORIAL</button></div>
 <div id="game-version-tag" style="position:absolute;right:6px;bottom:4px;font-size:8px;color:#44ccff;"></div>
 </div>
 </div>
@@ -73,7 +74,7 @@ if(typeof window[n]==="undefined")bar().textContent+="NOT LOADED: "+n+"\n"})
 <button class="bt" id="bt-set">⚙ Settings</button>
 <button id="bt-bg" class="bt" style="display:none;">🖼 BG</button>
 <button id="bt-des" class="bt">🎨 DESIGN</button>
-<button class="bt" onclick="openInfoTab('tut')">📖 INFO</button>
+<button class="bt" id="bt-inf" onclick="openInfoTab('tut')">📖 INFO</button>
 <button id="bt-speed" class="bt">Speed 1×</button>
 <button id="bt-pause" class="bt" style="display:none;" title="pause the fight, then step it one 16 ms tick at a time">❚❚ PAUSE</button>
 </div>

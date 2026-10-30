@@ -115,10 +115,10 @@ const el = $("toast"), r = $("box-canvas").getBoundingClientRect();
 r.height && (toastBot = innerHeight - r.bottom + 10), el.style.bottom = toastBot + "px";
 toastLbl(), el.classList.add("show"), setTimeout(() => (el.classList.remove("show"), setTimeout(() => (toastQ.shift(), toastQ.length && toastNext()), 300)), 2000)
 }
-function flashBlocked(div) {
-div.classList.remove("blocked-fade"), div.classList.add("card-sel2", "blocked-fill"), requestAnimationFrame(() => requestAnimationFrame(() => {
+function flashBlocked(div, ms = 0) {
+div.classList.remove("blocked-fade"), div.classList.add("card-sel2", "blocked-fill"), setTimeout(() => requestAnimationFrame(() => requestAnimationFrame(() => {
 div.classList.add("blocked-fade"), div.classList.remove("blocked-fill")
-})), setTimeout(() => {
+})), ms), setTimeout(() => {
 div.classList.remove("card-sel2", "blocked-fill", "blocked-fade")
-}, 350)
+}, ms + 350)
 }

@@ -8,7 +8,8 @@ try { localStorage.setItem("bugbox_wb", JSON.stringify({ week: wbWeek, bugs: Obj
 }
 function buildEnemies() {
 const m = BOSS[fightMode], k = fightMode + enemyTier, w = weekOf();
-if (!m) return fightTeam.map(() => makeBug({ ...genStats(enemyTier), hue: rf(0, 45) }));
+// tutorial first fight: all stats 1, half HP
+if (!m) return fightTeam.map(() => makeBug([12, 14].includes(tutStep) ? { con: 1, str: 1, agi: 1, per: 1, int: 1, hue: rf(0, 45), hpMul: .5, abilities: [] } : { ...genStats(enemyTier), hue: rf(0, 45) }));
 wbWeek !== w && (Object.keys(bosses).forEach(x => "w" === x[0] && delete bosses[x]), wbWeek = w);
 const S = min(bossSum(enemyTier), 5 * tierLim(enemyTier));
 if (!bosses[k] || statSum(bosses[k]) !== S) {
@@ -72,7 +73,7 @@ match.foes.push(...allEnemy);
 for (let n = 1 + ri(3); n--;) ecsSpawn({ food: {}, pos: { x: 30 + random() * (boxLW - 60), y: 30 + random() * (boxLH - 60), dir: 0 } });
 return void($("bt-next").style.display = "")
 }
-renderResult(), $("bt-res").style.display = "", won ? offerObst() : ov("ov-res", 1)
+13 === tutStep && tutGo(15), renderResult(), $("bt-res").style.display = "", won ? offerObst() : ov("ov-res", 1)
 }
 // Result screen body from the live fight box (HP after feeding) + enemies of earlier MC steps
 function renderResult() {

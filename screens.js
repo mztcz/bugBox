@@ -32,6 +32,7 @@ combatState === wantCombat && (combatState && ecsQuery("bug").length ? resizeBox
 })
 })
 }
+tutCheck(1)
 }
 function updateMoney() {
 ["mkt", "box", "lab", "boo"].forEach(k => { const el = $(k + "-money"); el.textContent = "$" + money, el.style.color = money < 0 ? "#f44" : "" });

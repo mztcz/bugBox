@@ -45,7 +45,9 @@ boxCx.fillText(`${ABILITIES[id].name}${has?" "+(cd<=0?"\u2713":(cd/1000).toFixed
 })
 })
 }
-const drawHit = (b, t, x, y, dir) => t.hitT > 0 && drawMorphBug(boxCx, ensureMorph(b), "#ff2828", x, y, dir + HALF_PI, { alpha: t.hitT, shadow: !1 });
+// red hit flash; tutorial: blue tint with blue glow fading in 0.35 s
+const tint = (b, col, a, x, y, dir) => a > 0 && a <= 1 && drawMorphBug(boxCx, ensureMorph(b), col, x, y, dir + HALF_PI, { alpha: a, shadow: !1, glow: "#4cf" === col ? col : null }),
+drawHit = (b, t, x, y, dir) => (tint(b, "#ff2828", t.hitT, x, y, dir), tutTint?.b === b && tint(b, "#4cf", 1 - (performance.now() - tutTint.at) / 350, x, y, dir));
 function sysRender(inCombat) {
 const fe = inspected && (ecsQuery("bug", "pos").find(en => C.bug.get(en) === inspected || C.bug.get(en).id === inspected.id) ?? ecsQuery("young").find(en => C.young.get(en).bug === inspected));
 fe == null && (inspected = null), syncFowBtn();

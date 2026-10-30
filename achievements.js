@@ -20,6 +20,8 @@ const TUTORIAL = [
 ["rotObst", "rotate an obstacle"]
 ];
 const ACHIEVEMENTS = [
+// must stay the first entry: the tutorial checks it and fires confetti from its tick
+["tutorial", "tutorial walkthrough"],
 ["own10", "own 10 bugs (at the same time)"],
 ["own50", "own 50 bugs"],
 ["own75", "own 75 bugs"],
@@ -182,6 +184,57 @@ return list.map(([k, t]) => `<div style="color:${achSt.done[k]?"#44ff88":"#44556
 function renderTutorial() { $("itab-tut").innerHTML = achList(TUTORIAL) }
 function renderAchievements() {
 $("itab-ach").innerHTML = `<div style="color:#ffdd44;margin-bottom:6px;">${ACHIEVEMENTS.filter(([k])=>achSt.done[k]).length} / ${ACHIEVEMENTS.length}</div>` + achList(ACHIEVEMENTS)
+}
+// Tutorial walkthrough (one game, not saved): tutStep 0 = off. Step: d first delay, t() blink targets (selected ones drop out), ok() = go to step "to" or the next one,
+// f = forced (only targets react; c(e) extra allowed click, p() element that may be held, x(e) action on any other click), h = flash ms, n = flashes before the next step
+let tutStep = 0, tutT = 0, tutN = 0, tutPar = null, tutKid = null, tutTint = null;
+const scrOn = id => $(id).classList.contains("active"),
+kidCard = () => document.querySelector(`.pick-grid .card[data-bid="${tutKid.id}"]`),
+allSel = () => TUT[tutStep].t().every(x => x?.matches(".card-sel")),
+fightOn = () => combatState && scrOn("s-box"),
+TUT = {
+2: { f: 1, t: () => [0, 3].map(i => $("mkt-grid").children[i]), ok: allSel },
+3: { f: 1, t: () => [$("bt-buy")], ok: () => scrOn("s-box") },
+4: { f: 1, t: () => [$("bt-lab")], ok: () => scrOn("s-lab") },
+5: { f: 1, t: () => [0, 1].map(i => document.querySelectorAll(".pick-grid .card")[i]), ok: allSel },
+6: { f: 1, d: 1e3, t: () => [$("lab-topbar").querySelector("button")], ok: () => "result" === labSt.phase && (tutKid = labSt.larva, tutPar = labSt.pB.con + labSt.pB.str > labSt.pA.con + labSt.pA.str ? labSt.pB : labSt.pA) },
+7: { f: 1, t: () => [], x: () => labBack(), ok: () => "pick" === labSt.phase },
+8: { f: 1, d: 1e3, h: 1e3, n: 4, t: () => [kidCard()], p: kidCard, ok: () => scrOn("s-box"), to: 10 },
+9: { f: 1, t: () => [$("s-lab").querySelector(".bt-box")], p: kidCard, x: e => kidCard().contains(e.target) ? findBug(tutKid, e, 0) : tutBlink(), ok: () => scrOn("s-box") },
+10: { f: 1, t: () => [tutPar], c: e => e.target === boxCv && tapHit(...boxPt(e)) === tutPar && !(suppressClick = !1), ok: () => inspected === tutPar },
+11: { f: 1, d: 1e3, t: () => [$("bt-boo")], ok: () => scrOn("s-boo") },
+12: { f: 1, t: () => [document.querySelector("#s-boo .bt-mode"), document.querySelector(`#boo-grid .card[data-bid="${tutPar.id}"]`), $("bt-combat")], ok: fightOn },
+13: { t: () => [], ok: () => scrOn("s-boo") },
+14: { f: 1, t: () => [$("bt-combat")], ok: fightOn, to: 13 },
+15: { t: () => scrOn("s-box") ? [$("bt-inf")] : [], ok: () => "flex" === $("ov-inf").style.display },
+16: { t: () => [document.querySelector('.info-tab[data-tab="ach"]')], ok: () => "" === $("itab-ach").style.display }
+};
+const tutTargets = () => TUT[tutStep].t().filter(x => x && !x.matches?.(".card-sel,.prim")),
+tutFlash = x => x.nodeType ? flashBlocked(x, TUT[tutStep].h) : bugFlash(x),
+tutBlink = () => tutTargets().forEach((x, i) => setTimeout(() => tutStep && tutFlash(x), 1e3 * i));
+function tutGo(n) {
+tutStep = n, tutN = 0, clearTimeout(tutT);
+if (17 === n) return tutStep = 0, void setTimeout(tutDone, 1e3);
+n && (tutLoop(), tutCheck())
+}
+function tutCheck(re) {
+const s = TUT[tutStep];
+s && (s.ok() ? tutGo(s.to || tutStep + 1) : re && tutLoop())
+}
+// wait d, flash each target 1 s apart, wait 3 s (+ flash length), repeat; with n: after n rounds go to the next step
+function tutLoop(d = TUT[tutStep].d || 3e3, i = 0) {
+clearTimeout(tutT), tutT = setTimeout(() => {
+const s = TUT[tutStep], ts = tutTargets();
+ts[i] && tutFlash(ts[i]);
+++i < ts.length ? tutLoop(1e3, i) : s.n && ++tutN >= s.n ? tutT = setTimeout(() => tutGo(tutStep + 1), s.h) : tutLoop(3e3 + (s.h || 0))
+}, d)
+}
+// bug in the box: red hit flash, then the blue tint + glow drawn by drawHit
+function bugFlash(b) { const en = entOf(b); en != null && (C.walk.get(en).hitT = 1, tutTint = { b, at: performance.now() + 200 }) }
+function tutDone() {
+achieve("tutorial"), renderAchievements();
+const r = $("itab-ach").children[1].getBoundingClientRect();
+r.width && confetti([[r.left, r.left + 11, r.bottom]], 5)
 }
 function addKills(n) { n > 0 && (RECS.forEach(r => r.kills += n), saveRecords(), achStep("kills", [10, 50, 100], "kill", n)) }
 function trackDynasty(gen) {

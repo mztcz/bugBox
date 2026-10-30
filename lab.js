@@ -172,7 +172,10 @@ u.textContent = " ▲ NEW TIER", u.style = "color:#fd4;font-size:8px", cc.queryS
 const r = u.getBoundingClientRect();
 src = [0, 1, 2, 3, 4].map(i => [r.left + r.width * i / 5, r.left + r.width * (i + 1) / 5, r.bottom])
 } else if (tierOf(s) === parentTier(labSt.pA, labSt.pB) && s > max(statSum(labSt.pA), statSum(labSt.pB))) src = [...cc.querySelectorAll(".sx")].map(e => { const r = e.getBoundingClientRect(); return [r.left, r.right, r.bottom] });
-if (!src.length) return;
+src.length && confetti(src, lv)
+}
+// confetti bursts from screen spans [x0, x1, y], size level lv 1-5
+function confetti(src, lv) {
 const cv = document.createElement("canvas"), cx = cv.getContext("2d"), d = devicePixelRatio || 1, W = innerWidth, H = innerHeight, k = FX_SIZE[lv];
 let parts = [], left = src.length, last = performance.now();
 cv.style = "position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:400", cv.width = W * d, cv.height = H * d, cx.scale(d, d), document.body.appendChild(cv);

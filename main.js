@@ -17,11 +17,12 @@ boxCv.addEventListener("pointermove", dragMove);
 boxCv.addEventListener("pointerup", endDrag);
 boxCv.addEventListener("pointercancel", endDrag);
 let tapT = [];
+const tapHit = (cx, cy) => { const hitE = nearest(["bug", "pos"], cx, cy, en => bugLen(C.bug.get(en))) ?? nearest(["young", "pos"], cx, cy, youngR); return hitE != null && (C.bug.get(hitE) || C.young.get(hitE).bug) };
 const TAP_R = 29, TAP_MS = 1000;
 boxCv.onclick = e => {
 const [cx, cy] = boxPt(e);
 if (suppressClick) { suppressClick = !1; return }
-const hitE = nearest(["bug", "pos"], cx, cy, en => bugLen(C.bug.get(en))) ?? nearest(["young", "pos"], cx, cy, youngR), hit = hitE != null && (C.bug.get(hitE) || C.young.get(hitE).bug);
+const hit = tapHit(cx, cy);
 if (hit) { inspected = hit === inspected ? null : hit, inspected && achieve("inspect"); return }
 if (combatState) {
 const now = performance.now();
@@ -48,7 +49,7 @@ simSpd === 0 ? simSpd = speedBeforePause : (speedBeforePause = simSpd, simSpd = 
 tickDebt = 0, syncSpeedLabel()
 }, $("bt-leave").onclick = leaveToBoo, $("bt-res").onclick = () => (renderResult(), ov("ov-res", 1)), $("ov-res").onclick = e => e.target.closest(".res-content") || ov("ov-res", 0), updateMoney();
 $("bt-des").onclick = openDz, $("bt-bg").onclick = bgPick, $("bt-unmate").onclick = () => (bugsOwned.forEach(b => b.mated = 0), renderLab());
-$("s-intro1").onclick = e => (dev = e.target.closest(".press-key") ? 0 : 1, dev || ($("bt-des").style.display = "none"), openMkt());
+$("s-intro1").onclick = e => (dev = e.target.closest(".press-key, #bt-tut") ? 0 : 1, dev || ($("bt-des").style.display = "none"), openMkt(), e.target.closest("#bt-tut") && tutGo(2));
 $("bt-set").onclick = () => {
 $("gset-snd").checked = sound.on;
 $("gset-sci").checked = scienceOn;
@@ -74,10 +75,20 @@ const en = ecsQuery("bug").find(x => String(C.bug.get(x).id) === c.dataset.bid);
 return void(ov("ov-res", 0), en != null && (inspected = C.bug.get(en), achieve("find")))
 }
 const b = bugOfCard(c);
-b && (achieve("find"), closeKill(), leaveFight(), openBox(), cardDrag = 1, requestAnimationFrame(() => requestAnimationFrame(() => {
-const en = ecsQuery("bug").find(x => C.bug.get(x) === b), [cx, cy] = boxPt(e);
-inspected = b, cardDrag && en != null && dragAt({ e: en, kind: "bug", pad: 21 }, cx, cy)
-})))
+b && findBug(b, e, 1)
 })
 });
+// Find a bug: peaceful box + focus, dragIt = drag it with the finger while held
+const findBug = (b, e, dragIt) => (achieve("find"), closeKill(), leaveFight(), openBox(), cardDrag = dragIt, requestAnimationFrame(() => requestAnimationFrame(() => {
+const en = ecsQuery("bug").find(x => C.bug.get(x) === b), [cx, cy] = boxPt(e);
+inspected = b, cardDrag && en != null && dragAt({ e: en, kind: "bug", pad: 21 }, cx, cy)
+})));
+// tutorial gate (capture): in forced steps only the current targets react, any other tap flashes them
+["pointerdown", "click"].forEach(k => addEventListener(k, e => {
+const s = TUT[tutStep], x = e.target, on = el => el?.contains?.(x);
+if (!s) return;
+"click" === k && setTimeout(tutCheck);
+if (!s.f || ("click" === k ? s.t().some(on) && !x.closest("#s-lab .card-img") || s.c?.(e) : on(s.p?.()))) return;
+e.stopPropagation(), "click" === k && (s.x || tutBlink)(e)
+}, !0));
 ["pointerup", "pointercancel"].forEach(k => document.addEventListener(k, () => (clearTimeout(holdT), cardDrag && (cardDrag = 0, endDrag()))));
