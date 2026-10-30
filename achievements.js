@@ -206,7 +206,7 @@ TUT = {
 12: { f: 1, t: () => [document.querySelector("#s-boo .bt-mode"), document.querySelector(`#boo-grid .card[data-bid="${tutPar.id}"]`), $("bt-combat")], ok: fightOn },
 13: { t: () => [], ok: () => scrOn("s-boo") },
 14: { f: 1, t: () => [$("bt-combat")], ok: fightOn, to: 13 },
-15: { t: () => scrOn("s-box") ? [$("bt-inf")] : [], ok: () => "flex" === $("ov-inf").style.display },
+15: { t: () => scrOn("s-box") && !combatState ? [$("bt-inf")] : [], ok: () => !combatState && "flex" === $("ov-inf").style.display },
 16: { t: () => [document.querySelector('.info-tab[data-tab="ach"]')], ok: () => "" === $("itab-ach").style.display }
 };
 const tutTargets = () => TUT[tutStep].t().filter(x => x && !x.matches?.(".card-sel,.prim")),
