@@ -19,6 +19,7 @@
 - Pokyn „okp“ = samostatná zpráva uživatele „okp“ = konec session: proveď skill skill-okp (.claude/skills/skill-okp/SKILL.md). Novou session nikdy nezakládej, uživatel si ji zakládá sám.
 - Smoke test (`node .claude/tool-smoke-test.cjs`) se smí pouštět jenom když uživatel napíše okp. Vlastní jiné testy (např. headless prohlížeč) jsou povolené kdykoliv.
 - Uživatele nikdy nežádej, aby četl nebo upravoval kód.
+- Přejmenování = všude: zobrazený text, id, proměnné, nástroje (`tools/`) i načítaná uložená data. Nikdy jen zobrazený text s jiným názvem v kódu.
 
 ## Workflow
 - Repo: https://github.com/mztcz/bugBox

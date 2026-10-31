@@ -1,7 +1,7 @@
 const BASE_WALK = 20, RUSH = 1.25;
-const sf        = b => hasAbil(b, "steadfast") ? 2 : 1;
-const spdOf     = b => statLin(b, "agi", BASE_WALK, 10 * BASE_WALK) * sf(b);
-const turningOf = b => TAU / statLin(b, "agi", 5.99, .5) * sf(b);
+const zf        = b => hasAbil(b, "zoom") ? 2 : 1;
+const spdOf     = b => statLin(b, "agi", BASE_WALK, 10 * BASE_WALK) * zf(b);
+const turningOf = b => TAU / statLin(b, "agi", 5.99, .5) * zf(b);
 const STUCK_CHECK_MS = 2000;
 const SLIDE_K = .25;
 const CORPSE_SLOW = .5;

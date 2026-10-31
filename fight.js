@@ -1,6 +1,6 @@
 const BOSS = { boss: [1.5, 1], rb: [3, 10], wb: [3, 50] }, weekOf = () => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate() - (d.getDay() + 6) % 7).toDateString() };
 let bosses = {}, wbWeek = "", match = null;
-try { const s = JSON.parse(localStorage.getItem("bugbox_wb")); s && (wbWeek = s.week, Object.entries(s.bugs).forEach(([k, b]) => bosses[k] = { ...b, id: bid++, role: b.role || roleOf(b) })) } catch (e) {}
+try { const s = JSON.parse(localStorage.getItem("bugbox_wb")); s && (wbWeek = s.week, Object.entries(s.bugs).forEach(([k, b]) => bosses[k] = { ...b, id: bid++, role: roleOf(b), abilities: b.abilities.filter(a => ABILITIES[a]) })) } catch (e) {}
 function wbKeep() {
 if ("wb" !== fightMode || !combatState) return;
 ecsQuery("team", "combat").forEach(e => { const c = C.combat.get(e); C.team.get(e).team && (c.dead ? delete bosses["wb" + enemyTier] : C.bug.get(e).curHp = c.curHp) });

@@ -22,7 +22,7 @@ const ABILITIES = {};
 ["braced", "Braced", "con", 0, 0, `Passive. Immune to Knock Out and Kick Back stun; Kick Back shoves it half as far and never spins it.`],
 ["focus", "Focus", "int", 0, 0, `Passive. Targets the weakest visible enemy by current HP instead of the closest one.`],
 ["tank", "Tank", "str", 0, 0, `Passive. Keeps walking at full speed even while biting and shoves any bug without Tank out of its path. Only the glass stops it.`],
-["steadfast", "Zoom", "agi", 0, 0, `Passive. Walks and turns at double speed, Dash included.`],
+["zoom", "Zoom", "agi", 0, 0, `Passive. Walks and turns at double speed, Dash included.`],
 ["flee", "Flee", "int", 0, 0, `Twice per fight, below 50% HP and below 25% HP, turns away and runs for 2.5-7s (shorter with higher INT) before hunting again. Bitten while stuck, it fights back instead. Plays dead first if it can.`],
 ["resilient", "Resilient", "con", 0, 0, `Passive. 50% more max HP than its CON alone gives.`],
 ["chitin", "Chitin", "con", 0, 0, `Passive. Every bite it takes does half damage.`]
