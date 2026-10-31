@@ -34,11 +34,11 @@ if (ph) { const cv = bugCardH(o.img, o.imgW, o.imgH); ph.appendChild(cv), cv.sty
 return div
 }
 // owned bug card: Booker, held bug in the peaceful box, Lab (labCard)
-const ownCard = (b, pre, style) => makeBugCard({ name: b.name, line3: gkfLine(b), statsObj: b, abilB: b, dead: !1, showHp: !0, hpFrac: hpFrac(b), imgId: pre + b.id, img: b, style });
+const bugCard = (b, pre, style) => makeBugCard({ name: b.name, line3: gkfLine(b), statsObj: b, abilB: b, dead: !1, showHp: !0, hpFrac: hpFrac(b), imgId: pre + b.id, img: b, style });
 // Lab card with the kill (skull) button
 function labCard(bug, opts) {
 opts = opts || {};
-const div = ownCard(bug, "lc-ph-" + (opts.uid || "") + "-", "position:relative;" + (opts.extraStyle || ""));
+const div = bugCard(bug, "lc-ph-" + (opts.uid || "") + "-", "position:relative;" + (opts.extraStyle || ""));
 const phEl = div.querySelector(".card-img");
 const infoEl = div.querySelector(".card-info");
 infoEl.style.position = "relative";

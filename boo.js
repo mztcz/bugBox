@@ -37,7 +37,7 @@ g.innerHTML = '<div class="empty-cell">Buy some bug first</div>';
 return
 }
 fillSort($("boo-sort")), sortedOwned().forEach(b => {
-const div = ownCard(b, "fs-ph-");
+const div = bugCard(b, "fs-ph-");
 const btn = document.createElement("button");
 btn.style = "width:100%;margin-top:7px;font-size:10px;", div.appendChild(btn), booApplyCard(div, btn, b), div.onclick = e => {
 e.stopPropagation();
