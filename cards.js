@@ -19,10 +19,11 @@ const c = boxCx, w = 20, x = p.x - w / 2, y = p.y - r - 4;
 c.fillStyle = "#1a1a1a", c.fillRect(x, y, w, 2), c.fillStyle = "#fff", c.fillRect(x, y, w * frac, 2)
 }
 function bugCardBody(o) {
-const img = `<div style="flex-shrink:0;">${o.showHp ? hpBar(o.dead ? 0 : o.hpFrac) : ""}<div class="card-img" id="${o.imgId}"></div></div>`,
+const img = `<div style="flex-shrink:0;align-self:flex-start;">${o.showHp ? hpBar(o.dead ? 0 : o.hpFrac) : ""}<div class="card-img" id="${o.imgId}"></div></div>`,
 s = round(statSum(o.statsObj)), t = tierOf(s),
 info = `<div class="card-info"><div class="card-line"${o.dead?' style="color:#555"':""}>T${t} ${o.statsObj.role}</div><div class="card-line">${o.line3}</div></div>`;
-return `<div class="card-name" style="color:${o.dead ? "" : TIER_COL[t]}">${o.name} <span style="color:${o.dead?"#555":STAR_COL[t]}">${'<span class="sx">★</span>'.repeat(starsOf(s))}</span><span class="card-lbl"></span></div><div class="card-head">${info}${img}</div>${statBars(o.statsObj, { dead: !!o.dead })}${abilLine(o.abilB, o.dead)}`
+// name + info left, HP bar + image right, both from the card top
+return `<div class="card-head"><div style="flex:1;min-width:0;align-self:flex-start;"><div class="card-name" style="color:${o.dead ? "" : TIER_COL[t]}">${o.name} <span style="color:${o.dead?"#555":STAR_COL[t]}">${'<span class="sx">★</span>'.repeat(starsOf(s))}</span><span class="card-lbl"></span></div>${info}</div>${img}</div>${statBars(o.statsObj, { dead: !!o.dead })}${abilLine(o.abilB, o.dead)}`
 }
 function makeBugCard(o) {
 const div = document.createElement("div");

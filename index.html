@@ -4,16 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>BUGBOX</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <script>
-/* crash reporter — shows load errors on screen (no desktop console on Android) */
+/* crash reporter — shows load errors on screen (no desktop console on Android); external files (Google Font) skipped: the font falls back */
 (function(){
 function bar(){var e=document.getElementById("err-bar");if(!e){e=document.createElement("div");e.id="err-bar";e.style="position:fixed;left:0;right:0;bottom:0;z-index:9999;background:#300;border-top:2px solid #f44;color:#f99;font:9px 'Courier New',monospace;padding:5px;white-space:pre-wrap;max-height:45%;overflow:auto";(document.body||document.documentElement).appendChild(e)}return e}
 window.addEventListener("error",function(ev){
 var t=ev.target;
-if(t&&t.tagName){bar().textContent+="LOAD FAIL: "+t.tagName+" "+(t.getAttribute&&(t.getAttribute("src")||t.getAttribute("href"))||"")+"\n";return}
+if(t&&t.tagName){if(/^https?:/.test(t.getAttribute("src")||t.getAttribute("href")||""))return;bar().textContent+="LOAD FAIL: "+t.tagName+" "+(t.getAttribute&&(t.getAttribute("src")||t.getAttribute("href"))||"")+"\n";return}
 bar().textContent+=(ev.filename||"?").split("/").pop()+":"+ev.lineno+"  "+(ev.message||(ev.error&&ev.error.stack)||("EVENT "+ev.type+" on "+(t&&(t.nodeName||t.constructor&&t.constructor.name)||typeof t)))+"\n"
 },true);
 window.addEventListener("unhandledrejection",function(ev){bar().textContent+="PROMISE: "+(ev.reason&&(ev.reason.stack||ev.reason.message)||ev.reason)+"\n"});
