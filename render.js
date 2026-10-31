@@ -111,7 +111,7 @@ drawHit(b, t, p.x + offX, by, p.dir);
 post.push(() => {
 if (cb.stunT > 0) drawLabel("\u2726", p.x, p.y - r - 13, "#fd4", 9)
 const f = max(0, cb.curHp / cb.maxHp);
-(sci("hp") || f < 1) && drawHpBar(p, f, r, sci("col") ? `hsl(${TEAM_HUE[tm.team]},85%,55%)` : null)
+sci("hp") && drawHpBar(p, f, r, sci("col") ? `hsl(${TEAM_HUE[tm.team]},85%,55%)` : null)
 if (sci("nam")) drawLabel(b.name, p.x, p.y - r - 11, 0 === tm.team ? "#44ccff" : "#ffaa44")
 if (cb.abT > 0) drawLabel(cb.abTxt, p.x, p.y - r - 19, "#c8f")
 if (sci("bite") && cb.prepVisT > 0) {
