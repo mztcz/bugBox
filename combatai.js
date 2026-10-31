@@ -338,7 +338,7 @@ p.dir = norm(p.dir + step * (cb.lostSide || 1)), t.scanRemain -= step;
 if (t.scanRemain <= 0) decide(e), t.scanRemain = 0, cb.memT = 0, cb.searchPhase = 0
 }
 });
-dmgPops.forEach(d => (d.t -= dt / 1600, d.x += cos(d.a) * dt / 40, d.y += sin(d.a) * dt / 40));
+dmgPops.forEach(d => (d.t -= dt / 1600, d.x += cos(d.a) * dt / 20, d.y += sin(d.a) * dt / 20));
 dmgPops = dmgPops.filter(d => d.t > 0);
 groundMarks.forEach(m => m.t = max(0, m.t - dt / 2800));
 groundMarks = groundMarks.filter(m => m.t > 0);
