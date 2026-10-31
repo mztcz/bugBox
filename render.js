@@ -103,7 +103,7 @@ offY = 7 * hitFrac * (cb.hitDy || 0) + 14 / 3 * cb.biteT * sin(p.dir);
 if (cb.loudT > 0) { const amp = (cfg.legLen * 0.5 / 3) * sin(cb.loudT / 20), sa = p.dir + HALF_PI; offX += cos(sa) * amp, offY += sin(sa) * amp }
 boxCx.globalAlpha = 1;
 const k = cb.airT > 0 ? sin(PI * (1 - cb.airT / cb.airMs)) * (cb.dashT > 0 ? .5 : 1) : 0, by = p.y + offY - bugLen(b) * k * (cb.dashT > 0 ? .5 : 1), s = 1 + .15 * k;
-k && 3 !== bugTheme && morphShadow(boxCx, cfg, p.x + offX, p.y + offY, p.dir + HALF_PI, 2 - 1.7 * k);
+k && 3 !== bugTheme && morphShadow(boxCx, cfg, p.x + offX, p.y + offY, p.dir + HALF_PI, 1.5 - 1.2 * k);
 boxCx.save(), boxCx.translate(p.x + offX, by), boxCx.scale(s, s);
 drawBugStyled(boxCx, b, 0, 0, p.dir, 1, b === inspected, k ? null : posPhase(t), sci("col") ? TEAM_HUE[tm.team] : null, !k);
 boxCx.restore();
