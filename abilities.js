@@ -62,8 +62,9 @@ t && !aiAct(t) && (t.scanRemain = 0, t.seekX = t.turnA = null, setAct(e, "fighti
 }
 function flee(e, a, panic, corner) {
 const t = C.walk.get(e), cb = C.combat.get(e), p = C.pos.get(e), ms = 2e3 + intMs(e);
-if ("fleeing" === t.act) return void(panic && (t.actT += ms));
-wakeToFight(e), setAct(e, "fleeing", ms);
+if ("fleeing" !== t.act) wakeToFight(e), setAct(e, "fleeing", ms);
+else if (panic) t.actT += ms;
+else return;
 cb.fleeA = a, cb.fleeC = corner, cb.fleeX = p.x, cb.fleeY = p.y, cb.fleeT = panic ? p.dir + norm(a - p.dir) / 2 : null
 }
 function biteNoticed(te) {

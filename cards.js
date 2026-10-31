@@ -98,7 +98,7 @@ show && el.classList.toggle("prim", !!fow)
 const entOf = b => ecsQuery("bug").find(en => C.bug.get(en) === b);
 function liveHp(b) {
 const cb = C.combat.get(entOf(b));
-return cb ? [max(0, round(cb.curHp)), cb.maxHp] : [round(b.curHp == null ? maxHpOf(b) : b.curHp), maxHpOf(b)]
+return cb ? [cb.dead ? 0 : max(1, round(cb.curHp)), cb.maxHp] : [round(b.curHp == null ? maxHpOf(b) : b.curHp), maxHpOf(b)]
 }
 function inspectLine(b) {
 const [hp, mhp] = liveHp(b);

@@ -247,7 +247,7 @@ cb.aimLock = 0, cb.mvA = tangentA, cb.mvSpd = spd, airT = 1, (cb.flankA -= spd *
 } else if (cb.flankA > 0 && flankEnd(cb), minD > attackReach) cb.mvA = p.dir, cb.mvSpd = moveSpd;
 if (hasAbil(b, "tank")) {
 const stepT = moveSpd * dtS;
-if (minD <= attackReach && !cb.mvSpd) cb.mvA = p.dir, cb.mvSpd = moveSpd;
+if (minD <= attackReach && !cb.mvSpd) cb.mvA = p.dir, cb.mvSpd = moveSpd * facing(p, toT);
 ents.forEach(oe => {
 if (oe === e) return;
 const ocb = C.combat.get(oe); if (ocb.dead) return;
