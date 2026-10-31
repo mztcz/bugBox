@@ -58,8 +58,8 @@ if(typeof window[n]==="undefined")bar().textContent+="NOT LOADED: "+n+"\n"})
 <span class="title" id="box-title" style="color:#4f8;">BUGBOX</span>
 <div class="sep"></div>
 <span class="money" id="box-money">$0</span>
-<button class="nav-lab bt bt-lab" id="bt-lab" style="margin-left:auto;">↓ BREED 🧬</button>
-<button class="nav-mkt bt bt-mkt" id="bt-box-mkt">Market 🛒</button>
+<button class="nav-mkt bt bt-mkt" id="bt-box-mkt" style="margin-left:auto;">Market 🛒</button>
+<button class="nav-lab bt bt-lab" id="bt-lab">↓ LAB 🧬</button>
 <button class="warn bt" id="bt-boo">⚔ BOOKER →</button>
 <button class="warn bt" id="bt-leave" style="display:none;margin-left:auto;">← Leave</button>
 </div>
@@ -106,8 +106,9 @@ if(typeof window[n]==="undefined")bar().textContent+="NOT LOADED: "+n+"\n"})
 <span id="boo-info" style="color:#888;font-size:10px;"></span>
 <button id="bt-boo-mkt" class="nav-mkt bt bt-mkt" style="margin-left:auto;display:none;">← Market</button>
 <button id="bt-boo-box" class="nav-box bt bt-box" style="margin-left:auto;">← BugBox</button>
-<div style="display:flex;flex-direction:column;align-items:center;"><button class="warn bt" id="bt-combat" disabled>⚔ FIGHT →</button><span id="boo-fee" style="color:#888;font-size:9px;"></span></div>
+<button class="warn bt" id="bt-combat" disabled>⚔ FIGHT →</button>
 </div>
+<div id="boo-fee" style="text-align:right;padding:3px 12px 0;color:#888;font-size:10px;"></div>
 <div class="boo-layout">
 <div>
 <span style="font-size:9px;color:#555566;">Tier:</span>

@@ -6,7 +6,7 @@ $("boo-tip").innerHTML = BOO_TIP[keepMode ? fightMode : 0];
 fightTeam = keepTeam ? keepTeam.map(f => ownedById(f.id)).filter(Boolean) : [], keepMode || (fightMode = 1, enemyTier = 1), renderBooGrid(), updateBooUI()
 }
 function setMode(n) {
-$("boo-tip").innerHTML = BOO_TIP[n], fightMode = n, fightTeam = "boss" === n ? [] : fightTeam.filter(bossFit).slice(0, teamMax()), updateBooUI(), renderBooGrid()
+$("boo-tip").innerHTML = BOO_TIP[n], fightMode = n, fightTeam = fightTeam.filter(bossFit).slice(0, teamMax()), updateBooUI(), renderBooGrid()
 }
 function setTier(n) {
 if (!tierGate(n)) return;
@@ -17,7 +17,7 @@ const empty = !bugsOwned.length;
 $("bt-boo-mkt").style.display = empty ? "" : "none";
 $("bt-boo-box").style.marginLeft = empty ? "0" : "auto";
 document.querySelectorAll("#s-boo .bt-mode").forEach((el, i) => el.className = "bt-mode" + (!empty && fightMode === MODES[i] ? " prim" : ""));
-$("tier-row").innerHTML = Array.from({ length: 5 }, (_, i) => `<button class="bt-tier${!empty && i + 1 === enemyTier ? " prim" : ""}"${lockAttr(i + 1)} onclick="setTier(${i + 1})">T${i + 1}</button>`).join("");
+$("tier-row").innerHTML = Array.from({ length: 5 }, (_, i) => `<button class="bt-tier${!empty && i + 1 === enemyTier ? " prim" : ""}"${lockAttr(i + 1, !empty && i + 1 === enemyTier)} onclick="setTier(${i + 1})">T${i + 1}</button>`).join("");
 $("boo-info").textContent = empty ? "" : `${fightTeam.length}/${isFinite(teamMax()) ? teamMax() : "∞"} selected — ${"mc" === fightMode ? "T1→T5" : `T${enemyTier}`}`;
 const T = "mc" === fightMode ? 1 : enemyTier, fee = entryFee(T), n = foeN();
 $("boo-fee").textContent = empty ? "" : `Entry ${fee ? "$" + fee : "Free"} · Win $${BOSS[fightMode] ? bugValue(bossSum(T)) * prizeK() : `${bugValue(T > 1 ? 10 * T - 10 : 5) * n}–${bugValue(min(10 * T - 1, STAT_SUM_MAX)) * n}`}${"mc" === fightMode ? " per step" : ""}`;

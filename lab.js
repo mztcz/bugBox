@@ -156,8 +156,8 @@ SK.forEach((k, i) => {
 const row = rows[i + 1], m = b.meta[k], p = b.meta[k + "P"];
 if (!row || !(m || p)) return;
 const sp = document.createElement("span");
-sp.style = "position:absolute;right:0;font-size:8px;color:" + (m > 0 ? "#4f8" : "#e44");
-sp.innerHTML = (p ? `<span style="color:${p === "A" ? "#ffdd44" : "#ff9933"}">${p}</span> ` : "") + (m ? (m > 0 ? "+" : "") + m : ""), row.appendChild(sp)
+sp.style = "position:absolute;right:0;width:22px;font-size:8px;color:" + (m > 0 ? "#4f8" : "#e44");
+sp.innerHTML = `<span style="display:inline-block;width:8px;color:${p?.[1] ? "#4f8" : "#e44"}">${p ? p[0] : ""}</span>` + (m ? (m > 0 ? "+" : "") + m : ""), row.appendChild(sp)
 })
 }
 const parentTier = (a, b) => max(tierOf(statSum(a)), tierOf(statSum(b))),
@@ -202,7 +202,7 @@ child.hue = hr < 1 / 3 ? a.hue : hr < 2 / 3 ? b.hue : ((random() < .5 ? a.hue : 
 const avg = {};
 SK.forEach(k => { const s = a[k] + b[k], h = s % 2 && rsign(); child[k] = avg[k] = (s + h) / 2, h && (child.meta[k + "P"] = h > 0 === a[k] > b[k] ? "A" : "B") });
 shuf(SK.slice()).slice(0, 2).forEach(k => child[k] = clamp(child[k] + mutQ4(), 1, 20));
-capSum(child), SK.forEach(k => child.meta[k] = child[k] - avg[k]);
+capSum(child), SK.forEach(k => (child.meta[k] = child[k] - avg[k], child.meta[k + "P"] &&= [child.meta[k + "P"], child[k] > (a[k] + b[k]) / 2]));
 return inheritAbilities(child, a, b), child
 }
 function labBack() {

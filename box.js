@@ -123,7 +123,7 @@ killsThis: cb.killsThis || 0
 })
 }
 function placeObst(k, placed, inCombat) {
-const t = OBST[k], v = rnd(t[0]), r = (12 + ri(10)) * (t[2] || 1);
+const t = OBST[k], v = rnd(t[0]), r = (10 + 6 * ri(3)) * (t[2] || 1);
 for (let a = 0; a < 30; a++) {
 const x = 40 + random() * (boxLW - 80), y = 40 + random() * (boxLH - 80);
 if (placed.some(o => hypot(o.x - x, o.y - y) < o.r + r + 18)) continue;

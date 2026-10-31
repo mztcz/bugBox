@@ -24,7 +24,7 @@ doneBtn.textContent = n > 0 ? "Buy →" : "BugBox →", doneBtn.disabled = !1
 }
 function renderMkt() {
 const g = $("mkt-grid");
-$("mkt-tabs").innerHTML = (mktTab < 6 ? '<button class="bt-tier" onclick="mktReroll()">↻ Reroll</button>' : "") + [1, 2, 3, 4, 5, 6].map(t => `<button class="bt-tier${t === mktTab ? " prim" : ""}"${t < 6 ? lockAttr(t) : ""} onclick="setMktTab(${t})">${t < 6 ? "T" + t : "Items"}</button>`).join("");
+$("mkt-tabs").innerHTML = (mktTab < 6 ? '<button class="bt-tier" onclick="mktReroll()">↻ Reroll</button>' : "") + [1, 2, 3, 4, 5, 6].map(t => `<button class="bt-tier${t === mktTab ? " prim" : ""}"${t < 6 ? lockAttr(t, 1) : ""} onclick="setMktTab(${t})">${t < 6 ? "T" + t : "Items"}</button>`).join("");
 g.innerHTML = "";
 if (mktTab > 5) return MKT_ITEMS.forEach(([icon, name, cost, desc], i) => {
 const div = document.createElement("div");

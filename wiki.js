@@ -16,9 +16,7 @@ const el = $("itab-info");
 if (el.dataset.done) return;
 el.dataset.done = "1";
 el.innerHTML +=
-`<p><b class="c-hdr">STATS</b><br>
-      Each stat is <b>1&ndash;20</b>. Formulas grow in a straight line from stat 1 to stat 20.</p>
-     <p><b class="c-hdr">ABILITIES</b><br>
+`<p><b class="c-hdr">ABILITIES</b><br>
       Max <b>4</b> per bug, passive or active alike. Gained at birth if the required stat is <b>5 or higher</b> (~15% chance each). Inherited with ~50% chance from one parent, ~85% if both parents share it.</p>
      <p><b class="c-hdr">VISION</b><br>
       A bug sees a cone in front of it and nothing else. PER sets both how far and how wide: <b>${FOV_MIN_DEG}&deg; wide at PER 1</b>, <b>${FOV_MAX_DEG}&deg; at PER 20</b>, reaching <b>75 px at PER 1</b> to <b>300 px at PER 20</b>. Nothing behind that cone exists for it &mdash; but a bite in the side or the back makes it turn on whoever bit it. It remembers an enemy it has lost for <b>3s at INT 1</b> to <b>12s at INT 20</b>.</p>

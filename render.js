@@ -80,7 +80,7 @@ drawBugStyled(boxCx, b, p.x, p.y, p.dir, 1, b === inspected, posPhase(t));
 drawHit(b, t, p.x, p.y, p.dir);
 const r = morphR(b);
 post.push(() => {
-(!fow && (b === inspected || scienceOn && sci("hp"))) && drawHpBar(p, hpFrac(b), r);
+(!fow && (b === inspected || hpFrac(b) < 1 || scienceOn && sci("hp"))) && drawHpBar(p, hpFrac(b), r);
 t.prepT > 0 && sci("bite") && drawPrepBar(p, 1 - t.prepT / t.prepMax, r);
 scienceOn && sci("nam") && drawLabel(b.name, p.x, p.y - r - 11, "#4cf")
 });
@@ -110,10 +110,8 @@ boxCx.restore();
 drawHit(b, t, p.x + offX, by, p.dir);
 post.push(() => {
 if (cb.stunT > 0) drawLabel("\u2726", p.x, p.y - r - 13, "#fd4", 9)
-if (sci("hp")) {
 const f = max(0, cb.curHp / cb.maxHp);
-drawHpBar(p, f, r, sci("col") ? `hsl(${TEAM_HUE[tm.team]},85%,55%)` : f >= 1 ? "#00ff66" : null)
-}
+(sci("hp") || f < 1) && drawHpBar(p, f, r, sci("col") ? `hsl(${TEAM_HUE[tm.team]},85%,55%)` : null)
 if (sci("nam")) drawLabel(b.name, p.x, p.y - r - 11, 0 === tm.team ? "#44ccff" : "#ffaa44")
 if (cb.abT > 0) drawLabel(cb.abTxt, p.x, p.y - r - 19, "#c8f")
 if (sci("bite") && cb.prepVisT > 0) {
