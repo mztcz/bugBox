@@ -66,7 +66,7 @@ ecsQuery("food", "pos").forEach(e => drawFood(C.pos.get(e), "#c86", "#eb9"));
 const mk = tutMark && !inCombat && 1 - max(0, performance.now() - tutMark.at - 1e3) / 350;
 mk > 0 && (boxCx.globalAlpha = mk, drawFood(tutMark, "#4cf", "#aef"), boxCx.globalAlpha = 1);
 ecsQuery("shell", "pos").forEach(drawShell), ecsQuery("young", "pos").forEach(drawYoung);
-const ents = inCombat ? ecsQuery("bug", "pos", "team", "combat") : ecsQuery("bug", "pos", "vel", "walk");
+const ents = inCombat ? ecsQuery("bug", "pos", "team", "combat").filter(e => fightMs >= C.combat.get(e).dropT - dropMs()) : ecsQuery("bug", "pos", "vel", "walk");
 const isGrey = e => { const c = C.combat.get(e); return c.dead || c.phoenixT > 0 || c.fakeT > 0 };
 const rk = e => { const t = C.walk.get(e); return (t.pair?.phase && t.pair.b === e ? 1 : 0) + (t.top ? 2 : 0) };
 const drawOrder = inCombat ? [...ents].sort((a, bb) => (isGrey(a) ? 0 : 1) - (isGrey(bb) ? 0 : 1)) :
@@ -151,7 +151,7 @@ boxCx.restore()
 drawCooldowns();
 if (inCombat && scienceOn) { const [a0, a1, h0, h1] = teamAlive(ents); boxCx.save(), boxCx.fillStyle = "#fff", boxCx.font = "9px 'Courier New'", boxCx.textAlign = "center", boxCx.textBaseline = "top";
 const y = boxK() < 1 ? -24 : 4;
-boxCx.fillText(`${a0} (${h0}%) : ${a1} (${h1}%)`, boxLW / 2, y), boxCx.fillText(fmtT(fightMs), boxLW / 2, y + 11), boxCx.restore() }
+boxCx.fillText(`${a0} (${h0}%) : ${a1} (${h1}%)`, boxLW / 2, y), boxCx.fillText(fmtT(max(0, fightMs)), boxLW / 2, y + 11), boxCx.restore() }
 const infoEl = $("box-info");
 if (inspected) { infoEl.innerHTML = inspectLine(inspected); return }
 if (!inCombat) return void(infoEl.textContent = `${bugsOwned.length} bug${1!==bugsOwned.length?"s":""} \u2014 select a bug to inspect`);

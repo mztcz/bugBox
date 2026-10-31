@@ -54,7 +54,8 @@ if(typeof window[n]==="undefined")bar().textContent+="NOT LOADED: "+n+"\n"})
 </div>
 </div>
 <div class="screen" id="s-box">
-<div class="topbar">
+<div class="topbar" style="position:relative;">
+<div id="hold-card" style="position:absolute;left:4px;top:100%;width:184px;z-index:5;pointer-events:none;"></div>
 <span class="title" id="box-title" style="color:#4f8;">BUGBOX</span>
 <div class="sep"></div>
 <span class="money" id="box-money">$0</span>
@@ -123,6 +124,7 @@ if(typeof window[n]==="undefined")bar().textContent+="NOT LOADED: "+n+"\n"})
 </div>
 <div class="mode-row" style="margin-top:4px;">
 <button class="bt-mode" onclick="setMode('mayhem')">MAYHEM</button>
+<button class="bt-mode" onclick="setMode('chaos')">CHAOS</button>
 <button class="bt-mode" onclick="setMode('mc')">MC</button>
 <button class="bt-mode" onclick="setMode('rb')">RB</button>
 <button class="bt-mode" onclick="setMode('wb')">WB</button>

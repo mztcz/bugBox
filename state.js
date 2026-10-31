@@ -23,7 +23,7 @@ labSt = newLab();
 const tierOpen = T => T <= tierMax, lockAttr = (T, c) => ` style="${tierOpen(T) ? "" : "opacity:.3;"}${c && TIER_COL[T] ? "border-color:" + TIER_COL[T] : ""}"`,
 tierGate = T => T > 5 || tierOpen(T) || dev || void toast("Defeat tier boss to open");
 function newLab() { return { phase: "pick", pA: null, pB: null, larva: null } }
-const MODES = [1, 2, 3, 6, "boss", "mayhem", "mc", "rb", "wb"],
+const MODES = [1, 2, 3, 6, "boss", "mayhem", "chaos", "mc", "rb", "wb"],
 ri = n => floor(random() * n),
 rf = (a, b) => a + random() * (b - a),
 clamp = (v, a, b) => max(a, min(b, v)),

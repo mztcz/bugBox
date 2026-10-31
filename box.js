@@ -200,14 +200,19 @@ think(ecsSpawn(bugEntity(b, 30 + random() * (boxLW - 60), 30 + random() * (boxLH
 });
 return void syncHud(!0)
 }
-const side = (arr, tm) => {
+const q = [[], []], side = (arr, tm) => {
 const gap = boxLH / (arr.length + 1);
 arr.forEach((b, i) => {
 const c = bugEntity(b, (0 === tm ? .18 : .82) * boxLW + rf(-.04, .04) * boxLW, gap * (i + 1 + rf(-.25, .25)), (0 === tm ? 0 : PI) + rf(-.35, .35), tm);
 const mhp = maxHpOf(b);
 c.combat = newCombat(b, max(1, min(b.curHp, mhp)), mhp);
-think(ecsSpawn(c))
+const e = ecsSpawn(c);
+think(e), q[tm].push(e)
 })
 };
-side(fightTeam, 0), side(enemies, 1), syncHud(!0)
+side(fightTeam, 0), side(enemies, 1);
+// drop-in: fall starts after 1 s, landings by 3 s, teams alternate; fightMs < 0 until the last landing (loop.js tick)
+const ts = q[0].concat(q[1]).map(() => rf(1e3 + dropMs(), 3e3)).sort((a, b) => a - b), ord = [];
+for (let k = ri(2); q[0].length || q[1].length; k ^= 1) q[k].length || (k ^= 1), ord.push(q[k].shift());
+fightMs = -ts.at(-1), ord.forEach((e, i) => C.combat.get(e).dropT = ts[i] + fightMs), syncHud(!0)
 }

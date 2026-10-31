@@ -8,12 +8,12 @@ glow: highlighted ? glowCol(hue) : null
 })
 }
 const glowCol = hue => `hsl(${hue},80%,60%)`;
-function posPhase(t) { return { wL: (t.stride || 0) + 2.2 * (t.turnAcc || 0), wR: (t.stride || 0) - 2.2 * (t.turnAcc || 0) } }
+function posPhase(t) { const w = (t.stride || 0) + 2.2 * (t.turnAcc || 0); return { wL: w, wR: w } }
 function sysAnimPhase() {
 ecsQuery("bug", "pos").forEach(e => {
 const p = C.pos.get(e), t = C.walk.get(e), dx = p.x - (t._px ?? p.x), dy = p.y - (t._py ?? p.y);
 const dd = norm(p.dir - (t._pd ?? p.dir));
-t.stride = (t.stride || 0) + .32 * hypot(dx, dy), t.turnAcc = (t.turnAcc || 0) + dd;
+t.stride = (t.stride || 0) + .32 * hypot(dx, dy), t.turnAcc = (t.turnAcc || 0) + abs(dd);
 t._px = p.x, t._py = p.y, t._pd = p.dir
 })
 }

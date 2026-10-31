@@ -1,3 +1,4 @@
+const dropMs = () => ABILITIES.jump.dur / 2;
 let simLastT = 0,
 tickDebt = 0;
 function drawBoxBackdrop() {
@@ -19,14 +20,16 @@ if (!combatState) ecsQuery("bug").length !== bugsOwned.length && spawnBox();
 tickDebt += real * simSpd / COMBAT_STEP_MS;
 let guard = 0;
 while (tickDebt >= 1 && guard++ < MAX_STEPS_PER_FRAME) {
-tickDebt -= 1, tick(COMBAT_STEP_MS, combatState), combatState && checkFightEnd();
+tickDebt -= 1, tick(COMBAT_STEP_MS, combatState), combatState && fightMs >= 0 && checkFightEnd();
 }
 if (guard >= MAX_STEPS_PER_FRAME) tickDebt = 0;
 sysAnimPhase(), syncHud();
 sysRender(combatState)
 }
 function tick(dt, fight) {
-if (fight && (fightDone || (fightMs += dt), fightMs <= 1e3)) return;
+// drop-in: second half of the jump arc, landing sound; no AI or fight timer before the last landing
+if (fight && fightMs < 0) return void(fightMs += dt, ecsQuery("combat").forEach(e => { const c = C.combat.get(e); c.airMs = 2 * dropMs(), c.airT = clamp(c.dropT - fightMs, 0, dropMs()), c.airT || c.dropT <= fightMs - dt || SFX.land() }));
+fight && !fightDone && (fightMs += dt);
 const dtS = dt / 1e3,
 all = ecsQuery("bug", "pos", "vel", "walk");
 all.forEach(e => {

@@ -6,27 +6,29 @@ if ("wb" !== fightMode || !combatState) return;
 ecsQuery("team", "combat").forEach(e => { const c = C.combat.get(e); C.team.get(e).team && (c.dead ? delete bosses["wb" + enemyTier] : C.bug.get(e).curHp = c.curHp) });
 try { localStorage.setItem("bugbox_wb", JSON.stringify({ week: wbWeek, bugs: Object.fromEntries(Object.entries(bosses).filter(([k]) => "w" === k[0])) })) } catch (e) {}
 }
-function buildEnemies() {
-const m = BOSS[fightMode], k = fightMode + enemyTier, w = weekOf();
-// tutorial first fight: all stats 1, half HP
-if (!m) return fightTeam.map(() => makeBug([12, 14].includes(tutStep) ? { con: 1, str: 1, agi: 1, per: 1, int: 1, hue: rf(0, 45), hpMul: .5, abilities: [] } : { ...genStats(enemyTier), hue: rf(0, 45) }));
+function buildEnemies(T) {
+const m = BOSS[fightMode], k = fightMode + T, w = weekOf(), c = "chaos" === fightMode;
+// tutorial first fight: all stats 1, half HP; CHAOS: player count ±33 %, each enemy tier T±1
+if (!m) return Array.from({ length: c ? max(1, round(fightTeam.length * rf(.67, 1.33))) : fightTeam.length }, () => makeBug([12, 14].includes(tutStep) ? { con: 1, str: 1, agi: 1, per: 1, int: 1, hue: rf(0, 45), hpMul: .5, abilities: [] } : { ...genStats(c ? clamp(T + ri(3) - 1, 1, 5) : T), hue: rf(0, 45) }));
 wbWeek !== w && (Object.keys(bosses).forEach(x => "w" === x[0] && delete bosses[x]), wbWeek = w);
-const S = min(bossSum(enemyTier), 5 * tierLim(enemyTier));
+const S = min(bossSum(T), 5 * tierLim(T));
 if (!bosses[k] || statSum(bosses[k]) !== S) {
-const b = bosses[k] = makeBug({ ...genStats(enemyTier, S), hue: rf(0, 45), hpMul: m[1], abilities: shuf(ABIL_IDS.slice()).slice(0, enemyTier - 1) });
+const b = bosses[k] = makeBug({ ...genStats(T, S), hue: rf(0, 45), hpMul: m[1], abilities: shuf(ABIL_IDS.slice()).slice(0, T - 1) });
 ["bodyLength", "bodyWidth", "headSize", "legLen"].forEach(x => b.morph[x] *= m[0])
 }
 return [bosses[k]]
 }
 const foeN = () => BOSS[fightMode] ? 1 : +fightMode || max(1, fightTeam.length), prizeK = () => (BOSS[fightMode] || [1])[0],
-entryFee = T => 1 === fightMode && 1 === T ? 0 : 2 * T * tierRate(T) * foeN();
+entryFee = (T, n = foeN()) => 1 === fightMode && 1 === T ? 0 : 2 * T * tierRate(T) * n;
 const keepHp = () => ecsQuery("team", "combat").forEach(e => { const c = C.combat.get(e); C.team.get(e).team || c.dead || (C.bug.get(e).curHp = max(1, round(c.curHp))) });
 function startFight(btn, T) {
-if (!dev && money < entryFee(T)) return flashBlocked(btn), void toast("Not enough money!");
-money -= entryFee(T), enemyTier = T, updateMoney(), keepHp();
+// fee by the enemies that come (each at its own tier)
+const foes = buildEnemies(T), fee = foes.reduce((s, b) => s + entryFee(tierOf(statSum(b)), 1), 0);
+if (!dev && money < fee) return flashBlocked(btn), void toast("Not enough money!");
+money -= fee, enemyTier = T, updateMoney(), keepHp();
 // one match = one fight, or all steps of one MC
 "mc" === fightMode && T > 1 && match || (match = { foes: [], prize: 0, kills: 0, ms: 0 });
-bgPick(), fightNum++, enemies = buildEnemies(), groundMarks = [], dmgPops = [], fightDone = !1, fightMs = 0, foodLeft = 3, combatState = !0, simSpd = 1, tickDebt = 0, syncSpeedLabel();
+bgPick(), fightNum++, enemies = foes, groundMarks = [], dmgPops = [], fightDone = !1, foodLeft = 3, combatState = !0, simSpd = 1, tickDebt = 0, syncSpeedLabel();
 youngReady(1);
 showScreen("s-box"), resizeBoxCV(), spawnBox()
 }
