@@ -1,8 +1,8 @@
-function drawBugStyled(ctx, b, x, y, dir, alpha = 1, highlighted = !1, phase = null, hueOv = null) {
+function drawBugStyled(ctx, b, x, y, dir, alpha = 1, highlighted = !1, phase = null, hueOv = null, shadow = !0) {
 const cfg = ensureMorph(b),
 hue = hueOv == null ? b.hue : hueOv;
 drawMorphBug(ctx, cfg, morphColor(hue), x, y, dir + HALF_PI, {
-alpha: alpha, hue: hue,
+alpha: alpha, hue: hue, shadow,
 walk: phase,
 glow: highlighted ? glowCol(hue) : null
 })

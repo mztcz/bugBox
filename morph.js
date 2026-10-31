@@ -123,13 +123,13 @@ else sh && (t.fillStyle = bulgeGrad(t, ex, ey, er, sh.hue, sh.gear)), t.beginPat
 }
 function drawMorphBug(ctx, cfg, color, x, y, rot, { alpha = 1, scale = 1, walk = null, shadow = !0, glow = null, hue = null, flat = !1 } = {}) {
 const nl = !flat && 3 === bugTheme, sh = hue != null && SHADE[bugTheme] ? { hue, ...SHADE[bugTheme] } : null;
-ctx.save(), ctx.globalAlpha = alpha, ctx.translate(x, y), ctx.rotate(rot), ctx.scale(scale, scale);
-if (shadow && !nl) {
-const c = cos(rot) / scale, s = sin(rot) / scale;
-ctx.save(), ctx.fillStyle = ctx.strokeStyle = "rgba(0,0,0,.35)", renderMorphParts(ctx, cfg, walk, null, !1, [2 * c + 2.5 * s, 2.5 * c - 2 * s]), ctx.restore()
-}
+ctx.save(), ctx.globalAlpha = alpha, shadow && !nl && morphShadow(ctx, cfg, x, y, rot, scale, walk), ctx.translate(x, y), ctx.rotate(rot), ctx.scale(scale, scale);
 glow ? (ctx.shadowColor = glow, ctx.shadowBlur = 14) : nl && (ctx.shadowColor = color, ctx.shadowBlur = 15);
 ctx.fillStyle = ctx.strokeStyle = color, renderMorphParts(ctx, cfg, walk, sh, nl), ctx.restore()
+}
+function morphShadow(ctx, cfg, x, y, rot, scale = 1, walk = null) {
+const c = cos(rot) / scale, s = sin(rot) / scale;
+ctx.save(), ctx.translate(x, y), ctx.rotate(rot), ctx.scale(scale, scale), ctx.fillStyle = ctx.strokeStyle = "rgba(0,0,0,.35)", renderMorphParts(ctx, cfg, walk, null, !1, [2 * c + 2.5 * s, 2.5 * c - 2 * s]), ctx.restore()
 }
 let palette = 0, gait = 0, bugTheme = 0;
 function setBugTheme(v) { bugTheme = +v }
