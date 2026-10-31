@@ -1,7 +1,8 @@
 let drag = null, suppressClick = !1, holdT = 0;
 const DRAG_SLOP = 8, HOLD_MS = 250, hold = (ms, fn) => holdT = setTimeout(fn, ms);
-// held bug: its card under the top bar after HOLD_MS within DRAG_SLOP screen px of the touch (x0 y0), until release
-const dragAt = (t, cx, cy, p = C.pos.get(t.e)) => (drag = { ...t, ox: p.x - cx, oy: p.y - cy, sx: cx, sy: cy, x0: cx, y0: cy, moved: !1 }, "bug" === t.kind && (mateCancel(t.e), drag.cardT = setTimeout(() => $("hold-card").replaceChildren(bugCard(C.bug.get(t.e), "hc-ph-")), HOLD_MS)), ecsFront(t.e));
+// held bug: its card under the top bar after HOLD_MS still at the grab, or 1 s still after a move (within DRAG_SLOP screen px of x0 y0), until release
+const holdCard = ms => { const e = drag.e; clearTimeout(drag.cardT), drag.cardT = setTimeout(() => $("hold-card").replaceChildren(bugCard(C.bug.get(e), "hc-ph-")), ms) };
+const dragAt = (t, cx, cy, p = C.pos.get(t.e)) => (drag = { ...t, ox: p.x - cx, oy: p.y - cy, sx: cx, sy: cy, x0: cx, y0: cy, moved: !1 }, "bug" === t.kind && (mateCancel(t.e), holdCard(HOLD_MS)), ecsFront(t.e));
 const boxPt = e => { const r = boxCv.getBoundingClientRect(); return [(e.clientX - r.left) / boxS - boxOX, (e.clientY - r.top) / boxS - boxOY] };
 function nearest(comps, cx, cy, radius, dist = en => hypot(C.pos.get(en).x - cx, C.pos.get(en).y - cy)) {
 let hit = null, best = 1 / 0;
@@ -33,7 +34,7 @@ function dragMove(e) {
 if (!drag) return;
 const [cx, cy] = boxPt(e), p = C.pos.get(drag.e);
 if (!p) return void(drag = null);
-hypot(cx - drag.x0, cy - drag.y0) * boxS > DRAG_SLOP && clearTimeout(drag.cardT);
+"bug" === drag.kind && hypot(cx - drag.x0, cy - drag.y0) * boxS > DRAG_SLOP && (drag.x0 = cx, drag.y0 = cy, $("hold-card").children.length || holdCard(1e3));
 if (!drag.moved && hypot(cx - drag.sx, cy - drag.sy) < DRAG_SLOP) return;
 drag.moved || achieve({ bug: "drag", obstacle: "dragObst" }[drag.kind]), drag.moved = !0;
 p.x = clamp(cx + drag.ox, drag.pad, boxLW - drag.pad);

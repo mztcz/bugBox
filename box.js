@@ -211,8 +211,9 @@ think(e), q[tm].push(e)
 })
 };
 side(fightTeam, 0), side(enemies, 1);
-// drop-in: fall starts after 1 s, landings by 3 s, teams alternate; fightMs < 0 until the last landing (loop.js tick)
+// drop-in: fall starts after 1 s, landings by 3 s, teams alternate, random order inside a team; fightMs < 0 until the last landing (loop.js tick)
 const ts = q[0].concat(q[1]).map(() => rf(1e3 + dropMs(), 3e3)).sort((a, b) => a - b), ord = [];
+q.forEach(shuf);
 for (let k = ri(2); q[0].length || q[1].length; k ^= 1) q[k].length || (k ^= 1), ord.push(q[k].shift());
 fightMs = -ts.at(-1), ord.forEach((e, i) => C.combat.get(e).dropT = ts[i] + fightMs), syncHud(!0)
 }
