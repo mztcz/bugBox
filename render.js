@@ -103,7 +103,7 @@ offY = 7 * hitFrac * (cb.hitDy || 0) + 14 / 3 * cb.biteT * sin(p.dir);
 if (cb.loudT > 0) { const amp = (cfg.legLen * 0.5 / 3) * sin(cb.loudT / 20), sa = p.dir + HALF_PI; offX += cos(sa) * amp, offY += sin(sa) * amp }
 boxCx.globalAlpha = 1;
 const k = cb.airT > 0 ? sin(PI * (1 - cb.airT / cb.airMs)) * (cb.dashT > 0 ? .5 : 1) : 0, by = p.y + offY - bugLen(b) * k * (cb.dashT > 0 ? .5 : 1), s = 1 + .15 * k;
-k && (boxCx.fillStyle = "rgba(0,0,0,.45)", boxCx.beginPath(), boxCx.ellipse(p.x, p.y, r * (1 - .4 * k), r * .55 * (1 - .4 * k), p.dir, 0, TAU), boxCx.fill());
+if (k) { const f = 1 - .7 * k, hc = 1.7 * cfg.headSize; boxCx.fillStyle = "rgba(0,0,0,.45)", boxCx.beginPath(), boxCx.ellipse(p.x + hc * cos(p.dir), p.y + hc * sin(p.dir), f * (morphTop(cfg) + cfg.bodyLength / 2) / 2, f * max(cfg.bodyWidth / 2, cfg.headSize), p.dir, 0, TAU), boxCx.fill() }
 boxCx.save(), boxCx.translate(p.x + offX, by), boxCx.scale(s, s);
 drawBugStyled(boxCx, b, 0, 0, p.dir, 1, b === inspected, k ? null : posPhase(t), sci("col") ? TEAM_HUE[tm.team] : null);
 boxCx.restore();
