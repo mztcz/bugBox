@@ -68,7 +68,8 @@ syncSciHud()
 }
 const MAX_FOOD = 30;
 function canPlaceFood() { return combatState ? foodLeft > 0 : ecsQuery("food").length < MAX_FOOD }
-function spawnDmgPop(p, amount, team, a) { dmgPops.push({ p, x: 0, y: 0, amount, team, a, t: 1 }) }
+// starts at the body end (tail) of the bitten bug b
+function spawnDmgPop(p, amount, team, a, b, h = -bugLen(b) / 2) { dmgPops.push({ p, x: h * cos(p.dir), y: h * sin(p.dir), amount, team, a, t: 1 }) }
 function openBox() {
 simLastT = 0, updateMoney(), achOwn(0), showScreen("s-box")
 }
