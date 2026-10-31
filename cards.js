@@ -1,6 +1,6 @@
 function hpColor(frac) {
 const p = clamp(frac, 0, 1) * 100;
-return p >= 75 ? "#00ff66" : p >= 50 ? "#cccc22" : p >= 20 ? "#cc7722" : "#cc3333"
+return p >= 75 ? "#00ff66" : p >= 50 ? "#cccc22" : p >= 25 ? "#cc7722" : "#cc3333"
 }
 const hpBar = frac => `<div style="width:50%;margin:0 auto;height:3px;border:1px solid #555566;background:#0a0a12;"><div style="width:${clamp(frac, 0, 1) * 100}%;height:100%;background:${hpColor(frac)};"></div></div>`;
 function abilLine(b, dead) {
