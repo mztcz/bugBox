@@ -55,7 +55,7 @@ sciShown().map(([k, lbl, tip]) => sciBtn(k, lbl, tip, sciCur()[k])).join("")
 }
 let hudWas = null;
 const HUD_FIGHT_ONLY = ["bt-leave", "bt-pause", "bt-bg"],
-HUD_BOX_ONLY = ["bt-lab", "bt-boo", "bt-box-mkt"];
+HUD_BOX_ONLY = ["bt-lab", "bt-boo", "bt-box-shop"];
 function syncHud(force) {
 const c = combatState;
 if (c === hudWas && !force) return;

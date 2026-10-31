@@ -19,7 +19,7 @@ on || cancelAnimationFrame(dzAnim), $(id).style.display = on ? "flex" : "none", 
 OV_PAUSE.includes(id) && (on ? ovSpd < 0 && (ovSpd = simSpd, simSpd = 0) : ovSpd >= 0 && !OV_PAUSE.some(o => "flex" === $(o).style.display) && (simSpd = ovSpd, ovSpd = -1), tickDebt = 0, syncSpeedLabel())
 }
 function showScreen(id) {
-"s-mkt" === id || cancelOverWatch();
+"s-shop" === id || cancelOverWatch();
 ("s-box" !== id || !combatState) && ov("ov-res", 0);
 "s-box" !== id || combatState || (simSpd = 1, tickDebt = 0, syncSpeedLabel());
 document.querySelectorAll(".screen").forEach(s => s.classList.remove("active")), $(id).classList.add("active"), syncSimLoop();
@@ -35,6 +35,6 @@ combatState === wantCombat && (combatState && ecsQuery("bug").length ? resizeBox
 tutCheck(1)
 }
 function updateMoney() {
-["mkt", "box", "lab", "boo"].forEach(k => { const el = $(k + "-money"); el.textContent = "$" + money, el.style.color = money < 0 ? "#f44" : "" });
+["shop", "box", "lab", "boo"].forEach(k => { const el = $(k + "-money"); el.textContent = "$" + money, el.style.color = money < 0 ? "#f44" : "" });
 money >= 1000 && achieve("rich1k"), money >= 5000 && achieve("rich5k")
 }

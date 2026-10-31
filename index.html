@@ -18,7 +18,7 @@ bar().textContent+=(ev.filename||"?").split("/").pop()+":"+ev.lineno+"  "+(ev.me
 },true);
 window.addEventListener("unhandledrejection",function(ev){bar().textContent+="PROMISE: "+(ev.reason&&(ev.reason.stack||ev.reason.message)||ev.reason)+"\n"});
 window.addEventListener("load",function(){
-["mktDone","toggleFow","syncFowBtn","inspectLine"].forEach(function(n){
+["shopDone","toggleFow","syncFowBtn","inspectLine"].forEach(function(n){
 if(typeof window[n]==="undefined")bar().textContent+="NOT LOADED: "+n+"\n"})
 })})();
 </script>
@@ -37,20 +37,20 @@ if(typeof window[n]==="undefined")bar().textContent+="NOT LOADED: "+n+"\n"})
 <button id="bt-tut" class="bt" style="position:absolute;right:-2px;top:calc(100% + 8px);font-size:6px;padding:2px 5px;min-width:43px;height:16px;color:#556;border-color:#1a1a2e;">TUTORIAL</button>
 </div>
 </div>
-<div class="screen" id="s-mkt">
+<div class="screen" id="s-shop">
 <div class="topbar">
-<span class="title">BUG MARKET</span>
+<span class="title">BUG SHOP</span>
 <div class="sep"></div>
-<span>Budget:</span><span class="money" id="mkt-money">$500</span>
-<span class="dim" id="mkt-cart-info">0 bugs selected</span>
+<span>Budget:</span><span class="money" id="shop-money">$500</span>
+<span class="dim" id="shop-cart-info">0 bugs selected</span>
 <button class="nav-box bt" id="bt-buy" style="margin-left:auto;">BugBox →</button>
 </div>
 <div class="scroll">
 <p style="font-size:9px;color:#555566;margin-bottom:10px;">
 ▸ Click bugs to select / deselect the ones you want to buy.
 </p>
-<div class="mode-row" id="mkt-tabs"></div>
-<div class="mkt-grid" id="mkt-grid"></div>
+<div class="mode-row" id="shop-tabs"></div>
+<div class="shop-grid" id="shop-grid"></div>
 </div>
 </div>
 <div class="screen" id="s-box">
@@ -59,9 +59,9 @@ if(typeof window[n]==="undefined")bar().textContent+="NOT LOADED: "+n+"\n"})
 <span class="title" id="box-title" style="color:#4f8;">BUGBOX</span>
 <div class="sep"></div>
 <span class="money" id="box-money">$0</span>
-<button class="nav-mkt bt bt-mkt" id="bt-box-mkt" style="margin-left:auto;">Market 🛒</button>
-<button class="nav-lab bt bt-lab" id="bt-lab">↓ LAB 🧬</button>
-<button class="warn bt" id="bt-boo">⚔ BOOKER →</button>
+<button class="nav-lab bt bt-lab" id="bt-lab" style="margin-left:auto;">↓ Lab 🧬</button>
+<button class="nav-shop bt bt-shop" id="bt-box-shop">Shop 🛒</button>
+<button class="warn bt bt-boo" id="bt-boo">⚔ BOOKER →</button>
 <button class="warn bt" id="bt-leave" style="display:none;margin-left:auto;">← Leave</button>
 </div>
 <canvas id="box-canvas"></canvas>
@@ -92,10 +92,11 @@ if(typeof window[n]==="undefined")bar().textContent+="NOT LOADED: "+n+"\n"})
 <span class="title" style="color:#a4f;">BREEDING LAB</span>
 <div class="sep"></div>
 <span class="money" id="lab-money"></span>
-<button class="bt" id="bt-unmate">Unmate</button>
-<button class="nav-mkt bt bt-mkt" style="margin-left:auto;">Market 🛒</button>
+<button class="nav-shop bt bt-shop" style="margin-left:auto;">Shop 🛒</button>
 <button class="nav-box bt bt-box">↑ BugBox</button>
+<button class="warn bt bt-boo">⚔ BOOKER →</button>
 </div>
+<div style="text-align:right;padding:4px 12px 0;"><button class="bt" id="bt-unmate">Unmate</button></div>
 <div class="lab-layout" id="lab-layout">
 </div>
 </div>
@@ -104,9 +105,10 @@ if(typeof window[n]==="undefined")bar().textContent+="NOT LOADED: "+n+"\n"})
 <span class="title" style="color:#fa4;">BOOKER</span>
 <div class="sep"></div>
 <span class="money" id="boo-money">$0</span>
-<span id="boo-info" style="color:#888;font-size:10px;"></span>
-<button id="bt-boo-mkt" class="nav-mkt bt bt-mkt" style="margin-left:auto;display:none;">← Market</button>
-<button id="bt-boo-box" class="nav-box bt bt-box" style="margin-left:auto;">← BugBox</button>
+<span style="margin-left:auto;"></span>
+<button id="bt-boo-shop" class="nav-shop bt bt-shop" style="display:none;">← Shop</button>
+<button class="nav-lab bt bt-lab">← Lab 🧬</button>
+<button class="nav-box bt bt-box">← BugBox</button>
 <button class="warn bt" id="bt-combat" disabled>⚔ FIGHT →</button>
 </div>
 <div id="boo-fee" style="text-align:right;padding:3px 12px 0;color:#888;font-size:10px;"></div>
@@ -269,7 +271,7 @@ Bug palette
 <script src="screens.js"></script>
 <script src="morph.js"></script>
 <script src="drawbug.js"></script>
-<script src="mkt.js"></script>
+<script src="shop.js"></script>
 <script src="ecs.js"></script>
 <script src="box.js"></script>
 <script src="bg.js"></script>

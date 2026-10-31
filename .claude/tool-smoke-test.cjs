@@ -39,7 +39,7 @@ try { pw = require("playwright") } catch { try { pw = require("/opt/node-tools/n
   p.on("console", m => m.type() === "error" && !/ERR_/.test(m.text()) && errs.push("console: " + m.text()));
   const step = async (name, js, ms) => { try { await p.evaluate(js) } catch (e) { errs.push(name + ": " + e.message.split("\n")[0]) } await p.waitForTimeout(ms) };
   await p.goto("file://" + path.join(root, "index.html")); await p.waitForTimeout(1500);
-  await step("market", "openMkt(); mktCart = mktPool[0].slice(0, 3); mktDone()", 500);
+  await step("shop", "openShop(); shopCart = shopPool[0].slice(0, 3); shopDone()", 500);
   await step("box", "simSpd = 16", 3000);
   await step("overlays", "['info','tut','ach','morph','abil','rec'].forEach(openInfoTab); ov('ov-inf', 0); openDz(); ov('ov-design', 0); openLab(); openBoo(); showScreen('s-box')", 800);
   await step("fight", "fightTeam = bugsOwned.slice(0, 2); fightMode = 2; startFight($('bt-combat'), 1)", 300);

@@ -14,11 +14,9 @@ enemyTier = n, fightTeam = fightTeam.filter(bossFit), updateBooUI(), renderBooGr
 }
 function updateBooUI() {
 const empty = !bugsOwned.length;
-$("bt-boo-mkt").style.display = empty ? "" : "none";
-$("bt-boo-box").style.marginLeft = empty ? "0" : "auto";
+$("bt-boo-shop").style.display = empty ? "" : "none";
 document.querySelectorAll("#s-boo .bt-mode").forEach((el, i) => el.className = "bt-mode" + (!empty && fightMode === MODES[i] ? " prim" : ""));
 $("tier-row").innerHTML = Array.from({ length: 5 }, (_, i) => `<button class="bt-tier${!empty && i + 1 === enemyTier ? " prim" : ""}"${lockAttr(i + 1, !empty && i + 1 === enemyTier)} onclick="setTier(${i + 1})">T${i + 1}</button>`).join("");
-$("boo-info").textContent = empty ? "" : `${fightTeam.length}/${isFinite(teamMax()) ? teamMax() : "∞"} selected — ${"mc" === fightMode ? "T1→T5" : `T${enemyTier}`}`;
 // CHAOS: ranges over enemy count (±33%) and enemy tier (T±1)
 const T = "mc" === fightMode ? 1 : enemyTier, n = foeN(), c = "chaos" === fightMode, a = c ? max(1, round(n * .67)) : n, z = c ? round(n * 1.33) : n,
 tl = c ? max(1, T - 1) : T, th = c ? min(5, T + 1) : T, rg = (x, y) => x === y ? x : x + "–" + y, fee = rg(entryFee(tl, a), entryFee(th, z));

@@ -26,7 +26,7 @@ lay.innerHTML = `
         <h3 class="tc">🥚 NEW BUG!</h3>
         <div id="lab-parents-row" style="display:flex;gap:8px;justify-content:center;align-items:flex-start;margin:10px 0;"></div>
         <div id="lab-child-row" style="display:flex;justify-content:center;margin:10px 0;"></div>
-        <div class="tc"><button class="nav-lab bt" style="width:160px;padding:6px 28px;height:auto;">← Breeding Lab 🧬</button></div>
+        <div class="tc"><button class="nav-lab bt" style="width:160px;padding:6px 28px;height:auto;">← Lab 🧬</button></div>
       </div>`;
 lay.style.cursor = "pointer", lay.onclick = labBack;
 const parentsRow = $("lab-parents-row"),

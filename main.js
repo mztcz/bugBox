@@ -11,7 +11,7 @@ drawMorphBug(ctx, m, morphColor(hues[i]), cx, 32, 0, { scale: morphFitScale(m, 5
 [190, 52]
 ].forEach(([x, y]) => ctx.fillRect(x, y, 2, 2))
 }();
-$("bt-buy").onclick = mktDone;
+$("bt-buy").onclick = shopDone;
 boxCv.addEventListener("pointerdown", dragStart);
 boxCv.addEventListener("pointermove", dragMove);
 boxCv.addEventListener("pointerup", endDrag);
@@ -32,10 +32,9 @@ if (tapT.length >= 3) return tapT = [], void panicAll()
 inspected = null
 }, window.addEventListener("resize", () => {
 $("s-box").classList.contains("active") && !combatState ? spawnBox() : resizeBoxCV()
-}), $("bt-boo").onclick = () => {
-openBoo(), showScreen("s-boo")
-}, document.addEventListener("click", e => {
-if (e.target.closest(".bt-mkt")) return leaveFight(), openMkt();
+}), document.addEventListener("click", e => {
+if (e.target.closest(".bt-boo")) return leaveFight(), openBoo(), showScreen("s-boo");
+if (e.target.closest(".bt-shop")) return leaveFight(), openShop();
 if (e.target.closest(".bt-lab")) return leaveFight(), openLab();
 e.target.closest(".bt-box") && (leaveFight(), openBox())
 }), document.addEventListener("click", closeKill), $("bt-combat").onclick = e => startFight(e.currentTarget, "mc" === fightMode ? 1 : enemyTier), $("bt-next").onclick = e => startFight(e.currentTarget, enemyTier + 1);
@@ -49,7 +48,7 @@ simSpd === 0 ? simSpd = speedBeforePause : (speedBeforePause = simSpd, simSpd = 
 tickDebt = 0, syncSpeedLabel()
 }, $("bt-leave").onclick = leaveToBoo, $("bt-res").onclick = () => (renderResult(), ov("ov-res", 1)), $("ov-res").onclick = e => e.target.closest(".res-content") || ov("ov-res", 0), updateMoney();
 $("bt-des").onclick = openDz, $("bt-bg").onclick = bgPick, $("bt-unmate").onclick = () => (bugsOwned.forEach(b => b.mated = 0), renderLab());
-$("s-intro1").onclick = e => (dev = e.target.closest(".press-key, #bt-tut") ? 0 : 1, dev || ($("bt-des").style.display = "none"), openMkt(), e.target.closest("#bt-tut") && tutGo(2));
+$("s-intro1").onclick = e => (dev = e.target.closest(".press-key, #bt-tut") ? 0 : 1, dev || ($("bt-des").style.display = "none"), openShop(), e.target.closest("#bt-tut") && tutGo(2));
 $("bt-set").onclick = () => {
 $("gset-snd").checked = sound.on;
 $("gset-sci").checked = scienceOn;
