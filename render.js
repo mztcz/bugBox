@@ -223,7 +223,7 @@ c.translate(p.x, p.y), c.rotate(wob(y)), eggShape(c, y.r);
 y.ready && y.wait < YOUNG_SHAKE && (c.strokeStyle = "rgba(40,36,30,.8)", c.lineWidth = .5, zigPath(c, zig(-y.r * .5, -y.r * .2, y.r * .5, y.r * .15, 5, y.r * .12)), c.stroke())
 } else if ("emerge" === y.st) {
 const [x, yy, d] = bugAt(y, p, y.t);
-c.shadowBlur = 0, drawBugStyled(c, y.bug, x, yy, p.dir, 1, y.bug === inspected, d > 0 ? { wL: .32 * d, wR: .32 * d } : null), drawPupa(c, y, p, max(.01, y.t))
+c.shadowBlur = 0, drawBugStyled(c, y.bug, x, yy, p.dir, 1, y.bug === inspected, d > 0 ? .32 * d : null), drawPupa(c, y, p, max(.01, y.t))
 } else "hatch" === y.st ? fade(ease(y.t / .9), L) : "larva" === y.st ? L() : "pupating" === y.st ? (fade(1 - k, L), drawPupa(c, y, p, 0, k)) : drawPupa(c, y, p, 0);
 c.restore()
 }

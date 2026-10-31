@@ -33,24 +33,13 @@ const ph = div.querySelector("#" + o.imgId);
 if (ph) { const cv = bugCardH(o.img, o.imgW, o.imgH); ph.appendChild(cv), cv.style.margin = "0" }
 return div
 }
-// owned bug card: Booker and the held bug in the peaceful box
-const ownCard = (b, pre) => makeBugCard({ name: b.name, line3: gkfLine(b), statsObj: b, abilB: b, dead: !1, showHp: !0, hpFrac: hpFrac(b), imgId: pre + b.id, img: b });
-function makeKillableCard(bug, opts) {
+// owned bug card: Booker, held bug in the peaceful box, Lab (labCard)
+const ownCard = (b, pre, style) => makeBugCard({ name: b.name, line3: gkfLine(b), statsObj: b, abilB: b, dead: !1, showHp: !0, hpFrac: hpFrac(b), imgId: pre + b.id, img: b, style });
+// Lab card with the kill (skull) button
+function labCard(bug, opts) {
 opts = opts || {};
-const imgId = "kc-ph-" + bug.id + "-" + (opts.uid || "");
-const div = makeBugCard({
-name: bug.name,
-line3: opts.line3 || gkfLine(bug),
-statsObj: bug,
-abilB: bug,
-dead: !1,
-showHp: !0,
-hpFrac: hpFrac(bug),
-imgId: imgId,
-img: bug,
-style: "position:relative;" + (opts.extraStyle || "")
-});
-const phEl = div.querySelector("#" + imgId);
+const div = ownCard(bug, "lc-ph-" + (opts.uid || "") + "-", "position:relative;" + (opts.extraStyle || ""));
+const phEl = div.querySelector(".card-img");
 const infoEl = div.querySelector(".card-info");
 infoEl.style.position = "relative";
 infoEl.style.minHeight = "30px";

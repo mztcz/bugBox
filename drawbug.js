@@ -3,12 +3,12 @@ const cfg = ensureMorph(b),
 hue = hueOv == null ? b.hue : hueOv;
 drawMorphBug(ctx, cfg, morphColor(hue), x, y, dir + HALF_PI, {
 alpha: alpha, hue: hue,
-walkL: phase ? phase.wL : null, walkR: phase ? phase.wR : null,
+walk: phase,
 glow: highlighted ? glowCol(hue) : null
 })
 }
 const glowCol = hue => `hsl(${hue},80%,60%)`;
-function posPhase(t) { const w = (t.stride || 0) + 2.2 * (t.turnAcc || 0); return { wL: w, wR: w } }
+const posPhase = t => (t.stride || 0) + 2.2 * (t.turnAcc || 0);
 function sysAnimPhase() {
 ecsQuery("bug", "pos").forEach(e => {
 const p = C.pos.get(e), t = C.walk.get(e), dx = p.x - (t._px ?? p.x), dy = p.y - (t._py ?? p.y);

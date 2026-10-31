@@ -38,7 +38,7 @@ div.className = "card", div.style = "position:relative;flex:1;min-width:0;max-wi
 div.innerHTML = '<div class="empty-note">— gone —</div>';
 return div
 }
-const card = makeKillableCard(bug, {
+const card = labCard(bug, {
 uid: "hatch",
 extraStyle: "flex:1;min-width:0;max-width:170px;",
 onKill: cardDiv => {
@@ -116,7 +116,7 @@ return el
 const sortedOwned = () => { const val = BREED_SORT.find(r => r[0] === labSort)[2]; return [...bugsOwned].sort((x, y) => { const a = val(x), b = val(y); return labDir * ((a > b) - (a < b)) }) };
 function renderLabGrid(grid) {
 grid.innerHTML = "", sortedOwned().forEach(b => {
-const div = makeKillableCard(b, {
+const div = labCard(b, {
 uid: "lab",
 onImgTap: cardDiv => { cardDiv.dataset.gone || labPick(b, cardDiv, grid, !0) },
 onKill: cardDiv => {
