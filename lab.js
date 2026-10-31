@@ -209,5 +209,5 @@ function labBack() {
 const newId = labSt.larva.id;
 openLab();
 const div = document.querySelector(`.pick-grid .card[data-bid="${newId}"]`);
-div && (div.scrollIntoView({ block: "center" }), flashBlocked(div))
+div && (div.scrollIntoView({ block: "center" }), tutStep || flashBlocked(div))
 }

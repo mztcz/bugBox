@@ -199,7 +199,7 @@ TUT = {
 5: { f: 1, t: () => [0, 1].map(i => document.querySelectorAll(".pick-grid .card")[i]), ok: allSel },
 6: { f: 1, d: 1e3, t: () => [$("lab-topbar").querySelector("button")], ok: () => "result" === labSt.phase && (tutKid = labSt.larva, tutPar = labSt.pB.con + labSt.pB.str > labSt.pA.con + labSt.pA.str ? labSt.pB : labSt.pA) },
 7: { f: 1, t: () => [], x: () => labBack(), ok: () => "pick" === labSt.phase },
-8: { f: 1, d: 1e3, h: 1e3, n: 5, t: () => [kidCard()], p: kidCard, ok: () => scrOn("s-box"), to: 10 },
+8: { f: 1, d: 3e3, h: 1e3, n: 5, t: () => [kidCard()], p: kidCard, ok: () => scrOn("s-box"), to: 10 },
 9: { f: 1, t: () => [$("s-lab").querySelector(".bt-box")], p: kidCard, x: e => kidCard().contains(e.target) ? findBug(tutKid, e, 0) : tutBlink(), ok: () => scrOn("s-box") },
 10: { f: 1, t: () => [tutPar], c: e => e.target === boxCv && tapHit(...boxPt(e)) === tutPar && !(suppressClick = !1), ok: () => inspected === tutPar },
 11: { f: 1, d: 1e3, t: () => [$("bt-boo")], ok: () => scrOn("s-boo") },
