@@ -3,7 +3,7 @@ let simLastT = 0,
 tickDebt = 0;
 function drawBoxBackdrop() {
 boxCx.clearRect(-boxOX, -boxOY, boxLW + 2 * boxOX, boxLH + 2 * boxOY), boxK() < 1 && (boxCx.strokeStyle = "#fa4", boxCx.lineWidth = 2, boxCx.strokeRect(-1, -1, boxLW + 2, boxLH + 2));
-if (bgOn && combatState && 3 !== bugTheme) return drawBg();
+if (bgOn && combatState && 3 !== bugTheme && drawBg()) return;
 boxCx.fillStyle = "#0a0809", boxCx.fillRect(0, 0, boxLW, boxLH), boxCx.fillStyle = "#120f0a";
 for (let i = 0; i < boxLW; i += 8)
 for (let j = 0; j < boxLH; j += 8)(i + j) % 16 == 0 && boxCx.fillRect(i, j, 2, 2);
