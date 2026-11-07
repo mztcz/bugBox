@@ -157,7 +157,7 @@ const row = rows[i + 1], m = b.meta[k], p = b.meta[k + "P"];
 if (!row || !(m || p)) return;
 const sp = document.createElement("span");
 sp.style = "position:absolute;right:0;width:25px;font-size:8px;color:" + (m > 0 ? "#4f8" : "#e44");
-sp.innerHTML = `<span style="display:inline-block;width:1ch;margin:0 4px;color:${p?.[1] ? "#4f8" : "#e44"}">${p ? p[0] : ""}</span>` + (m ? (m > 0 ? "+" : "") + m : ""), row.appendChild(sp)
+sp.innerHTML = `<span style="display:inline-block;width:1ch;margin:0 8px 0 4px;color:${p?.[1] ? "#4f8" : "#e44"}">${p ? p[0] : ""}</span>` + (m ? (m > 0 ? "+" : "") + m : ""), row.appendChild(sp)
 })
 }
 const parentTier = (a, b) => max(tierOf(statSum(a)), tierOf(statSum(b))),
