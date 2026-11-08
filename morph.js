@@ -134,9 +134,9 @@ function morphShadow(ctx, cfg, x, y, rot, scale = 1, walk = null) {
 const c = cos(rot) / scale, s = sin(rot) / scale, M = ctx.getTransform(), z = hypot(M.a, M.b),
 R = (cfg.bodyLength / 2 + 3.4 * cfg.headSize + cfg.bodyWidth / 2 + cfg.legLen + 4) * scale, n = Math.ceil(2 * R * z);
 shCv.height < n && (shCv.width = shCv.height = n), shCx.setTransform(1, 0, 0, 1, 0, 0), shCx.clearRect(0, 0, n, n);
-shCx.setTransform(z, 0, 0, z, n / 2, n / 2), shCx.rotate(rot), shCx.scale(scale, scale), shCx.fillStyle = shCx.strokeStyle = "#3c3c3c";
+shCx.setTransform(z, 0, 0, z, n / 2, n / 2), shCx.rotate(rot), shCx.scale(scale, scale), shCx.fillStyle = shCx.strokeStyle = "#000";
 renderMorphParts(shCx, cfg, walk, null, !1, [2 * c + 2.5 * s, 2.5 * c - 2 * s]);
-ctx.save(), ctx.globalAlpha *= .9, ctx.shadowBlur = 0, ctx.drawImage(shCv, 0, 0, n, n, x - R, y - R, n / z, n / z), ctx.restore()
+ctx.save(), ctx.globalAlpha *= .35, ctx.shadowBlur = 0, ctx.drawImage(shCv, 0, 0, n, n, x - R, y - R, n / z, n / z), ctx.restore()
 }
 let palette = 0, gait = 1, bugTheme = 0;
 function setBugTheme(v) { bugTheme = +v }
