@@ -73,14 +73,16 @@ const bl = cfg.bodyLength, legSp = bl / 4, still = wp === null, L = cfg.legLen, 
 t.lineWidth = nl ? .9 : .8, t.lineCap = t.lineJoin = nl ? "miter" : "round";
 sh && (t.strokeStyle = hsl3(sh.hue, 62, 38));
 for (let i = 1; i <= 3; i++) {
-const ly = -bl / 2 + i * legSp,
-ph = gait ? (i % 2 ? 0 : PI) : i,
-w0 = still ? 0 : sin(wp + ph) * L * .28;
-for (const [s, w] of [[-1, w0], [1, -w0]]) {
-const a = s * hx;
-t.beginPath();
-so ? t.moveTo(a + so[0], ly + so[1]) : (t.moveTo(a, ly), t.lineTo(a + s * .4 * L, ly + w), t.lineTo(a + s * .648 * L, ly + w + .248 * L));
-t.lineTo(a + s * .733 * L, ly + w + .483 * L), t.stroke()
+const ly = -bl / 2 + i * legSp, m = i - 2,
+ph = gait ? (i % 2 ? 0 : PI) : i, x = wp + ph,
+w0 = still ? 0 : sin(x) * min(L * .28 * (m ? 1.35 : .6), bl * .12), c = m * .15 * L;
+// spider walk, saved here, to be used in the future with 4th leg pair:
+// fan = [55, 25, 0][i - 1] * PI / 180; rotate each leg point (dx, dy) around the root (a, ly) towards the head
+// by s * fan before adding the swing: dx' = dx * cos(fan) + s * dy * sin(fan), dy' = dy * cos(fan) - s * dx * sin(fan)
+for (const s of [-1, 1]) {
+const a = s * hx, w = c - s * w0, P = [[a, ly], [a + s * .4 * L, ly + w], [a + s * .648 * L, ly + w + .248 * L], [a + s * .733 * L, ly + w + .483 * L]],
+lf = still ? 0 : max(0, s * cos(x)), k = so ? [1, .6 + .4 * lf, .3 + .7 * lf, lf] : [0, 0, 0, 0];
+t.beginPath(), P.forEach(([px, py], j) => t.lineTo(px + (so ? k[j] * so[0] : 0), py + (so ? k[j] * so[1] : 0))), t.stroke()
 }
 }
 so && t.translate(so[0], so[1]);
@@ -127,11 +129,16 @@ ctx.save(), ctx.globalAlpha = alpha, shadow && !nl && morphShadow(ctx, cfg, x, y
 glow ? (ctx.shadowColor = glow, ctx.shadowBlur = 14) : nl && (ctx.shadowColor = color, ctx.shadowBlur = 15);
 ctx.fillStyle = ctx.strokeStyle = color, renderMorphParts(ctx, cfg, walk, sh, nl), ctx.restore()
 }
+const shCv = Object.assign(document.createElement("canvas"), { width: 0, height: 0 }), shCx = shCv.getContext("2d");
 function morphShadow(ctx, cfg, x, y, rot, scale = 1, walk = null) {
-const c = cos(rot) / scale, s = sin(rot) / scale;
-ctx.save(), ctx.translate(x, y), ctx.rotate(rot), ctx.scale(scale, scale), ctx.fillStyle = ctx.strokeStyle = "rgba(0,0,0,.35)", renderMorphParts(ctx, cfg, walk, null, !1, [2 * c + 2.5 * s, 2.5 * c - 2 * s]), ctx.restore()
+const c = cos(rot) / scale, s = sin(rot) / scale, M = ctx.getTransform(), z = hypot(M.a, M.b),
+R = (cfg.bodyLength / 2 + 3.4 * cfg.headSize + cfg.bodyWidth / 2 + cfg.legLen + 4) * scale, n = Math.ceil(2 * R * z);
+shCv.height < n && (shCv.width = shCv.height = n), shCx.setTransform(1, 0, 0, 1, 0, 0), shCx.clearRect(0, 0, n, n);
+shCx.setTransform(z, 0, 0, z, n / 2, n / 2), shCx.rotate(rot), shCx.scale(scale, scale), shCx.fillStyle = shCx.strokeStyle = "#3c3c3c";
+renderMorphParts(shCx, cfg, walk, null, !1, [2 * c + 2.5 * s, 2.5 * c - 2 * s]);
+ctx.save(), ctx.globalAlpha *= .9, ctx.shadowBlur = 0, ctx.drawImage(shCv, 0, 0, n, n, x - R, y - R, n / z, n / z), ctx.restore()
 }
-let palette = 0, gait = 0, bugTheme = 0;
+let palette = 0, gait = 1, bugTheme = 0;
 function setBugTheme(v) { bugTheme = +v }
 function setPalette(v) { palette = +v }
 function setGait(v) { gait = +v }
