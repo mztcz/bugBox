@@ -172,10 +172,11 @@ return eachObstacle((o, p) => ({ r: o.r, kind: o.kind, v: o.v, rot: o.rot, x: p.
 function snapFood() {
 return ecsQuery("food", "pos").map(e => { const p = C.pos.get(e); return { x: p.x, y: p.y } })
 }
+const worldSnap = () => ({ obs: snapObstacles(), food: snapFood(), young: ecsQuery("young", "pos").map(e => ({ ...C.young.get(e), pos: { ...C.pos.get(e) } })) });
 function spawnBox() {
 resizeBoxCV(), rescaleBox();
 if (combatState) {
-savedWorld = savedWorld || { obs: snapObstacles(), food: snapFood(), young: ecsQuery("young", "pos").map(e => ({ ...C.young.get(e), pos: { ...C.pos.get(e) } })) };
+savedWorld = savedWorld || worldSnap();
 ecsClear(), inspected = null;
 genObstacles(!0)
 } else {

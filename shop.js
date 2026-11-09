@@ -69,7 +69,7 @@ overTimer = setTimeout(() => {
 overTimer = null;
 if (!runIsOver()) return;
 if (youngAll().length) return void(openBox());
-ov("ov-over", 1)
+dropSave(), ov("ov-over", 1)
 }, OVER_DELAY)
 }
 function shopDone() {

@@ -1,9 +1,10 @@
 $("game-version-tag").textContent = "v" + GAME_VERSION;
+let devBug;
 ! function() {
 const ctx = hidpi($("intro-art"), 200, 60), hues = shuf([120, 30, 275]);
 ctx.fillStyle = "#0a0a12", ctx.fillRect(0, 0, 200, 60), [40, 100, 160].forEach((cx, i) => {
-const m = randomMorph();
-drawMorphBug(ctx, m, morphColor(hues[i]), cx, 32, 0, { scale: morphFitScale(m, 52, 48), shadow: !1, hue: hues[i] })
+const m = randomMorph(), s = morphFitScale(m, 52, 48);
+drawMorphBug(ctx, m, morphColor(hues[i]), cx, 32, 0, { scale: s, shadow: !1, hue: hues[i] }), devBug = { m, s }
 }), ctx.fillStyle = "#ffdd44", [
 [10, 6],
 [190, 6],
@@ -48,13 +49,47 @@ simSpd === 0 ? simSpd = speedBeforePause : (speedBeforePause = simSpd, simSpd = 
 tickDebt = 0, syncSpeedLabel()
 }, $("bt-leave").onclick = leaveToBoo, $("bt-res").onclick = () => (renderResult(), ov("ov-res", 1)), $("ov-res").onclick = e => e.target.closest(".res-content") || ov("ov-res", 0), updateMoney();
 $("bt-des").onclick = openDz, $("bt-bg").onclick = bgPick, $("bt-unmate").onclick = () => (bugsOwned.forEach(b => b.mated = 0), renderLab());
-$("s-intro1").onclick = e => (dev = e.target.closest(".press-key, #bt-tut") ? 0 : 1, dev || ($("bt-des").style.display = "none"), openShop(), e.target.closest("#bt-tut") && tutGo(2));
+// Dev = tap on the body or head of the 3rd intro bug (x 160): fills only, legs and antennae are strokes drawn transparent
+const devHit = e => {
+const r = e.target.getBoundingClientRect(), g = Object.assign(document.createElement("canvas"), { width: 1, height: 1 }).getContext("2d");
+g.translate(160.5 - (e.clientX - r.left) * 200 / r.width, 32.5 - (e.clientY - r.top) * 60 / r.height), g.scale(devBug.s, devBug.s), g.fillStyle = "#fff", g.strokeStyle = "#0000", renderMorphParts(g, devBug.m, null, null, !1);
+return g.getImageData(0, 0, 1, 1).data[3] > 0
+};
+// saved game: valid = TAP TO CONTINUE (dev from the save, opens the box); broken or old format = kept as bugbox_save_bad, new game
+let saved = null, raw = null;
+try { raw = localStorage.getItem(SAVE_KEY), saved = raw && JSON.parse(raw) } catch (e) {}
+raw && !saveOk(saved) && (saved = null, dropSave(raw), toast("Saved game can't be loaded. New game"));
+saved && ($("s-intro1").querySelector(".press-key").textContent = "[ TAP TO CONTINUE ]");
+$("s-intro1").onclick = e => {
+const tut = e.target.closest("#bt-tut"), go = saved && !tut;
+if (saved && tut && !confirm("Start a new game?")) return;
+gameOn = 1;
+if (go) try { loadGame(saved) } catch (err) { return dropSave(JSON.stringify(saved)), location.reload() }
+else dev = "intro-art" === e.target.id && devHit(e) ? 1 : 0, records.games++, saveRecords();
+dev || ($("bt-des").style.display = "none"), go ? openBox() : (openShop(), tut && tutGo(2))
+};
+// autosave every 5 s in a fight, every 10 s in the peaceful box
+let saveN = 0;
+setInterval(() => (combatState || scrOn("s-box") && ++saveN % 2 < 1) && saveGame(), 5e3);
+// save code = base64 of the save JSON (UTF-8)
+const impRow = on => $("imp-row").style.display = on ? "flex" : "none";
+$("bt-exp").onclick = () => {
+const t = $("imp-txt");
+impRow(1), t.value = btoa(unescape(encodeURIComponent(JSON.stringify(gameSnap())))), t.select();
+(navigator.clipboard?.writeText(t.value) || Promise.reject()).then(() => toast("Save code copied"), () => toast("Copy the code"))
+};
+$("bt-imp").onclick = () => (impRow(1), $("imp-txt").value = "", $("imp-txt").focus());
+$("bt-imp-ok").onclick = () => {
+let s;
+try { s = JSON.parse(decodeURIComponent(escape(atob($("imp-txt").value.trim())))) } catch (e) {}
+saveOk(s) ? confirm("Load this save? The current game is replaced.") && (gameOn = 0, localStorage.setItem(SAVE_KEY, JSON.stringify(s)), location.reload()) : toast("Invalid save code")
+};
 $("bt-set").onclick = () => {
 $("gset-snd").checked = sound.on;
 $("gset-sci").checked = scienceOn;
 $("gset-bg").checked = !!bgOn;
 $("gset-thm").value = bugTheme;
-ov("ov-set", 1)
+impRow(0), ov("ov-set", 1)
 };
 $("gset-snd").onchange = e => { sound.on = e.target.checked };
 $("bt-fow").onclick = () => toggleFow();

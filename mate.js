@@ -171,5 +171,5 @@ k > 0 && (p.x += s.vx * dtS * k, p.y += s.vy * dtS * k, s.rot += s.vr * dtS * k)
 function emerge(e, y, p) {
 const nb = y.bug, [x, yy, d] = bugAt(y, p, 1.8), be = ecsSpawn(bugEntity(nb, x, yy, p.dir, -1));
 nb.curHp = maxHpOf(nb), bugsOwned.push(nb), achOwn(1), achChild(nb, y.pT), achStep("hatched", [1, 10], "hatch"), trackDynasty(nb.gen);
-C.walk.get(be).stride = .32 * d, think(be), shellAdd(p, { k: "husk", o: y }), ecsKill(e)
+C.walk.get(be).stride = .32 * d, think(be), shellAdd(p, { k: "husk", o: y }), ecsKill(e), saveGame()
 }

@@ -255,10 +255,18 @@ Bug palette
 <option value="2">Realistic</option>
 </select>
 </label>
+<div style="display:flex;gap:8px;padding:6px 2px;">
+<button class="bt f1" id="bt-exp">Export save</button>
+<button class="bt f1" id="bt-imp">Import save</button>
+</div>
+<div id="imp-row" style="display:none;gap:8px;padding:0 2px 6px;">
+<textarea id="imp-txt" rows="3" placeholder="save code" style="flex:1;min-width:0;background:#0a0a12;color:#aabbaa;border:1px solid #2a2a4a;font-size:9px;resize:none;"></textarea>
+<button class="ok bt" id="bt-imp-ok">Load</button>
+</div>
 <hr class="dos-hr">
 <div style="text-align:center;">
 <button class="ok" onclick="ov('ov-set',0)" style="font-size:12px;padding:6px 28px;">OK</button>
-<button class="warn bt" onclick="confirm('Restart game?') && location.reload()">↺ Restart game</button>
+<button class="warn bt" onclick="confirm('Restart game?') && (dropSave(), location.reload())">↺ Restart game</button>
 </div>
 </div>
 </div>
