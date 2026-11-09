@@ -89,6 +89,8 @@ $("gset-snd").checked = sound.on;
 $("gset-sci").checked = scienceOn;
 $("gset-bg").checked = !!bgOn;
 $("gset-thm").value = bugTheme;
+$("gset-gait").value = gait;
+$("gset-pal").value = palette;
 impRow(0), ov("ov-set", 1)
 };
 $("gset-snd").onchange = e => { sound.on = e.target.checked };

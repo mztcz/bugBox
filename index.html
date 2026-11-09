@@ -242,14 +242,14 @@ Background graphics
 </label>
 <label style="display:flex;align-items:center;gap:8px;font-size:11px;color:#aabbaa;padding:6px 2px;">
 Walk
-<select onchange="setGait(this.value)" style="flex:1;background:#0a0a12;color:#aabbaa;border:1px solid #2a2a4a;font-size:11px;padding:2px;">
+<select id="gset-gait" onchange="setGait(this.value)" style="flex:1;background:#0a0a12;color:#aabbaa;border:1px solid #2a2a4a;font-size:11px;padding:2px;">
 <option value="0">Funny (sin)</option>
 <option value="1" selected>Realish (tripod)</option>
 </select>
 </label>
 <label style="display:flex;align-items:center;gap:8px;font-size:11px;color:#aabbaa;padding:6px 2px;">
 Bug palette
-<select onchange="setPalette(this.value)" style="flex:1;background:#0a0a12;color:#aabbaa;border:1px solid #2a2a4a;font-size:11px;padding:2px;">
+<select id="gset-pal" onchange="setPalette(this.value)" style="flex:1;background:#0a0a12;color:#aabbaa;border:1px solid #2a2a4a;font-size:11px;padding:2px;">
 <option value="0">Original</option>
 <option value="1">Pastel</option>
 <option value="2">Realistic</option>
@@ -265,7 +265,7 @@ Bug palette
 </div>
 <hr class="dos-hr">
 <div style="text-align:center;">
-<button class="ok" onclick="ov('ov-set',0)" style="font-size:12px;padding:6px 28px;">OK</button>
+<button class="ok" onclick="ov('ov-set',0),saveGame()" style="font-size:12px;padding:6px 28px;">OK</button>
 <button class="warn bt" onclick="confirm('Restart game?') && (dropSave(), location.reload())">↺ Restart game</button>
 </div>
 </div>
