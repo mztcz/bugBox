@@ -172,19 +172,21 @@ return eachObstacle((o, p) => ({ r: o.r, kind: o.kind, v: o.v, rot: o.rot, x: p.
 function snapFood() {
 return ecsQuery("food", "pos").map(e => { const p = C.pos.get(e); return { x: p.x, y: p.y } })
 }
-const worldSnap = () => ({ obs: snapObstacles(), food: snapFood(), young: ecsQuery("young", "pos").map(e => ({ ...C.young.get(e), pos: { ...C.pos.get(e) } })) });
+// peaceful world with the box size its positions belong to (boxW0 × boxH0); a restore into another box size rescales them
+const worldSnap = () => ({ box: [boxW0, boxH0], obs: snapObstacles(), food: snapFood(), young: ecsQuery("young", "pos").map(e => ({ ...C.young.get(e), pos: { ...C.pos.get(e) } })) });
 function spawnBox() {
+combatState && (savedWorld ||= worldSnap());
 resizeBoxCV(), rescaleBox();
 if (combatState) {
-savedWorld = savedWorld || worldSnap();
 ecsClear(), inspected = null;
 genObstacles(!0)
 } else {
 if (savedWorld) {
+const [w, h] = savedWorld.box || [], sx = w ? boxLW / w : 1, sy = h ? boxLH / h : 1, sc = o => (o.x *= sx, o.y *= sy, o);
 ecsQuery("obstacle").forEach(ecsKill), ecsQuery("food").forEach(ecsKill);
-savedWorld.obs.forEach(o => spawnObst(o.x == null ? placeObst(o.kind, snapObstacles(), 0) : o));
-savedWorld.food.forEach(f => ecsSpawn({ food: {}, pos: { x: f.x, y: f.y, dir: 0 } }));
-savedWorld.young.forEach(({ pos, ...y }) => ecsSpawn({ young: y, pos, vel: {} }));
+savedWorld.obs.forEach(o => spawnObst(o.x == null ? placeObst(o.kind, snapObstacles(), 0) : sc(o)));
+savedWorld.food.forEach(f => ecsSpawn({ food: {}, pos: { ...sc(f), dir: 0 } }));
+savedWorld.young.forEach(({ pos, ...y }) => (y.trail.forEach(t => (t[0] *= sx, t[1] *= sy)), ecsSpawn({ young: y, pos: sc(pos), vel: {} })));
 savedWorld = null
 }
 ecsQuery("obstacle").length || genObstacles(!1)
