@@ -25,7 +25,18 @@ const ABILITIES = {};
 ["zoom", "Zoom", "agi", 0, 0, `Passive. Walks and turns at double speed, Dash included.`],
 ["flee", "Flee", "int", 0, 0, `Twice per fight, below 50% HP and below 25% HP, turns away and runs for 2.5-7s (shorter with higher INT) before hunting again. Bitten while stuck, it fights back instead. Plays dead first if it can.`],
 ["resilient", "Resilient", "con", 0, 0, `Passive. 50% more max HP than its CON alone gives.`],
-["chitin", "Chitin", "con", 0, 0, `Passive. Every bite it takes does half damage.`]
+["chitin", "Chitin", "con", 0, 0, `Passive. Every bite it takes does half damage.`],
+["thickshell", "Thick Shell", "con", 0, 0, `Passive. A bite from within 20 degrees of its nose does 30% less damage.`],
+["badtaste", "Bad Taste", "con", 6e3, 0, `Whoever bites it needs twice the usual wind-up for its next bite.`],
+["laststand", "Last Stand", "con", 0, 0, `Passive. Below 25% HP every bite it takes does 40% less damage.`],
+["glutton", "Glutton", "con", 0, 0, `Passive. Food heals it twice as much.`],
+["antennae", "Antennae", "per", 0, 0, `Passive. Sees 50% farther.`],
+["scent", "Scent Trail", "per", 0, 4e3, `Passive. When it loses its target, follows the target's scent for {d}s instead of looking around.`],
+["alarm", "Alarm Scent", "per", 0, 5e3, `Passive. On death, releases a cloud 7 body lengths wide for {d}s: allies inside it need 30% less wind-up to bite.`],
+["wary", "Wary", "int", 0, 0, `Passive. Does not target an enemy whose STR beats its CON by 5 or more while it sees another one.`],
+["learn", "Learn", "int", 0, 0, `Passive. Every bite it takes from an enemy raises its dodge chance against that enemy by 5 points, up to +25 (dodge up to 50%).`],
+["scuttle", "Scuttle", "agi", 5e3, 1500, `When bitten, walks and turns at double speed for {d}s.`],
+["clamp", "Clamp", "str", 7e3, 2e3, `On a bite, holds on: the target turns at half speed for {d}s.`]
 ].forEach(([id, name, stat, cd, dur, txt]) => ABILITIES[id] = { name, stat, cd, dur, txt });
 const ABIL_IDS = Object.keys(ABILITIES);
 const ABIL_MAX = 4, ABIL_INHERIT_ONE = .5, ABIL_INHERIT_BOTH = .75;
@@ -34,12 +45,12 @@ const ABIL_BY_STAT = {};
 SK.forEach(k => ABIL_BY_STAT[k] = ABIL_IDS.filter(id => ABILITIES[id].stat === k));
 const shuf = a => { for (let i = a.length - 1; i > 0; i--) { const j = floor(random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]] } return a };
 const bitePrepOf = (b, k = 1) => statLin(b, "agi", BITE_PREP_MAX, BITE_PREP_MIN) * k + rf(-125, 125),
-biteDone = (cb, b, t, k) => (SFX.bite(t), cb.biteT = 1, cb.bitePrep = cb.bitePrepMax = bitePrepOf(b, k));
+biteDone = (cb, b, t, k = 1) => (SFX.bite(t), cb.biteT = 1, cb.bitePrep = cb.bitePrepMax = bitePrepOf(b, k * cb.prepK), cb.prepK = 1);
 const FOV_MIN_DEG = 90, FOV_MAX_DEG = 94.5;
 function engageDistOf(b) { const m = ensureMorph(b); return m.bodyLength / 2 + m.headSize * 2 }
 function bugRadius(b) { const m = ensureMorph(b); return m.bodyLength / 2 + m.headSize }
 const statLin = (b, k, a, z) => a + (z - a) * (b[k] - 1) / 19;
-const visRangeOf = b => statLin(b, "per", 75, 300);
+const visRangeOf = b => statLin(b, "per", 75, 300) * (hasAbil(b, "antennae") ? 1.5 : 1);
 const fovHalfOf = b => statLin(b, "per", FOV_MIN_DEG, FOV_MAX_DEG) * PI / 360;
 function seesPoint(b, p, x, y) {
 const dx = x - p.x, dy = y - p.y, d2 = dx * dx + dy * dy, vr = visRangeOf(b);
@@ -51,10 +62,11 @@ const liveE = x => { const c = C.combat.get(x); return c && !c.dead && c.curHp >
 const memMsOf = b => statLin(b, "int", 3e3, 12e3), scanOf = b => statLin(b, "int", 0, PI);
 const huntTierOf = b => { const i = b.int; return i <= 3 ? 1 : i <= 6 ? 2 : i <= 8 ? 3 : 4 };
 const rollVar = () => .8 + .4 * random();
-function biteDodged(atkB, p, tb, tp, atkTeam) {
-const chance = clamp(.12 + .02 * (tb.agi - atkB.agi), 0, .25);
-if (random() >= chance) return !1;
-return spawnDmgPop(tp, 0, atkTeam, atan2(tp.y - p.y, tp.x - p.x), tb), !0
+const abilShow = (cb, id) => (cb.abTxt = ABILITIES[id].name, cb.abT = 2e3);
+function biteDodged(atkB, p, tb, tp, atkTeam, tcb, atkE) {
+const base = clamp(.12 + .02 * (tb.agi - atkB.agi), 0, .25), r = random() - base;
+if (r >= (hasAbil(tb, "learn") ? min(.25, .05 * (tcb.learn[atkE] || 0)) : 0)) return !1;
+return r >= 0 && abilShow(tcb, "learn"), spawnDmgPop(tp, 0, atkTeam, atan2(tp.y - p.y, tp.x - p.x), tb), !0
 }
 function wakeToFight(e) {
 const t = C.walk.get(e);
@@ -85,6 +97,11 @@ flankMult = fd < PI / 3 ? 1 : fd < TAU / 3 ? 1.5 : 2;
 if (atkE != null && (tcb.flankA > 0 || fd >= PI / 3 && tb.int < 5)) { tcb.avengeE = atkE, tcb.avengeA = atan2(p.y - tp.y, p.x - tp.x), tcb.flankA > 0 && flankEnd(tcb) }
 let dmg = statLin(ab, "str", 1, 10) * rollVar() * flankMult * mult;
 if (hasAbil(tb, "chitin")) dmg *= .5;
+if (hasAbil(tb, "thickshell") && fd < FRONT_CONE) dmg *= .7, abilShow(tcb, "thickshell");
+if (hasAbil(tb, "laststand") && tcb.curHp < tcb.maxHp * .25) dmg *= .6, abilShow(tcb, "laststand");
+hasAbil(tb, "learn") && (tcb.learn[atkE] = (tcb.learn[atkE] || 0) + 1);
+abilReady(te, "badtaste") && (cb.prepK = 2, abilFire(te, "badtaste"));
+abilReady(te, "scuttle") && (tcb.scutT = ABILITIES.scuttle.dur, abilFire(te, "scuttle"));
 tcb.curHp -= dmg, C.walk.get(te).hitT = 1;
 const ha = atan2(tp.y - p.y, tp.x - p.x);
 tcb.hitDx = cos(ha), tcb.hitDy = sin(ha);
@@ -93,7 +110,7 @@ tcb.imX -= tcb.hitDy * sh, tcb.imY += tcb.hitDx * sh;
 spawnDmgPop(tp, dmg, atkTeam, ha, tb);
 hasAbil(tb, "cry") && (tcb.callT = ABILITIES.cry.dur, tcb.callR = callRadius(tb), tcb.callTeam = atkTeam ? 0 : 1, tcb.callCry = 1, tcb.callX = tp.x, tcb.callY = tp.y);
 if (tcb.curHp <= 0 && !(hasAbil(tb, "phoenix") && !tcb.phoenixUsed && !tcb.muted)) {
-tcb.dead = !0, tcb.curHp = 0, tcb.fakeT = 0, cb.killsThis = (cb.killsThis || 0) + 1, cb.memT = 0, cb.searchPhase = 0;
+tcb.dead = !0, tcb.curHp = 0, tcb.fakeT = 0, hasAbil(tb, "alarm") && (tcb.alarmT = ABILITIES.alarm.dur), cb.killsThis = (cb.killsThis || 0) + 1, cb.memT = 0, cb.searchPhase = 0;
 groundMarks.push({ x: tp.x, y: tp.y, hue: tb.hue, t: 1 })
 }
 }
@@ -113,9 +130,10 @@ pickE: -1, swT: 0, biteE: -1, biteN: 0,
 memT: 0, memX: 0, memY: 0, memA: 0, searchPhase: 0, fleeA: 0, fleeX: 0, fleeY: 0, fleeT: null, fledLvl: 0,
 mvA: 0, mvSpd: 0,
 imX: 0, imY: 0,
+prepK: 1, scutT: 0, clampT: 0, alarmT: 0, trailE: -1, trailT: 0,
 phoenixUsed: 0, phoenixT: 0, fakeUsed: 0, fakeT: 0, muted: 0, abT: 0, abTxt: ""
 };
-const newCombat = (b, curHp, maxHp, w = bitePrepOf(b)) => ({ ...COMBAT_DEFAULTS, cd: {}, curHp, maxHp, bitePrep: w, bitePrepMax: w });
+const newCombat = (b, curHp, maxHp, w = bitePrepOf(b)) => ({ ...COMBAT_DEFAULTS, cd: {}, learn: {}, curHp, maxHp, bitePrep: w, bitePrepMax: w });
 const abilOrder = b => SK.filter(k => b[k] >= 5).sort((x, y) => b[y] - b[x] || (x < y ? -1 : 1));
 function rollAbilities(b, out, used) {
 for (const k of abilOrder(b)) {

@@ -23,7 +23,7 @@ flee(e, c ? atan2(c.y - p.y, c.x - p.x) : (floor(atan2(p.y - boxLH / 2, p.x - bo
 })
 }
 const abilReady = (e, id) => { const cb = C.combat.get(e); return !cb.muted && hasAbil(C.bug.get(e), id) && !(cb.cd[id] > 0) };
-const abilFire = (e, id) => { const cb = C.combat.get(e); cb.cd[id] = ABILITIES[id].cd, cb.abTxt = ABILITIES[id].name, cb.abT = 2000 };
+const abilFire = (e, id) => { const cb = C.combat.get(e); cb.cd[id] = ABILITIES[id].cd, abilShow(cb, id) };
 const ACTION_KEYS = ["flyT", "airT", "dashT", "spinRemain", "dashHitPend",
 "backflipT", "grabTarget", "grabbedBy", "grabDragLeft",
 "grabTimeLeft", "mvSpd", "imX", "imY", "aimLock", "aimTarget"];
@@ -43,6 +43,8 @@ cb.biteT > 0 && (cb.biteT = max(0, cb.biteT - dt / 200));
 for (const k in cb.cd) cb.cd[k] -= dt;
 cb.stunT > 0 && (cb.stunT -= dt);
 cb.loudT > 0 && (cb.loudT -= dt);
+cb.scutT > 0 && (cb.scutT -= dt);
+cb.clampT > 0 && (cb.clampT -= dt);
 cb.abT > 0 && (cb.abT -= dt);
 cb.callT > 0 && (cb.callT -= dt, cb.callCry && (cb.callX = p.x, cb.callY = p.y));
 cb.backflipT > 0 && (cb.backflipT -= dt);
@@ -67,8 +69,8 @@ p = C.pos.get(e),
 tm = C.team.get(e),
 cb = C.combat.get(e),
 t = C.walk.get(e);
-const bodyL = bugLen(b), engageDist = engageDistOf(b), spd = spdOf(b), turn = turningOf(b) * dtS, tier = huntTierOf(b), go = a => (turnToward(e, a, turn), cb.mvA = p.dir, cb.mvSpd = spd);
-if (cb.dead && !(cb.phoenixT > 0)) { clearActionState(cb); return }
+const sk = cb.scutT > 0 ? 2 : 1, bodyL = bugLen(b), engageDist = engageDistOf(b), spd = spdOf(b) * sk, turn = turningOf(b) * dtS * sk * (cb.clampT > 0 ? .5 : 1), tier = huntTierOf(b), go = a => (turnToward(e, a, turn), cb.mvA = p.dir, cb.mvSpd = spd);
+if (cb.dead && !(cb.phoenixT > 0)) { cb.alarmT > 0 && (cb.alarmT -= dt), clearActionState(cb); return }
 tickTimers(cb, p, dt);
 cb.muted = ents.some(oe => { const ocb = C.combat.get(oe), op = C.pos.get(oe); return ocb.loudT > 0 && !ocb.dead && C.team.get(oe).team !== tm.team && hypot(op.x - p.x, op.y - p.y) < loudRadius(C.bug.get(oe)) });
 if (cb.curHp <= 0 && !cb.dead) { cb.phoenixUsed = 1; cb.phoenixT = ABILITIES.phoenix.dur; cb.dead = true; cb.curHp = 0; clearActionState(cb); return }
@@ -125,7 +127,12 @@ const visR = visRangeOf(b),
 visR2 = visR * visR,
 fovHalf = fovHalfOf(b);
 const myS = snap.get(e);
+const wary = hasAbil(b, "wary");
+let scary = 1, skip = 0;
 const consider = (oe, d2) => {
+const sc = wary && C.bug.get(oe).str - b.con >= 5 ? 1 : 0;
+if (sc > scary) return void(skip = 1);
+sc < scary && (scary = sc, skip = target != null, minD2 = focusHp = 1 / 0);
 if (focusOn) { const hp = C.combat.get(oe).curHp; if (hp < focusHp) { focusHp = hp; target = oe; minD2 = d2 } }
 else if (d2 < minD2) { minD2 = d2; target = oe }
 };
@@ -139,6 +146,7 @@ d2 = dx * dx + dy * dy;
 if (d2 >= visR2 || abs(norm(atan2(dy, dx) - myS.dir)) > fovHalf) return;
 oe === cb.lockE && (lockOk = 1), consider(oe, d2);
 });
+skip && target !== cb.curTarget && abilShow(cb, "wary");
 if (cb.avengeE >= 0) {
 if (!liveE(cb.avengeE)) cb.avengeE = -1;
 else {
@@ -209,7 +217,7 @@ const far = minD > attackReach && tier !== 4;
 turnToward(e, p.dir + aimDiff, turn) ? far && (cb.aimLock = 1) : aiming = far;
 }
 cb.lostSide = sign(aimDiff) || cb.lostSide || 1;
-cb.memT = memMsOf(b), cb.memX = tp.x, cb.memY = tp.y, cb.memA = tp.dir, cb.searchPhase = 0;
+cb.trailE = target, cb.trailT = ABILITIES.scent.dur, cb.memT = memMsOf(b), cb.memX = tp.x, cb.memY = tp.y, cb.memA = tp.dir, cb.searchPhase = 0;
 facingOK = abs(aimDiff) < FRONT_CONE;
 facingOK && (cb.flyE = -1);
 if (cb.regather) { if (facingOK) cb.regather = 0; else aiming = true }
@@ -219,7 +227,7 @@ cb.dashT = ABILITIES.dash.dur; abilFire(e, "dash"); cb.dashHitPend = 1; cb.airT 
 }
 if (cb.dashHitPend && minD <= attackReach) {
 cb.dashHitPend = 0; cb.dashT = 0; cb.airT = 0;
-biteDodged(b, p, tb, tp, tm.team) || (applyBite(cb, b, p, target, tb, tp, 1, tm.team, e), biteNoticed(target));
+biteDodged(b, p, tb, tp, tm.team, tcb, e) || (applyBite(cb, b, p, target, tb, tp, 1, tm.team, e), biteNoticed(target));
 biteDone(cb, b, tm.team);
 }
 let moveSpd = cb.dashT > 0 ? spd * 8 : minD > attackReach && seesPoint(b, p, tp.x, tp.y) ? spd * RUSH * facing(p, toT) : spd;
@@ -265,7 +273,7 @@ cb.flyT = 1, cb.flyDx = tp.x + cos(toT) * L - p.x, cb.flyDy = tp.y + sin(toT) * 
 abilFire(e, "jump");
 }
 const bite = (target, tb, tp, tcb, toT) => {
-if (!biteDodged(b, p, tb, tp, tm.team)) {
+if (!biteDodged(b, p, tb, tp, tm.team, tcb, e)) {
 let strongMult = 1;
 if (cb.strongPend) { strongMult = 2; cb.strongPend = 0 }
 applyBite(cb, b, p, target, tb, tp, strongMult, tm.team, e), biteNoticed(target);
@@ -275,6 +283,7 @@ if (abilReady(e, "knockout")) {
 if (!braced) { tcb.stunT = max(200, ABILITIES.knockout.dur + 100 * (b.str - tb.con)); tcb.regather = 1 }
 abilFire(e, "knockout");
 }
+abilReady(e, "clamp") && (tcb.clampT = ABILITIES.clamp.dur, abilFire(e, "clamp"));
 cb.biteE === target || (cb.biteE = target, cb.biteN = 0), cb.biteN++;
 if (cb.biteN >= 3 && tcb.stunT <= 0 && abilReady(e, "backflip")) { cb.backflipT = ABILITIES.backflip.dur, cb.airT = cb.airMs = cb.backflipT / 2; abilFire(e, "backflip") }
 }
@@ -290,7 +299,7 @@ const ocb = C.combat.get(oe), op = C.pos.get(oe);
 return oe !== target && !ocb.dead && ocb.curHp > 0 && C.team.get(oe).team !== tm.team && hypot(op.x - p.x, op.y - p.y) <= engageDist + bugRadius(C.bug.get(oe)) && inCone(oe)
 }), canBite = inRange && facingOK || opp;
 if (canBite && !airT) {
-if (cb.bitePrep > 0) cb.bitePrep -= dt;
+if (cb.bitePrep > 0) cb.bitePrep -= dt / (ents.some(oe => { const ocb = C.combat.get(oe), op = C.pos.get(oe); return ocb.alarmT > 0 && C.team.get(oe).team === tm.team && hypot(op.x - p.x, op.y - p.y) < callRadius(C.bug.get(oe)) }) ? .7 : 1);
 cb.prepVisT = 20;
 } else if (!inRange && !opp) {
 cb.bitePrep = max(cb.bitePrep, 0);
@@ -303,6 +312,12 @@ cb.memT > 0 && (cb.memT -= dt);
 if (cb.avengeE >= 0) {
 turnToward(e, cb.avengeA, turn) && (cb.avengeE = -1);
 return
+}
+if (cb.trailT > 0 && hasAbil(b, "scent") && liveE(cb.trailE) && !(C.combat.get(cb.trailE).fakeT > 0)) {
+const q = C.pos.get(cb.trailE);
+cb.trailT === ABILITIES.scent.dur && abilShow(cb, "scent");
+cb.trailT -= dt, cb.memX = q.x, cb.memY = q.y, cb.memA = q.dir;
+return void go(atan2(q.y - p.y, q.x - p.x))
 }
 if (!cb.goOn) {
 const call = callFor(e, p, tm.team, ents, cb);

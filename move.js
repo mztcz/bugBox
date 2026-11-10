@@ -69,7 +69,7 @@ for (const be of bugs) {
 const bp = C.pos.get(be), b = C.bug.get(be);
 if (hurt(be) && hypot(bp.x - fp.x, bp.y - fp.y) < 16) {
 const h = C.combat.get(be) || b, mx = maxHpOf(b);
-h.curHp = min(mx, h.curHp + mx / 5);
+h.curHp = min(mx, h.curHp + mx / 5 * (hasAbil(b, "glutton") ? (h !== b && abilShow(h, "glutton"), 2) : 1));
 combatState || think(be);
 achieve("feed"), combatState && achieve("feedFight"), 1 === C.team.get(be).team && achieve("fedEnemy"), achStep("fed", [10, 50], "fed"), ecsKill(fe);
 break

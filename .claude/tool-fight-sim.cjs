@@ -1,6 +1,7 @@
 // BUGBOX fight simulator: Node, no browser, no drawing. Loads the game files from index.html into one VM context
 // (DOM, canvas and audio stubbed) and runs the game's own tick() with the fixed step COMBAT_STEP_MS. No game rules are copied here.
-// Usage: node .claude/tool-fight-sim.cjs a [n]   each ability: bug with it vs the same bug without, 1v1 + 3v3, T2 T3 T5 (T1 bugs cannot roll
+// Usage: node .claude/tool-fight-sim.cjs a [n] [ids|all] [tiers]   optional: only these ability ids (comma list) and tiers (comma list, default 2,3,5)
+//        node .claude/tool-fight-sim.cjs a [n]   each ability: bug with it vs the same bug without, 1v1 + 3v3, T2 T3 T5 (T1 bugs cannot roll
 //                                                abilities: stats max 3, abilities need the stat 5+; the base bug has the ability's stat 5+) (default n 250)
 //        node .claude/tool-fight-sim.cjs b [n]   each stat: +3 in one stat, -3 spread over the others (less when they are all 1, T1 sum 5-7), vs even split of the same sum, 1v1 + 3v3 (default n 250)
 //        node .claude/tool-fight-sim.cjs c [n]   BOSS T1-T5 vs 1 bug of that tier (random genStats / max tier sum / max tier sum with CON and STR
@@ -12,7 +13,7 @@
 // Glass taps: STALL_MS game time with no HP change = the game's triple-tap panic (panicAll), as a player does. After a panic the bugs get
 // PANIC_WAIT_MS to stop fleeing, walk, see an enemy and bite (measured: next bite after a panic in 1v1 median 12-27 s, 90 % within 58-84 s);
 // only then the next panic, max PANIC_MAX per fight, still no bite after the last wait = draw.
-// Finished chunks are kept in <tmp>/bugbox-fight-sim-<set>-<n>.jsonl: after a restart the same command continues.
+// Finished chunks are kept in <tmp>/bugbox-fight-sim-<set>-<n>.jsonl: after a restart the same command continues (the file name holds the game version).
 // Base bugs (sets a, b): random genStats of the tier per fight, both sides copies. Tested side swaps team 0/1 every 2nd fight.
 // Fight box: tierMax = fight tier (box size of the first time that tier is open). Fights run on all CPU cores (worker_threads).
 const fs = require("fs"), path = require("path"), vm = require("vm"), os = require("os");
@@ -128,7 +129,8 @@ if (require.main !== module) return void (module.exports = { load });
 const set = process.argv[2] || "a", N = set === "custom" ? JSON.parse(process.argv[3]).n || 500 : +process.argv[3] || (set === "c" ? 200 : 250);
 const probe = load(), v = e => vm.runInContext(e, probe), IDS = v("ABIL_IDS"), SK = v("SK"), NAMES = v("Object.fromEntries(ABIL_IDS.map(i => [i, ABILITIES[i].name]))");
 const jobs = [];
-if (set === "a") for (const id of IDS) for (const size of [1, 3]) for (const tier of [2, 3, 5]) jobs.push({ row: NAMES[id], col: `${size}v${size} T${tier}`, maker: "abil", id, size, tier, mode: size, n: N });
+const ONLY = process.argv[4] && process.argv[4] !== "all" ? process.argv[4].split(",") : IDS, TIERS = process.argv[5] ? process.argv[5].split(",").map(Number) : [2, 3, 5];
+if (set === "a") for (const id of ONLY) for (const size of [1, 3]) for (const tier of TIERS) jobs.push({ row: NAMES[id], col: `${size}v${size} T${tier}`, maker: "abil", id, size, tier, mode: size, n: N });
 if (set === "b") for (const k of SK) for (const size of [1, 3]) for (const tier of [1, 3, 5]) jobs.push({ row: k.toUpperCase() + "+3", col: `${size}v${size} T${tier}`, maker: "stat", stat: k, size, tier, mode: size, n: N });
 if (set === "c") for (const tier of [1, 2, 3, 4, 5]) {
   for (const v of ["", "max", "constr"]) jobs.push({ row: `BOSS T${tier}`, col: ["random", "max sum", "max CON+STR"][["", "max", "constr"].indexOf(v)], maker: "boss", size: 1, v, tier, mode: "boss", n: N, swap: false });
@@ -139,7 +141,7 @@ if (set === "custom") { const o = JSON.parse(process.argv[3]); jobs.push({ row: 
 const W = os.cpus().length, CH = 50, chunks = [];
 jobs.forEach((j, k) => { for (let d = 0; d < j.n; d += CH) chunks.push({ ...j, k, n: Math.min(CH, j.n - d) }) });
 // progress file: finished chunks survive a restart; a run with the same set and n continues from it
-const prog = path.join(os.tmpdir(), `bugbox-fight-sim-${set}-${N}.jsonl`), acc = jobs.map(() => ({ n: 0, win: 0, draw: 0, ms: 0, hp: 0 })), t0 = Date.now();
+const prog = path.join(os.tmpdir(), `bugbox-fight-sim-${set}-${N}-v${v("GAME_VERSION")}${set === "a" ? "-" + ONLY.length + ONLY[0] + TIERS.join("") : ""}.jsonl`), acc = jobs.map(() => ({ n: 0, win: 0, draw: 0, ms: 0, hp: 0 })), t0 = Date.now();
 const add = (c, r) => { const a = acc[chunks[c].k], n = chunks[c].n; a.n += n, a.win += r.win * n, a.draw += r.draw * n, a.ms += r.ms * n, a.hp += r.hp * n };
 const have = new Set(set === "custom" || !fs.existsSync(prog) ? [] : fs.readFileSync(prog, "utf8").split("\n").filter(Boolean).map(l => { const { c, r } = JSON.parse(l); return add(c, r), c }));
 const queue = chunks.map((_, c) => c).filter(c => !have.has(c));

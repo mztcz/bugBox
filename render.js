@@ -57,6 +57,10 @@ const fe = inspected && (ecsQuery("bug", "pos").find(en => C.bug.get(en) === ins
 fe == null && (inspected = null), syncFowBtn();
 sysRenderObstacles(!1), drawZoneVisOverlay();
 if (inCombat) {
+ecsQuery("combat", "pos").forEach(e => {
+const cb = C.combat.get(e), p = C.pos.get(e);
+cb.alarmT > 0 && (boxCx.globalAlpha = .15 * min(1, cb.alarmT / 1e3), boxCx.fillStyle = "#fd4", boxCx.beginPath(), boxCx.arc(p.x, p.y, callRadius(C.bug.get(e)), 0, 7), boxCx.fill(), boxCx.globalAlpha = 1)
+});
 groundMarks.forEach(m => {
 boxCx.globalAlpha = .4 * m.t, boxCx.fillStyle = `hsl(${m.hue},40%,18%)`, boxCx.fillRect(m.x - 8, m.y - 4, 16, 8), boxCx.globalAlpha = 1
 });
