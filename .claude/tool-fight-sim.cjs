@@ -1,11 +1,12 @@
 // BUGBOX fight simulator: Node, no browser, no drawing. Loads the game files from index.html into one VM context
 // (DOM, canvas and audio stubbed) and runs the game's own tick() with the fixed step COMBAT_STEP_MS. No game rules are copied here.
 // Usage: node .claude/tool-fight-sim.cjs a [n]   each ability: bug with it vs the same bug without, 1v1 + 3v3, T1 T3 T5 (default n 2000)
-//        node .claude/tool-fight-sim.cjs b [n]   each stat: +3 in one stat, -3 spread over the others, vs even split of the same sum, 1v1 + 3v3
+//        node .claude/tool-fight-sim.cjs b [n]   each stat: +3 in one stat, -3 spread over the others (less when they are all 1, T1 sum 5-7), vs even split of the same sum, 1v1 + 3v3
 //        node .claude/tool-fight-sim.cjs c [n]   BOSS, RB, WB of tier T vs teams of 1-10 player bugs of tier T (default n 200)
 //        node .claude/tool-fight-sim.cjs custom '{"a":[{"con":5,"str":5,"agi":5,"per":5,"int":5,"abilities":["dash"]}],"b":[...],"mode":1,"tier":3,"n":500}'
 //        a/b team entries without stats get genStats(tier); "b" omitted = the game's buildEnemies (bosses for boss modes)
 // Output: % wins of team A, % draws (no end within CAP_MS game time), median fight length, median HP % left in the winning team.
+// Finished chunks are kept in <tmp>/bugbox-fight-sim-<set>-<n>.jsonl: after a restart the same command continues.
 // Base bugs (sets a, b): random genStats of the tier per fight, both sides copies. Tested side swaps team 0/1 every 2nd fight.
 // Fight box: tierMax = fight tier (box size of the first time that tier is open). Fights run on all CPU cores (worker_threads).
 // Set c: a fresh boss every fight (the game keeps one per tier; WB HP loss is not carried between sim fights).
@@ -76,9 +77,9 @@ const MAKERS = {
   // ability: same random tier bug on both sides (all members of a team), A has the ability
   abil: (ctx, { id, size, tier }) => { const s = Array.from({ length: size }, () => ctx.genStats(tier)), st = x => ({ con: x.con, str: x.str, agi: x.agi, per: x.per, int: x.int });
     return [s.map(x => ({ ...st(x), abilities: [id] })), s.map(x => ({ ...st(x), abilities: [] }))] },
-  // stat: sum S of a random tier bug; B = even split; A = even split, +3 in stat k, -3 spread over the other 4 (ones first, stats min 1)
-  stat: (ctx, { k, size, tier }) => { const mk = () => { const S = ctx.vm("statSum")(ctx.genStats(tier)), SK = ctx.vm("SK"), ev = Object.fromEntries(SK.map((x, i) => [x, Math.floor(S / 5) + (i < S % 5)]));
-      const a = { ...ev }; a[k] += 3; for (let left = 3, j = 0; left; j++) { const o = SK.filter(x => x !== k)[j % 4]; a[o] > 1 && (a[o]--, left--) } return [a, ev] };
+  // stat: sum S of a random tier bug; B = even split; A = even split, +3 in stat k taken from the other 4 in turn (stats min 1, so fewer than 3 at a T1 sum 5-7)
+  stat: (ctx, { stat: k, size, tier }) => { const mk = () => { const S = ctx.vm("statSum")(ctx.genStats(tier)), SK = ctx.vm("SK"), ev = Object.fromEntries(SK.map((x, i) => [x, Math.floor(S / 5) + (i < S % 5)]));
+      const a = { ...ev }, oth = SK.filter(x => x !== k); for (let left = 3, j = 0; left && oth.some(o => a[o] > 1); j++) { const o = oth[j % 4]; a[o] > 1 && (a[o]--, a[k]++, left--) } return [a, ev] };
     const t = Array.from({ length: size }, mk); return [t.map(x => x[0]), t.map(x => x[1])] },
   boss: (ctx, { size, tier }) => [Array.from({ length: size }, () => ({})), null]
 };
@@ -96,23 +97,28 @@ const set = process.argv[2] || "a", N = set === "custom" ? JSON.parse(process.ar
 const probe = load(), v = e => vm.runInContext(e, probe), IDS = v("ABIL_IDS"), SK = v("SK"), NAMES = v("Object.fromEntries(ABIL_IDS.map(i => [i, ABILITIES[i].name]))");
 const jobs = [];
 if (set === "a") for (const id of IDS) for (const size of [1, 3]) for (const tier of [1, 3, 5]) jobs.push({ row: NAMES[id], col: `${size}v${size} T${tier}`, maker: "abil", id, size, tier, mode: size, n: N });
-if (set === "b") for (const k of SK) for (const size of [1, 3]) for (const tier of [1, 3, 5]) jobs.push({ row: k.toUpperCase() + "+3", col: `${size}v${size} T${tier}`, maker: "stat", k, size, tier, mode: size, n: N });
+if (set === "b") for (const k of SK) for (const size of [1, 3]) for (const tier of [1, 3, 5]) jobs.push({ row: k.toUpperCase() + "+3", col: `${size}v${size} T${tier}`, maker: "stat", stat: k, size, tier, mode: size, n: N });
 if (set === "c") for (const mode of ["boss", "rb", "wb"]) for (const tier of [1, 3, 5]) for (const size of [1, 2, 3, 5, 10]) jobs.push({ row: `${mode.toUpperCase()} T${tier}`, col: `${size} bugs`, maker: "boss", size, tier, mode, n: N, swap: false });
 if (set === "custom") { const o = JSON.parse(process.argv[3]); jobs.push({ row: "A", col: `${o.mode} T${o.tier}`, a: o.a, b: o.b || null, mode: o.mode, tier: o.tier, n: o.n || 500, swap: !!o.b }) }
 const W = os.cpus().length, CH = 50, chunks = [];
 jobs.forEach((j, k) => { for (let d = 0; d < j.n; d += CH) chunks.push({ ...j, k, n: Math.min(CH, j.n - d) }) });
-const acc = jobs.map(() => ({ n: 0, win: 0, draw: 0, ms: 0, hp: 0 })), t0 = Date.now();
-let next = 0, done = 0;
-const pool = Array.from({ length: Math.min(W, chunks.length) }, () => new Worker(__filename));
+// progress file: finished chunks survive a restart; a run with the same set and n continues from it
+const prog = path.join(os.tmpdir(), `bugbox-fight-sim-${set}-${N}.jsonl`), acc = jobs.map(() => ({ n: 0, win: 0, draw: 0, ms: 0, hp: 0 })), t0 = Date.now();
+const add = (c, r) => { const a = acc[chunks[c].k], n = chunks[c].n; a.n += n, a.win += r.win * n, a.draw += r.draw * n, a.ms += r.ms * n, a.hp += r.hp * n };
+const have = new Set(set === "custom" || !fs.existsSync(prog) ? [] : fs.readFileSync(prog, "utf8").split("\n").filter(Boolean).map(l => { const { c, r } = JSON.parse(l); return add(c, r), c }));
+const queue = chunks.map((_, c) => c).filter(c => !have.has(c));
+let done = have.size;
+queue.length || report();
+const pool = Array.from({ length: Math.min(W, queue.length) }, () => new Worker(__filename));
 pool.forEach(w => {
-  w.on("message", ({ k, r }) => {
-    const a = acc[k], n = chunks[w.cur].n; a.n += n, a.win += r.win * n, a.draw += r.draw * n, a.ms += r.ms * n, a.hp += r.hp * n;
+  const send = () => queue.length ? (w.cur = queue.shift(), w.postMessage(chunks[w.cur])) : w.terminate();
+  w.on("message", ({ r }) => {
+    add(w.cur, r), set === "custom" || fs.appendFileSync(prog, JSON.stringify({ c: w.cur, r }) + "\n");
     ++done % 20 || process.stderr.write(`\r${done}/${chunks.length} chunks, ${Math.round((Date.now() - t0) / 1e3)} s`);
-    next < chunks.length ? (w.cur = next, w.postMessage(chunks[next++])) : w.terminate();
-    done === chunks.length && report();
+    done === chunks.length && report(), send();
   });
   w.on("error", e => { console.error("worker error: " + e.stack); process.exit(1) });
-  w.cur = next, w.postMessage(chunks[next++]);
+  send();
 });
 function report() {
   process.stderr.write("\n");
