@@ -49,7 +49,7 @@ const gameSnap = () => ({ v: SAVE_VER, dev, money, bid, fightNum, tierMax, statC
 fight: combatState && { T: enemyTier, d: fightDone, f: bugsInBoxView().filter(f => 0 === f.team && !C.combat.get(f.eid).buried).map(f => ({ b: { id: f.b.id }, curHp: f.curHp, killsThis: f.killsThis, dead: f.dead })) } });
 function saveGame() { try { gameOn && (wbKeep(), localStorage.setItem(SAVE_KEY, JSON.stringify(gameSnap()))) } catch (e) {} }
 function dropSave(bad) { try { gameOn = 0, bad && localStorage.setItem(SAVE_KEY + "_bad", bad), localStorage.removeItem(SAVE_KEY) } catch (e) {} }
-const newGame = () => (dropSave(), location.reload());
+const newGame = ask => (!ask || confirm("Restart game?")) && (dropSave(), location.reload());
 function loadGame(s) {
 ({ dev, money, bid, fightNum, tierMax, statCap, obstKinds, achSt, bugs: bugsOwned, world: savedWorld } = s);
 Object.assign(run, s.run), Object.assign(bosses, s.bosses), Object.values(bosses).forEach(b => b.id = bid++), scienceOn = s.sci[0], s.sci[1].forEach((o, i) => Object.assign(sciSt[i], o));
