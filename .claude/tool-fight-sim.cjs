@@ -8,15 +8,17 @@
 //                                                wbKeep) over fights of a fresh team of 3/5/10 bugs until it dies: median fights to kill (max 10) (default n 200, WB n/10)
 //        node .claude/tool-fight-sim.cjs custom '{"a":[{"con":5,"str":5,"agi":5,"per":5,"int":5,"abilities":["dash"]}],"b":[...],"mode":1,"tier":3,"n":500}'
 //        a/b team entries without stats get genStats(tier); "b" omitted = the game's buildEnemies (bosses for boss modes)
-// Output: % wins of team A, % draws (no end within CAP_MS game time, boss modes CAP_BOSS_MS), median fight length, median HP % left in the winning team.
-// Glass taps: 20 s game time with no HP change = the game's triple-tap panic (panicAll), as a player does; max 5 per fight, still stalled = draw.
+// Output: % wins of team A, % draws (no end within CAP_MS game time), median fight length, median HP % left in the winning team.
+// Glass taps: STALL_MS game time with no HP change = the game's triple-tap panic (panicAll), as a player does. After a panic the bugs get
+// PANIC_WAIT_MS to stop fleeing, walk, see an enemy and bite (measured: next bite after a panic in 1v1 median 12-27 s, 90 % within 58-84 s);
+// only then the next panic, max PANIC_MAX per fight, still no bite after the last wait = draw.
 // Finished chunks are kept in <tmp>/bugbox-fight-sim-<set>-<n>.jsonl: after a restart the same command continues.
 // Base bugs (sets a, b): random genStats of the tier per fight, both sides copies. Tested side swaps team 0/1 every 2nd fight.
 // Fight box: tierMax = fight tier (box size of the first time that tier is open). Fights run on all CPU cores (worker_threads).
 const fs = require("fs"), path = require("path"), vm = require("vm"), os = require("os");
 const { Worker, isMainThread, parentPort, workerData } = require("worker_threads");
 const root = path.resolve(__dirname, "..");
-const CAP_MS = 180e3, CAP_BOSS_MS = 600e3, WB_FIGHTS = 10;
+const CAP_MS = 600e3, STALL_MS = 30e3, PANIC_WAIT_MS = 90e3, PANIC_MAX = 5, WB_FIGHTS = 10;
 
 // any DOM / canvas / audio object: every property and call returns the stub itself; numbers read as 0
 function stubs() {
@@ -54,14 +56,14 @@ function load() {
       dev = 1, money = 1e9, tierMax = T, tutStep = -1, fightMode = mode, B || keepBoss || (bosses = {});
       bugsOwned = A.map(o => simBug(o, T)), fightTeam = bugsOwned.slice(), simFoes = B ? B.map(o => simBug(o, T)) : null;
       startFight(null, T);
-      for (let h = -1, still = 0, pn = 0; !fightDone && fightMs < cap;) {
+      for (let h = -1, still = 0, pn = 0, wait = ${STALL_MS}; !fightDone && fightMs < cap;) {
         tick(COMBAT_STEP_MS, 1), fightMs >= 0 && checkFightEnd();
         if (fightMs < 0) continue;
         const now = simHp();
         if (now !== h) { h = now, still = 0; continue }
-        if ((still += COMBAT_STEP_MS) < 20e3) continue;
-        if (pn++ >= 5) break;
-        panicAll(), still = 0
+        if ((still += COMBAT_STEP_MS) < wait) continue;
+        if (pn++ >= ${PANIC_MAX}) break;
+        panicAll(), still = 0, wait = ${PANIC_WAIT_MS}
       }
       const f = bugsInBoxView(), hp = t => { const g = f.filter(x => x.team === t); return g.reduce((s, x) => s + max(0, x.curHp), 0) / g.reduce((s, x) => s + x.maxHp, 0) },
         [a0, a1] = teamAlive(ecsQuery("team", "combat")), w = !fightDone ? -1 : a0 ? 0 : a1 ? 1 : -1;
@@ -77,7 +79,7 @@ function cell(ctx, c) {
   const res = [];
   for (let i = 0; i < c.n; i++) {
     const [A, B] = c.make ? c.make(ctx) : [c.a, c.b], sw = c.swap !== false && i % 2;
-    const r = ctx.simFight(sw ? B : A, sw ? A : B, c.mode, c.tier, B ? CAP_MS : CAP_BOSS_MS);
+    const r = ctx.simFight(sw ? B : A, sw ? A : B, c.mode, c.tier, CAP_MS);
     res.push({ win: r.w < 0 ? -1 : (r.w === 0) !== !!sw ? 1 : 0, ms: r.ms, hp: r.hp });
   }
   const med = a => { a.sort((x, y) => x - y); return a.length ? a[a.length >> 1] : 0 }, done = res.filter(r => r.win >= 0);
@@ -89,7 +91,7 @@ function camp(ctx, c) {
   const f = [];
   for (let i = 0; i < c.n; i++) {
     let k = 1;
-    for (; k <= WB_FIGHTS; k++) { ctx.simFight(MAKERS.boss(ctx, c)[0], null, "wb", c.tier, CAP_BOSS_MS, k > 1); if (!ctx.vm(`bosses.wb${c.tier}`)) break }
+    for (; k <= WB_FIGHTS; k++) { ctx.simFight(MAKERS.boss(ctx, c)[0], null, "wb", c.tier, CAP_MS, k > 1); if (!ctx.vm(`bosses.wb${c.tier}`)) break }
     f.push(k);
   }
   f.sort((x, y) => x - y);
@@ -158,7 +160,7 @@ function report() {
   process.stderr.write("\n");
   const cols = [...new Set(jobs.map(j => j.col))], rows = [...new Set(jobs.map(j => j.row))], R = jobs.map((j, k) => ({ ...j, ...acc[k] }));
   const fmt = r => !r ? "" : r.camp ? (r.win / r.n > WB_FIGHTS ? `>${WB_FIGHTS}f` : `${(r.win / r.n).toFixed(0)}f`) + (r.draw ? ` x${(r.draw / r.n).toFixed(0)}` : "") : `${(r.win / r.n).toFixed(0)}%${r.draw ? ` d${(r.draw / r.n).toFixed(0)}` : ""}`;
-  console.log(`set ${set}, ${N} fights per cell, % wins of A (d = % draws, no end in ${CAP_MS / 1e3} s, boss modes ${CAP_BOSS_MS / 1e3} s; WB rows: f = median fights to kill, x = % WBs alive after ${WB_FIGHTS} fights), v${v("GAME_VERSION")}, ${Math.round((Date.now() - t0) / 1e3)} s`);
+  console.log(`set ${set}, ${N} fights per cell, % wins of A (d = % draws: no bite after ${PANIC_MAX} glass panics or no end in ${CAP_MS / 1e3} s; WB rows: f = median fights to kill, x = % WBs alive after ${WB_FIGHTS} fights), v${v("GAME_VERSION")}, ${Math.round((Date.now() - t0) / 1e3)} s`);
   console.log(["", ...cols].join("\t"));
   rows.forEach(row => console.log([row, ...cols.map(c => fmt(R.find(r => r.row === row && r.col === c)))].join("\t")));
   console.log(`median fight length s / median winner HP % per column:`);
