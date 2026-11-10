@@ -28,7 +28,7 @@ if (!dev && money < fee) return flashBlocked(btn), void toast("Not enough money!
 money -= fee, enemyTier = T, updateMoney(), keepHp();
 // one match = one fight, or all steps of one MC
 "mc" === fightMode && T > 1 && match || (match = { foes: [], prize: 0, kills: 0, ms: 0 });
-bgPick(), fightNum++, enemies = foes, groundMarks = [], dmgPops = [], fightDone = !1, foodLeft = 3, combatState = !0, simSpd = 1, tickDebt = 0, syncSpeedLabel();
+bgPick(), fightNum++, enemies = foes, groundMarks = [], dmgPops = [], fightDone = !1, foodLeft = 3 + dna.lv[2], combatState = !0, simSpd = 1, tickDebt = 0, syncSpeedLabel();
 youngReady(1);
 showScreen("s-box"), resizeBoxCV(), spawnBox()
 }
@@ -68,6 +68,9 @@ lb && (lb.wins++, tallyFight(lb, f), achSurvive(lb))
 })
 }
 updateMoney();
+// game win = first BOSS T5 win of this game
+const first = won && "boss" === fightMode && 5 === enemyTier && !run.won;
+first && (runTick(), run.won = 1, run.fast = run.ms, records.won++, records.fast = records.fast ? min(records.fast, run.ms) : run.ms);
 achFight(won, dead0.length, alive0.length), achOwn(0), bugsOwned.forEach(b => b.mated = 0);
 match.ms += fightMs, match.kills += kills, saveGame();
 if (won && "mc" === fightMode && enemyTier < 5) {
@@ -75,7 +78,7 @@ match.foes.push(...allEnemy);
 for (let n = 1 + ri(3); n--;) ecsSpawn({ food: {}, pos: { x: 30 + random() * (boxLW - 60), y: 30 + random() * (boxLH - 60), dir: 0 } });
 return void($("bt-next").style.display = "")
 }
-[13, 15].includes(tutStep) && tutFought(alive0), renderResult(), $("bt-res").style.display = "", won ? offerObst() : ov("ov-res", 1)
+[13, 15].includes(tutStep) && tutFought(alive0), renderResult(), $("bt-res").style.display = "", first ? gameEnd(offerObst) : won ? offerObst() : ov("ov-res", 1)
 }
 // Result screen body from the live fight box (HP after feeding) + enemies of earlier MC steps
 function renderResult() {

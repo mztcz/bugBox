@@ -53,6 +53,15 @@ if(typeof window[n]==="undefined")bar().textContent+="NOT LOADED: "+n+"\n"})
 <div class="shop-grid" id="shop-grid"></div>
 </div>
 </div>
+<div class="screen" id="s-leg">
+<div class="topbar">
+<span class="title" style="color:#4cf;">LEGACY</span>
+<div class="sep"></div>
+<span>DNA:</span><span class="money" id="leg-dna"></span>
+<button class="nav-shop bt" id="bt-leg" style="margin-left:auto;">Shop →</button>
+</div>
+<div class="scroll" id="leg-body"></div>
+</div>
 <div class="screen" id="s-box">
 <div class="topbar" style="position:relative;">
 <div id="hold-card" style="position:absolute;left:4px;top:calc(100% + 5px);width:184px;z-index:5;pointer-events:none;"></div>
@@ -138,15 +147,14 @@ if(typeof window[n]==="undefined")bar().textContent+="NOT LOADED: "+n+"\n"})
 </div>
 </div>
 <div id="ov-over" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.94);z-index:300;align-items:center;justify-content:center;padding:20px;">
-<div class="intro-frame" style="max-width:520px;width:94%;height:33vh;min-height:190px;display:flex;flex-direction:column;justify-content:center;">
+<div class="intro-frame" style="max-width:520px;width:94%;min-height:max(33vh,190px);display:flex;flex-direction:column;justify-content:center;">
 <div style="flex:0.85;"></div>
-<div class="dos-title" style="font-size:clamp(20px,8vw,40px);color:#f44;text-shadow:0 0 16px #ff444488;">GAME OVER</div>
+<div class="dos-title" id="over-title" style="font-size:clamp(20px,8vw,40px);"></div>
 <div class="dos-sub" style="margin-bottom:0;">UNDERGROUND BUG COMBAT  ·  BUGBOX LABS</div>
 <div style="flex:1.15;"></div>
-<div class="dos-body" style="text-align:center;font-size:10px;color:#889;">
-Looks like you have ran out of bugs to kill... Good!
-</div>
-<div style="display:flex;gap:8px;justify-content:center;margin-top:12px;">
+<div class="dos-body" id="over-body" style="text-align:center;font-size:10px;color:#889;"></div>
+<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px;">
+<span id="over-go"><button class="ok bt" id="bt-cont">Continue</button> <button class="warn bt" onclick="dropSave(),location.reload()">New game</button></span>
 <button class="bt" onclick="openInfoTab('ach')">🏅 Achievements</button>
 <button class="bt" onclick="openInfoTab('rec')">🏆 Records</button>
 </div>

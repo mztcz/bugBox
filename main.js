@@ -63,14 +63,15 @@ saved && ($("s-intro1").querySelector(".press-key").textContent = "[ TAP TO CONT
 $("s-intro1").onclick = e => {
 const tut = e.target.closest("#bt-tut"), go = saved && !tut;
 if (saved && tut && !confirm("Start a new game?")) return;
-gameOn = 1;
-if (go) try { loadGame(saved) } catch (err) { return dropSave(JSON.stringify(saved)), location.reload() }
-else dev = "intro-art" === e.target.id && devHit(e) ? 1 : 0, records.games++, saveRecords();
-dev || ($("bt-des").style.display = "none"), go ? openBox() : (openShop(), tut && tutGo(2))
+if (go) try { gameOn = 1, loadGame(saved) } catch (err) { return dropSave(JSON.stringify(saved)), location.reload() }
+else dev = "intro-art" === e.target.id && devHit(e) ? 1 : 0;
+dev || ($("bt-des").style.display = "none");
+// new game: Legacy screen first when there is DNA or a bought level
+go ? openBox() : dna.n || dna.lv.some(l => l) ? (renderLegacy(), $("bt-leg").onclick = () => legGo(tut), showScreen("s-leg")) : legGo(tut)
 };
 // autosave every 5 s in a fight, every 10 s in the peaceful box
 let saveN = 0;
-setInterval(() => (combatState || scrOn("s-box") && ++saveN % 2 < 1) && saveGame(), 5e3);
+setInterval(() => (runTick(), combatState || scrOn("s-box") && ++saveN % 2 < 1) && saveGame(), 5e3);
 // save code = base64 of the save JSON (UTF-8)
 const impRow = on => $("imp-row").style.display = on ? "flex" : "none";
 $("bt-exp").onclick = () => {

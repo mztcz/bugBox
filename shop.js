@@ -6,7 +6,7 @@ function openShop() {
 shopCart = [], shopTab = 1;
 shopPool = [1, 2, 3, 4, 5].map(shopRoll), renderShop(), showScreen("s-shop")
 }
-const shopRoll = T => Array.from({ length: 6 }, () => {
+const shopRoll = T => Array.from({ length: 6 + dna.lv[1] }, () => {
 const b = makeBug(genStats(T));
 return b.cost = round(bugValue(statSum(b)) * (1 + .25 * starsOf(statSum(b))) + 10 * tierRate(T) * b.abilities.length), b
 });
@@ -72,7 +72,7 @@ overTimer = setTimeout(() => {
 overTimer = null;
 if (!runIsOver()) return;
 if (youngAll().length) return void(openBox());
-dropSave(), ov("ov-over", 1)
+dropSave(), gameEnd()
 }, OVER_DELAY)
 }
 function shopDone() {

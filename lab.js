@@ -169,11 +169,12 @@ let src = [], lv = starsOf(s);
 if (tierOf(s) > parentTier(labSt.pA, labSt.pB)) {
 const u = document.createElement("span");
 u.textContent = " ▲ NEW TIER", u.style = "color:#fd4;font-size:8px", cc.querySelector(".card-lbl").appendChild(u), lv = 5;
-const r = u.getBoundingClientRect();
-src = [0, 1, 2, 3, 4].map(i => [r.left + r.width * i / 5, r.left + r.width * (i + 1) / 5, r.bottom])
+src = spans5(u)
 } else if (tierOf(s) === parentTier(labSt.pA, labSt.pB) && s > max(statSum(labSt.pA), statSum(labSt.pB))) src = [...cc.querySelectorAll(".sx")].map(e => { const r = e.getBoundingClientRect(); return [r.left, r.right, r.bottom] });
 src.length && confetti(src, lv)
 }
+// 5 confetti spans along the bottom edge of an element
+const spans5 = el => { const r = el.getBoundingClientRect(); return [0, 1, 2, 3, 4].map(i => [r.left + r.width * i / 5, r.left + r.width * (i + 1) / 5, r.bottom]) };
 // confetti bursts from screen spans [x0, x1, y], size level lv 1-5
 function confetti(src, lv) {
 const cv = document.createElement("canvas"), cx = cv.getContext("2d"), d = devicePixelRatio || 1, W = innerWidth, H = innerHeight, k = FX_SIZE[lv];
