@@ -66,6 +66,7 @@ function armOverWatch() {
 cancelOverWatch();
 if (!runIsOver()) return;
 // no bugs, no money: opening the Shop counts as a finished fight for eggs and pupae (they hatch in the box)
+// TODO when food costs money: a larva its player cannot feed crawls 10 s, then game over
 youngReady(1);
 overTimer = setTimeout(() => {
 overTimer = null;

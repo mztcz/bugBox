@@ -19,6 +19,8 @@
 - Pokyn „okp“ = samostatná zpráva uživatele „okp“ = konec session: proveď skill skill-okp (.claude/skills/skill-okp/SKILL.md). Novou session nikdy nezakládej, uživatel si ji zakládá sám.
 - Smoke test (`node .claude/tool-smoke-test.cjs`) se smí pouštět jenom když uživatel napíše okp. Vlastní jiné testy (např. headless prohlížeč) jsou povolené kdykoliv.
 - Uživatele nikdy nežádej, aby četl nebo upravoval kód.
+- Před každým měřením, testem nebo botem ověř zadání proti pravidlům hry v kódu (kdo smí do kterého módu, kdy má brouk schopnosti, co se ukládá mezi zápasy). Nereálné scénáře neměř.
+- Když najdeš chybu nebo slepou uličku, rovnou přidej hotový návrh opravy, aby uživatel jen schválil.
 - Přejmenování = všude: zobrazený text, id, proměnné, nástroje (`tools/`) i načítaná uložená data. Nikdy jen zobrazený text s jiným názvem v kódu.
 
 ## Workflow

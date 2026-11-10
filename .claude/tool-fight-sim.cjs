@@ -9,14 +9,14 @@
 //        node .claude/tool-fight-sim.cjs custom '{"a":[{"con":5,"str":5,"agi":5,"per":5,"int":5,"abilities":["dash"]}],"b":[...],"mode":1,"tier":3,"n":500}'
 //        a/b team entries without stats get genStats(tier); "b" omitted = the game's buildEnemies (bosses for boss modes)
 // Output: % wins of team A, % draws (no end within CAP_MS game time, boss modes CAP_BOSS_MS), median fight length, median HP % left in the winning team.
-// Glass taps: STALL_MS game time with no HP change = the game's triple-tap panic (panicAll), as a player does.
+// Glass taps: 20 s game time with no HP change = the game's triple-tap panic (panicAll), as a player does; max 5 per fight, still stalled = draw.
 // Finished chunks are kept in <tmp>/bugbox-fight-sim-<set>-<n>.jsonl: after a restart the same command continues.
 // Base bugs (sets a, b): random genStats of the tier per fight, both sides copies. Tested side swaps team 0/1 every 2nd fight.
 // Fight box: tierMax = fight tier (box size of the first time that tier is open). Fights run on all CPU cores (worker_threads).
 const fs = require("fs"), path = require("path"), vm = require("vm"), os = require("os");
 const { Worker, isMainThread, parentPort, workerData } = require("worker_threads");
 const root = path.resolve(__dirname, "..");
-const CAP_MS = 180e3, CAP_BOSS_MS = 600e3, STALL_MS = 20e3, WB_FIGHTS = 10;
+const CAP_MS = 180e3, CAP_BOSS_MS = 600e3, WB_FIGHTS = 10;
 
 // any DOM / canvas / audio object: every property and call returns the stub itself; numbers read as 0
 function stubs() {
@@ -54,10 +54,14 @@ function load() {
       dev = 1, money = 1e9, tierMax = T, tutStep = -1, fightMode = mode, B || keepBoss || (bosses = {});
       bugsOwned = A.map(o => simBug(o, T)), fightTeam = bugsOwned.slice(), simFoes = B ? B.map(o => simBug(o, T)) : null;
       startFight(null, T);
-      for (let h = -1, still = 0; !fightDone && fightMs < cap;) {
+      for (let h = -1, still = 0, pn = 0; !fightDone && fightMs < cap;) {
         tick(COMBAT_STEP_MS, 1), fightMs >= 0 && checkFightEnd();
         if (fightMs < 0) continue;
-        const now = simHp(); now === h ? (still += COMBAT_STEP_MS) >= 20e3 && (panicAll(), still = 0) : (h = now, still = 0)
+        const now = simHp();
+        if (now !== h) { h = now, still = 0; continue }
+        if ((still += COMBAT_STEP_MS) < 20e3) continue;
+        if (pn++ >= 5) break;
+        panicAll(), still = 0
       }
       const f = bugsInBoxView(), hp = t => { const g = f.filter(x => x.team === t); return g.reduce((s, x) => s + max(0, x.curHp), 0) / g.reduce((s, x) => s + x.maxHp, 0) },
         [a0, a1] = teamAlive(ecsQuery("team", "combat")), w = !fightDone ? -1 : a0 ? 0 : a1 ? 1 : -1;
