@@ -28,7 +28,7 @@ const runTick = () => { const n = Date.now(); gameOn && !document.hidden && (run
 // DNA (kept across games, key bugbox_dna): n = points, lv = Legacy levels in LEGACY order
 const dna = { n: 0, lv: [0, 0, 0] },
 LEGACY = [["Start money", l => "+$" + 150 * l], ["Shop stock", l => 6 + l + " bugs per tab"], ["Fight food", l => 3 + l + " food per fight"]];
-try { Object.assign(dna, JSON.parse(localStorage.getItem("bugbox_dna"))), dna.lv.length = 3, delete dna.bugs } catch (e) {}
+try { Object.assign(dna, JSON.parse(localStorage.getItem("bugbox_dna"))) } catch (e) {}
 const saveDna = () => { try { localStorage.setItem("bugbox_dna", JSON.stringify(dna)) } catch (e) {} };
 // Game end screen: game over (no next) or game won (next = what follows Continue). DNA = 1 per open tier above T1 + 2 for the win + 1 per 10 achievements; a game pays only what it has not paid yet (run.dna)
 function gameEnd(next) {
