@@ -2,37 +2,44 @@
 // Speed-up: Playwright fake clock (timers fire only when the bot advances them) + game time fast-forwarded with the game's own
 // tick() / checkFightEnd() (no drawing). No game rules are copied: choices read game state and game functions (statSum, entryFee, ...).
 // Usage: node .claude/tool-bot-play.cjs [games per strategy = 20] [strategies = careful,greedy,breeder] [parallel pages = 4]
-// Strategies: careful = fights only when its team stat sum (x HP fraction) beats the expected enemy stat sum (boss: sum x HP multiplier;
-//                       BOSS also at an equal sum, since a bug of tier T cannot exceed the T boss sum 10T-1);
+// Strategies: careful = fights only when its team stat sum (x HP fraction) beats the expected enemy stat sum (RB/WB: sum x HP multiplier);
+//                       BOSS with its tier bug of the highest CON+STR once that bug's stat sum is at least the boss sum - 2;
 //             greedy  = highest open tier, mode with the highest prize it can field and afford (1v1 2v2 3v3 6v6 BOSS RB WB);
-//             breeder = careful + breeds in the Lab after every fight (strongest with strongest, while 2 bugs can mate, max 30 bugs).
+//             breeder = careful + breeds in the Lab after every fight (bugs of the highest open tier first, best CON+STR + sum/2 pairs, while 2 can mate; at 30 bugs it kills
+//                       the weakest down to 24 with the Lab skull).
 // All: heal with food in the peaceful box before a fight, buy the strongest affordable Shop bug of the highest affordable tier
 //      while money stays above the planned entry fee (max 10 bugs), pick None on obstacle offers. Pure mode, no tutorial.
-// Player time = all simulated game time (fights + peaceful box) + 3 s per bot tap. A game ends at the T5 BOSS win, game over,
-// 8 h player time or 600 fights. Fights not over after 180 s game time = Leave (draw).
+// Player time = all simulated game time (fights + peaceful box) / 16 (the player runs every screen at the top speed 16x) + 0.25 s per bot tap.
+// A game ends at the T5 BOSS win, game over, 8 h player time or 600 fights. Fight with no HP change for 20 s game time = triple tap on the
+// glass (the game's panic); fight not over after 600 s game time = Leave (draw).
+// Finished games are kept in <tmp>/bugbox-bot-<games>.jsonl: after a restart the same command continues.
 // Output: table per strategy (time and fights to T2..T5 open and to the T5 BOSS win, game over share and tier, money curve,
 // dead ends = steps where the UI did not let the bot go on, JS errors). Full data: <tmp>/bugbox-bot.json
 const fs = require("fs"), path = require("path"), os = require("os");
 let pw; try { pw = require("playwright") } catch { pw = require("/opt/node-tools/node_modules/playwright") }
 const root = path.resolve(__dirname, "..");
 const GAMES = +process.argv[2] || 20, STRATS = (process.argv[3] || "careful,greedy,breeder").split(","), PAR = +process.argv[4] || 4;
-const TAP_S = 3, CAP_GAME_MS = 8 * 3600e3, CAP_FIGHTS = 600, FIGHT_CAP_MS = 180e3, MAX_BUGS = 10, BREED_MAX = 30;
+const TAP_S = .25, SPEED = 16, STALL_MS = 20e3, CAP_GAME_MS = 8 * 3600e3, CAP_FIGHTS = 600, FIGHT_CAP_MS = 600e3, MAX_BUGS = 10, BREED_MAX = 30;
 const MONEY_AT = [10, 30, 60, 120, 180, 300, 480]; // minutes of player time for the money curve
 
 // in-page helpers: game-time counter around tick(), fast-forward with the same step as simLoop, read-only state and choice helpers
-const PAGE = `
+const PAGE = () => `
 window.__gt = 0; { const t0 = tick; tick = (dt, f) => (__gt += dt, t0(dt, f)) }
 window.__ff = (ms, until) => { for (let t = 0; t < ms; t += COMBAT_STEP_MS) { if (until && until()) return; combatState || ecsQuery("bug").length === bugsOwned.length || spawnBox(); tick(COMBAT_STEP_MS, combatState), combatState && fightMs >= 0 && checkFightEnd() } };
+// fight until it ends, or STALL_MS with no HP change (returns 1 = stalled)
+window.__fight = () => { let h = -1, still = 0, r = 0; __ff(${FIGHT_CAP_MS}, () => { if (fightDone || fightMs >= ${FIGHT_CAP_MS}) return 1; if (fightMs < 0) return 0; const now = ecsQuery("combat").reduce((s, e) => s + C.combat.get(e).curHp, 0); now === h ? (still += COMBAT_STEP_MS) >= ${STALL_MS} && (r = 1) : (h = now, still = 0); return r }); return r };
+// empty glass spot for the triple tap (screen px): box corner with no bug within 40 game px
+window.__glass = () => { const r = boxCv.getBoundingClientRect(), ps = ecsQuery("bug", "pos").map(e => C.pos.get(e)); for (const [x, y] of [[15, 15], [boxLW - 15, 15], [15, boxLH - 15], [boxLW - 15, boxLH - 15]]) if (ps.every(p => Math.hypot(p.x - x, p.y - y) > 40)) return [r.left + (x + boxOX) * boxS, r.top + (y + boxOY) * boxS]; return null };
 window.__hpf = b => (b.curHp == null ? maxHpOf(b) : b.curHp) / maxHpOf(b);
 window.__opts = strat => {
   const out = [], fm = fightMode, et = enemyTier, own = bugsOwned.slice().sort((a, b) => statSum(b) * __hpf(b) - statSum(a) * __hpf(a));
   for (let T = 1; T <= tierMax; T++) for (const m of [1, 2, 3, 6, "boss", "rb", "wb"]) {
     fightMode = m, enemyTier = T;
-    const fit = own.filter(bossFit), team = fit.slice(0, teamMax()), n = foeN();
+    const cs = b => b.con + b.str, fit = m === "boss" ? own.filter(bossFit).sort((a, b) => cs(b) - cs(a)) : own.filter(bossFit), team = fit.slice(0, teamMax()), n = foeN();
     if (!team.length || (typeof m === "number" && team.length < m)) continue;
     const boss = BOSS[m], eSum = boss ? bossSum(T) * boss[1] : n * (T > 1 ? 10 * T - 7.15 : 8), fee = entryFee(T, n);
     const prize = boss ? bugValue(bossSum(T)) * prizeK() : n * bugValue(T > 1 ? 10 * T - 7 : 8), mine = team.reduce((s, b) => s + statSum(b) * __hpf(b), 0);
-    out.push({ m, T, ids: team.map(b => b.id), fee, prize, adv: mine / eSum, unlock: m === "boss" && T === tierMax });
+    out.push({ m, T, ids: team.map(b => b.id), fee, prize, adv: m === "boss" ? (statSum(team[0]) >= bossSum(T) - 2 && __hpf(team[0]) >= 1 ? 2 : 0) : mine / eSum, unlock: m === "boss" && T === tierMax });
   }
   fightMode = fm, enemyTier = et;
   return out
@@ -50,9 +57,9 @@ async function playGame(browser, strat, gi) {
   await page.clock.install();
   await page.goto("file://" + path.join(root, "index.html"));
   await page.clock.runFor(500);
-  await page.evaluate(PAGE);
+  await page.evaluate(PAGE());
   const st = () => page.evaluate("__st()"), ev = (js, a) => page.evaluate(js, a), run = ms => page.clock.runFor(ms);
-  const ptime = s => (s.gt + log.taps * TAP_S * 1e3) / 60e3; // player minutes
+  const ptime = s => (s.gt / SPEED + log.taps * TAP_S * 1e3) / 60e3; // player minutes
   const tap = async (sel, what) => {
     process.env.BOT_DEBUG > 1 && console.error("tap " + (what || sel));
     try { await page.locator(sel).first().click({ timeout: 1500 }); log.taps++; await run(50); return true }
@@ -86,8 +93,11 @@ async function playGame(browser, strat, gi) {
   };
   const breed = async () => {
     await go("s-lab");
+    // full box: kill the weakest (CON+STR + sum/2) down to BREED_MAX - 6 with the Lab skull (tap the picture, then the skull)
+    const weak = await ev(`bugsOwned.length < ${BREED_MAX} ? [] : bugsOwned.slice().sort((a, b) => a.con + a.str + statSum(a) / 2 - b.con - b.str - statSum(b) / 2).slice(0, bugsOwned.length - ${BREED_MAX - 6}).map(b => b.id)`);
+    for (const id of weak) { const c = `.pick-grid .card[data-bid="${id}"]`; if (await tap(`${c} .card-img canvas`, "kill pic")) await tap(`${c} span:text("💀")`, "kill skull"), await run(1000), log.culled = (log.culled || 0) + 1 }
     for (let k = 0; k < 15; k++) {
-      const p = await ev(`bugsOwned.length >= ${BREED_MAX} || boxFull() ? null : bugsOwned.filter(canParent).sort((a, b) => statSum(b) - statSum(a)).slice(0, 2).map(b => b.id)`);
+      const p = await ev(`bugsOwned.length >= ${BREED_MAX} || boxFull() ? null : (p => (p.filter(b => tierOf(statSum(b)) === tierMax).length >= 2 ? p.filter(b => tierOf(statSum(b)) === tierMax) : p).sort((a, b) => b.con + b.str + statSum(b) / 2 - a.con - a.str - statSum(a) / 2).slice(0, 2).map(b => b.id))(bugsOwned.filter(canParent))`);
       if (!p || p.length < 2) break;
       for (const id of p) if (!await tap(`.pick-grid .card[data-bid="${id}"]`, "lab card")) return;
       if (!await tap(".bt-breed:visible", "breed")) return;
@@ -133,7 +143,7 @@ async function playGame(browser, strat, gi) {
     if (!await tap("#bt-combat:enabled", "FIGHT")) { await go("s-box"); continue }
     s = await st(); if (!s.combat) { dead.push("FIGHT did not start"); continue }
     log.fights++;
-    await ev(`__ff(${FIGHT_CAP_MS} + 4e3, () => fightDone)`);
+    while (await ev("__fight()")) { const g = await ev("__glass()"); if (!g) continue; for (let t = 0; t < 3; t++) await page.mouse.click(g[0], g[1]), log.taps++, await run(60); log.panics = (log.panics || 0) + 1 }
     s = await st();
     if (!s.done) { log.draws = (log.draws || 0) + 1; await tap("#bt-leave", "leave"); continue }
     await run(1100);
@@ -153,13 +163,15 @@ async function playGame(browser, strat, gi) {
 
 (async () => {
   const browser = await pw.chromium.launch(), jobs = [], logs = [], t0 = Date.now();
-  STRATS.forEach(st => { for (let g = 0; g < GAMES; g++) jobs.push([st, g]) });
+  const prog = path.join(os.tmpdir(), `bugbox-bot-${GAMES}.jsonl`), keep = fs.existsSync(prog) ? fs.readFileSync(prog, "utf8").split("\n").filter(Boolean).map(JSON.parse) : [];
+  keep.forEach(l => STRATS.includes(l.strat) && logs.push(l));
+  STRATS.forEach(st => { for (let g = 0; g < GAMES; g++) logs.some(l => l.strat === st && l.gi === g) || jobs.push([st, g]) });
   let next = 0;
   await Promise.all(Array.from({ length: PAR }, async () => {
     while (next < jobs.length) {
       const [st, g] = jobs[next++];
       const l = await playGame(browser, st, g).catch(e => ({ strat: st, gi: g, stop: "bot crash", dead: [e.message.split("\n")[0]], errs: [], opens: {}, money: [], fights: 0 }));
-      logs.push(l), process.stderr.write(`\r${logs.length}/${jobs.length} games, ${Math.round((Date.now() - t0) / 1e3)} s   `);
+      logs.push(l), fs.appendFileSync(prog, JSON.stringify(l) + "\n"), process.stderr.write(`\r${logs.length}/${STRATS.length * GAMES} games, ${Math.round((Date.now() - t0) / 1e3)} s   `);
     }
   }));
   await browser.close();
@@ -177,6 +189,8 @@ async function playGame(browser, strat, gi) {
   row("fights (median)", g => f0(med(g.map(l => l.fights))));
   row("forced fights", g => f0(med(g.map(l => l.forced || 0))));
   row("draws (Leave)", g => g.reduce((s, l) => s + (l.draws || 0), 0));
+  row("culled (Lab skull)", g => g.reduce((s, l) => s + (l.culled || 0), 0));
+  row("glass taps (x3)", g => g.reduce((s, l) => s + (l.panics || 0), 0));
   MONEY_AT.forEach((m, i) => row(`$ at ${m} min`, g => { const r = g.filter(l => l.money.length > i); return r.length ? `$${f0(med(r.map(l => l.money[i])))} (${r.length})` : "–" }));
   row("dead ends", g => g.reduce((s, l) => s + l.dead.length, 0));
   row("JS errors", g => g.reduce((s, l) => s + l.errs.length, 0));

@@ -65,6 +65,8 @@ function cancelOverWatch() { overTimer && (clearTimeout(overTimer), overTimer = 
 function armOverWatch() {
 cancelOverWatch();
 if (!runIsOver()) return;
+// no bugs, no money: opening the Shop counts as a finished fight for eggs and pupae (they hatch in the box)
+youngReady(1);
 overTimer = setTimeout(() => {
 overTimer = null;
 if (!runIsOver()) return;
