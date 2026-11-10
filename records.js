@@ -36,7 +36,7 @@ const due = tierMax - 1 + 2 * run.won + floor(ACHIEVEMENTS.filter(a => achSt.don
 run.dna = due, dna.n += d, next && (dna.bugs = bugsOwned.filter(b => tierOf(statSum(b)) < 4)), saveDna(), saveGame();
 t.textContent = next ? "GAME WON" : "GAME OVER", t.style.color = col, t.style.textShadow = `0 0 16px ${col}88`;
 $("over-body").innerHTML = (next ? `Time ${fmtT(run.ms)} \u00b7 Fights ${fightNum} \u00b7 Kills ${run.kills}<br>Best bug: ${run.bestSumName} (${run.bestSum})` : "Looks like you have ran out of bugs to kill... Good!") + `<br><b style="color:#4cf;">+${d} DNA</b>`;
-$("over-go").style.display = next ? "contents" : "none", $("bt-cont").onclick = () => (ov("ov-over", 0), next());
+$("bt-cont").style.display = next ? "" : "none", $("bt-cont").onclick = () => (ov("ov-over", 0), next());
 ov("ov-over", 1), next && confetti(spans5(t), 5)
 }
 // Legacy screen (new game, after the intro): permanent bonuses, level n costs n DNA; heirloom = 1 candidate bug of tier <= Heirloom level
