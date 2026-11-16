@@ -24,6 +24,7 @@ boxCv.onclick = e => {
 const [cx, cy] = boxPt(e);
 if (suppressClick) { suppressClick = !1; return }
 const hit = tapHit(cx, cy);
+if (itemSel != null) return hit && bugsOwned.includes(hit) && !combatState ? itemOnBug(hit) : itemSel = null;
 if (hit) { inspected = hit === inspected ? null : hit, inspected && achieve("inspect"); return }
 if (combatState) {
 const now = performance.now();
@@ -37,6 +38,7 @@ $("s-box").classList.contains("active") && !combatState ? spawnBox() : resizeBox
 if (e.target.closest(".bt-boo")) return leaveFight(), openBoo(), showScreen("s-boo");
 if (e.target.closest(".bt-shop")) return leaveFight(), openShop();
 if (e.target.closest(".bt-lab")) return leaveFight(), openLab();
+if (e.target.closest(".bt-inv")) return openInv();
 e.target.closest(".bt-box") && (leaveFight(), openBox())
 }), document.addEventListener("click", closeKill), $("bt-combat").onclick = e => startFight(e.currentTarget, "mc" === fightMode ? 1 : enemyTier), $("bt-next").onclick = e => startFight(e.currentTarget, enemyTier + 1);
 $("bt-speed").onclick = () => {

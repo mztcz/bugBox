@@ -86,7 +86,8 @@ const r = morphR(b);
 post.push(() => {
 (!fow && (b === inspected || hpFrac(b) < 1 || scienceOn && sci("hp"))) && drawHpBar(p, hpFrac(b), r);
 t.prepT > 0 && sci("bite") && drawPrepBar(p, 1 - t.prepT / t.prepMax, r);
-scienceOn && sci("nam") && drawLabel(b.name, p.x, p.y - r - 11, "#4cf")
+scienceOn && sci("nam") && drawLabel(b.name, p.x, p.y - r - 11, "#4cf");
+trophy && b === bestBug() && drawLabel("🏆", p.x, p.y - r - 19, "#fd4", 10)
 });
 return;
 }
@@ -163,6 +164,7 @@ const [a0, a1] = teamAlive(ents);
 infoEl.textContent = `Fight #${fightNum} \u2014 YOURS: ${a0} alive \u00b7 ${a1} alive :ENEMY \u2014 food ${foodLeft}`
 }
 function teamAlive(ents) {
+ents = ents.filter(e => !C.combat.get(e).decoy);
 const live = ents.filter(e => { const c = C.combat.get(e); return !c.dead || c.phoenixT > 0 });
 const n = tm => live.filter(e => tm === C.team.get(e).team).length, h = tm => { let c = 0, m = 0; ents.forEach(e => { const cb = C.combat.get(e); tm === C.team.get(e).team && (c += max(0, cb.curHp), m += cb.maxHp) }); return round(100 * c / (m || 1)) };
 return [n(0), n(1), h(0), h(1)]

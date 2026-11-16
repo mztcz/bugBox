@@ -95,10 +95,13 @@ function applyBite(cb, ab, p, te, tb, tp, mult, atkTeam, atkE) {
 const tcb = C.combat.get(te), fd = abs(norm(atan2(p.y - tp.y, p.x - tp.x) - tp.dir)),
 flankMult = fd < PI / 3 ? 1 : fd < TAU / 3 ? 1.5 : 2;
 if (atkE != null && (tcb.flankA > 0 || fd >= PI / 3 && tb.int < 5)) { tcb.avengeE = atkE, tcb.avengeA = atan2(p.y - tp.y, p.x - tp.x), tcb.flankA > 0 && flankEnd(tcb) }
+// decoy: no damage, counts the bites of each attacker
+if (tcb.decoy) return tcb.bit[atkE] = (tcb.bit[atkE] || 0) + 1, void(C.walk.get(te).hitT = 1);
 let dmg = statLin(ab, "str", 1, 10) * rollVar() * flankMult * mult;
 if (hasAbil(tb, "chitin")) dmg *= .5;
 if (hasAbil(tb, "thickshell") && fd < FRONT_CONE) dmg *= .7, abilShow(tcb, "thickshell");
 if (hasAbil(tb, "laststand") && tcb.curHp < tcb.maxHp * .25) dmg *= .6, abilShow(tcb, "laststand");
+tb.fx?.on && tb.fx.pol && (dmg = min(dmg, max(1, dmg - 1)));
 hasAbil(tb, "learn") && (tcb.learn[atkE] = (tcb.learn[atkE] || 0) + 1);
 abilReady(te, "badtaste") && (cb.prepK = 2, abilFire(te, "badtaste"));
 abilReady(te, "scuttle") && (tcb.scutT = ABILITIES.scuttle.dur, abilFire(te, "scuttle"));

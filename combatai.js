@@ -70,6 +70,9 @@ tm = C.team.get(e),
 cb = C.combat.get(e),
 t = C.walk.get(e);
 const sk = cb.scutT > 0 ? 2 : 1, bodyL = bugLen(b), engageDist = engageDistOf(b), spd = spdOf(b) * sk, turn = turningOf(b) * dtS * sk * (cb.clampT > 0 ? .5 : 1), tier = huntTierOf(b), go = a => (turnToward(e, a, turn), cb.mvA = p.dir, cb.mvSpd = spd);
+if (cb.decoy) return void tickTimers(cb, p, dt);
+// hidden from this bug: Fake Death, or a decoy it has bitten enough
+const fake = ocb => ocb.fakeT > 0 || ocb.bit?.[e] >= ocb.decoy;
 if (cb.dead && !(cb.phoenixT > 0)) { cb.alarmT > 0 && (cb.alarmT -= dt), clearActionState(cb); return }
 tickTimers(cb, p, dt);
 cb.muted = ents.some(oe => { const ocb = C.combat.get(oe), op = C.pos.get(oe); return ocb.loudT > 0 && !ocb.dead && C.team.get(oe).team !== tm.team && hypot(op.x - p.x, op.y - p.y) < loudRadius(C.bug.get(oe)) });
@@ -109,7 +112,7 @@ return !C.combat.get(oe).dead && C.team.get(oe).team !== tm.team && hypot(op.x -
 if (!aiAct(t)) {
 const spotted = "rushing" === t.act ? melee() : ents.some(oe => {
 const ocb = C.combat.get(oe);
-if (C.team.get(oe).team === tm.team || ocb.dead || ocb.curHp <= 0 || ocb.fakeT > 0) return !1;
+if (C.team.get(oe).team === tm.team || ocb.dead || ocb.curHp <= 0 || fake(ocb)) return !1;
 const op = C.pos.get(oe);
 return seesPoint(b, p, op.x, op.y)
 });
@@ -138,7 +141,7 @@ else if (d2 < minD2) { minD2 = d2; target = oe }
 };
 ents.forEach(oe => {
 const otm = C.team.get(oe), ocb = C.combat.get(oe);
-if (ocb.dead || ocb.curHp <= 0 || ocb.fakeT > 0 || otm.team === tm.team) return;
+if (ocb.dead || ocb.curHp <= 0 || fake(ocb) || otm.team === tm.team) return;
 const os = snap.get(oe),
 dx = os.x - myS.x,
 dy = os.y - myS.y,
@@ -296,7 +299,7 @@ const inRange = minD <= attackReach * (cb.wasInRange ? 1.1 : 1);
 cb.wasInRange = inRange ? 1 : 0;
 const opp = bossAI && !(inRange && facingOK) && ents.find(oe => {
 const ocb = C.combat.get(oe), op = C.pos.get(oe);
-return oe !== target && !ocb.dead && ocb.curHp > 0 && C.team.get(oe).team !== tm.team && hypot(op.x - p.x, op.y - p.y) <= engageDist + bugRadius(C.bug.get(oe)) && inCone(oe)
+return oe !== target && !ocb.dead && ocb.curHp > 0 && !fake(ocb) && C.team.get(oe).team !== tm.team && hypot(op.x - p.x, op.y - p.y) <= engageDist + bugRadius(C.bug.get(oe)) && inCone(oe)
 }), canBite = inRange && facingOK || opp;
 if (canBite && !airT) {
 if (cb.bitePrep > 0) cb.bitePrep -= dt / (ents.some(oe => { const ocb = C.combat.get(oe), op = C.pos.get(oe); return ocb.alarmT > 0 && C.team.get(oe).team === tm.team && hypot(op.x - p.x, op.y - p.y) < callRadius(C.bug.get(oe)) }) ? .7 : 1);

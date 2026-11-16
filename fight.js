@@ -1,5 +1,6 @@
 const BOSS = { boss: [1.5, 1], rb: [3, 10], wb: [3, 50] }, weekOf = () => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate() - (d.getDay() + 6) % 7).toDateString() };
-let bosses = {}, wbWeek = "", match = null;
+// fightFx = item effects of the running fight (bet payout, mir = Mirror Shard, slip payout); decoys = decoy bugs of the player team
+let bosses = {}, wbWeek = "", match = null, fightFx = {}, decoys = [];
 try { const s = JSON.parse(localStorage.getItem("bugbox_wb")); s && (wbWeek = s.week, Object.entries(s.bugs).forEach(([k, b]) => bosses[k] = { ...b, id: bid++, role: roleOf(b), abilities: b.abilities.filter(a => ABILITIES[a]) })) } catch (e) {}
 function wbKeep() {
 if ("wb" !== fightMode || !combatState) return;
@@ -21,20 +22,32 @@ return [bosses[k]]
 const foeN = () => BOSS[fightMode] ? 1 : +fightMode || max(1, fightTeam.length), prizeK = () => (BOSS[fightMode] || [1])[0],
 entryFee = (T, n = foeN()) => 1 === fightMode && 1 === T ? 0 : 2 * T * tierRate(T) * n;
 const keepHp = () => ecsQuery("team", "combat").forEach(e => { const c = C.combat.get(e); C.team.get(e).team || c.dead || (C.bug.get(e).curHp = max(1, round(c.curHp))) });
-function startFight(btn, T) {
+const lookOf = b => ({ ...Object.fromEntries(SK.map(k => [k, b[k]])), morph: JSON.parse(JSON.stringify(b.morph)), hue: b.hue }),
+fxEnd = () => bugsOwned.forEach(b => b.fx?.on && (b.str -= b.fx.d, delete b.fx));
+// foes + bet are given by the Arena Ticket (bet = payout) and by the Magnifier preview (foes only); fight items work in all modes but MC, Mirror Shard and Bounty not in boss modes
+function startFight(btn, T, foes, bet) {
+const plain = !bet && "mc" !== fightMode, open = plain && !BOSS[fightMode], peek = plain && !foes && armed[11] > 0;
+foes ||= open && armed[17] > 0 ? Object.assign(fightTeam.map(b => makeBug({ ...lookOf(b), hue: rf(0, 45), abilities: b.abilities.slice() })), { mir: 1 }) : buildEnemies(T);
 // fee by the enemies that come (each at its own tier)
-const foes = buildEnemies(T), fee = foes.reduce((s, b) => s + entryFee(tierOf(statSum(b)), 1), 0);
+const fee = bet ? 0 : foes.reduce((s, b) => s + entryFee(tierOf(statSum(b)), 1), 0);
 if (!dev && money < fee) return flashBlocked(btn), void toast("Not enough money!");
+// Magnifier: enemy cards before the fee is paid
+if (peek) { armed[11]--; const d = cardRow(popup(`ENEMIES · ENTRY $${fee}`), foes); return ["⚔ Fight", "← Back"].forEach((t, i) => { const b = document.createElement("button"); b.className = i ? "bt" : "warn bt", b.textContent = t, b.onclick = () => (d.remove(), i || startFight(btn, T, foes)), d.appendChild(b) }) }
 money -= fee, enemyTier = T, updateMoney(), keepHp();
+fightFx = bet ? { bet } : plain ? { mir: foes.mir && armed[17]--, slip: useArmed(33) && 2 * itemCost(33) } : {};
+if (open && useArmed(19)) { const b = rnd(foes); b.bounty = 1, b.name = "📜 " + b.name }
+decoys = plain ? [50, 60, 61].flatMap((i, n) => useArmed(i) ? [makeBug({ ...lookOf(rnd(fightTeam)), name: "Decoy", abilities: [], decoy: n + 1 })] : []) : [];
+// Protein Chunk, Chitin Polish: on for this match
+fightTeam.forEach(b => b.fx && !b.fx.on && (b.fx.on = 1, b.str += b.fx.d = b.fx.str ? min(20, b.str + 1) - b.str : 0));
 // one match = one fight, or all steps of one MC
 "mc" === fightMode && T > 1 && match || (match = { foes: [], prize: 0, kills: 0, ms: 0 });
-bgPick(), fightNum++, enemies = foes, groundMarks = [], dmgPops = [], fightDone = !1, foodLeft = 3 + dna.lv[2], combatState = !0, simSpd = 1, tickDebt = 0, syncSpeedLabel();
+bgPick(), bet || fightNum++, enemies = foes, groundMarks = [], dmgPops = [], fightDone = !1, foodLeft = 3 + dna.lv[2], combatState = !0, simSpd = 1, tickDebt = 0, syncSpeedLabel();
 youngReady(1);
 showScreen("s-box"), resizeBoxCV(), spawnBox()
 }
 function endFight() {
 resultTimer && (clearTimeout(resultTimer), resultTimer = null);
-dev && combatState && bugsOwned.forEach(b => b.mated = 0), keepHp(), buryDead(bugsInBoxView().filter(f => 0 === f.team && f.dead));
+dev && combatState && bugsOwned.forEach(b => b.mated = 0), keepHp(), buryDead(bugsInBoxView().filter(f => 0 === f.team && f.dead)), fxEnd(), fightFx = {};
 combatState = !1, tickDebt = 0, simSpd = speedBeforePause, ecsQuery("team").forEach(ecsKill), ov("ov-res", 0), syncHud(!0)
 }
 const tallyFight = (lb, f) => (lb.fights = (lb.fights || 0) + 1, lb.killsTotal = (lb.killsTotal || 0) + (f.killsThis || 0)),
@@ -54,14 +67,18 @@ won = alive0.length > 0 && 0 === alive1.length,
 allPlayer = all.filter(f => 0 === f.team),
 allEnemy = all.filter(f => 1 === f.team);
 keepHp();
+const rt = $("res-title"), show = () => (renderResult(), $("bt-res").style.display = "");
+rt.textContent = won ? "VICTORY!" : "DEFEAT", rt.style.color = won ? "#44ff88" : "#ff4444", won && SFX.win();
+// Arena Ticket fight: only the payout, no records, achievements or fight counts of owned bugs
+if (fightFx.bet) return won && (money += match.prize = fightFx.bet), updateMoney(), saveGame(), show(), ov("ov-res", 1);
 dead0.length && achStep("lost", [1, 10], "lost", dead0.length);
 const kills = allPlayer.reduce((s, f) => s + (f.killsThis || 0), 0);
 addKills(kills);
-const rt = $("res-title");
-rt.textContent = won ? "VICTORY!" : "DEFEAT", rt.style.color = won ? "#44ff88" : "#ff4444", won && SFX.win(), buryDead(dead0);
+buryDead(dead0), awayStep(1);
 if (won) {
 "boss" === fightMode && enemyTier >= tierMax && enemyTier < 5 && toast(`Tier ${enemyTier} boss is defeated. T${tierMax = enemyTier + 1} opens`);
-const prize = allEnemy.reduce((s, f) => s + bugValue(statSum(f.b)), 0) * prizeK();
+// Bounty enemy ×3, Mirror Shard ×2, Betting Slip payout on top
+const prize = allEnemy.reduce((s, f) => s + bugValue(statSum(f.b)) * (f.b.bounty ? 3 : 1), 0) * prizeK() * (fightFx.mir ? 2 : 1) + (fightFx.slip || 0);
 money += prize, match.prize += prize, alive0.forEach(f => {
 const lb = ownedById(f.b.id);
 lb && (lb.wins++, tallyFight(lb, f), achSurvive(lb))
@@ -78,7 +95,7 @@ match.foes.push(...allEnemy);
 for (let n = 1 + ri(3); n--;) ecsSpawn({ food: {}, pos: { x: 30 + random() * (boxLW - 60), y: 30 + random() * (boxLH - 60), dir: 0 } });
 return void($("bt-next").style.display = "")
 }
-[13, 15].includes(tutStep) && tutFought(alive0), renderResult(), $("bt-res").style.display = "", first ? gameEnd(offerObst) : won ? offerObst() : ov("ov-res", 1)
+[13, 15].includes(tutStep) && tutFought(alive0), show(), first ? gameEnd(offerObst) : won ? offerObst() : ov("ov-res", 1)
 }
 // Result screen body from the live fight box (HP after feeding) + enemies of earlier MC steps
 function renderResult() {

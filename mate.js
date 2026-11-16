@@ -1,12 +1,12 @@
-const INTERACT_CHANCE = .10, BOX_CAP = 100;
+const INTERACT_CHANCE = .10;
 // young = egg, larva, pupa or cocoon in the peaceful box (ECS or savedWorld during a fight)
 const youngAll = () => [...ecsQuery("young").map(e => C.young.get(e)), ...savedWorld?.young || []],
-boxFull = () => bugsOwned.length + youngAll().length >= BOX_CAP;
+boxFull = () => bugsOwned.length + youngAll().length >= 25 * (boxLv + 1);
 const MATE_HOLD_MIN = 3000, MATE_HOLD_MAX = 7000, MATE_TURN_MAX = 8000;
 const LOVE_BITE_REACH = 2.5, LOVE_BITE_CONE = 1;
 const mateOdds = () => bugsOwned.length <= 3 ? 1 : bugsOwned.length <= 10 ? .5 : .25;
 const nibble = (a, y, t = C.bug.get(y)) => (C.walk.get(y).hitT = 1, t.curHp = max(1, (t.curHp == null ? maxHpOf(t) : t.curHp) - statLin(a, "str", 1, 10) * rollVar()));
-const canParent = b => hpFrac(b) >= 1 && !b.mated;
+const canParent = b => hpFrac(b) >= 1 && !b.mated && !b.away;
 function interactEligible(e) {
 const b = C.bug.get(e);
 return hpFrac(b) >= 1 && !C.walk.get(e).pair
@@ -24,13 +24,16 @@ if (hypot(pb.x - pa.x, pb.y - pa.y) > sepPair(ea, eb) * 1.15) continue;
 (now ||= new Set).add(eb);
 if (was?.has(eb)) continue;
 if (!interactEligible(ea) || !interactEligible(eb)) continue;
-if (random() >= INTERACT_CHANCE) continue;
-if (!canParent(ba) || !canParent(bbg) || random() >= mateOdds() || boxFull()) {
+// Pheromone Lure (armed 6): the next pair that may mate does, without the chance rolls
+const lure = armed[6] > 0;
+if (!lure && random() >= INTERACT_CHANCE) continue;
+if (!canParent(ba) || !canParent(bbg) || !lure && random() >= mateOdds() || boxFull()) {
 ta.pair = C.walk.get(eb).pair = { a: ea, b: eb, ta: 1, tb: 1 };
 continue
 }
 const subFirst = ba.str < bbg.str || (ba.str === bbg.str && random() < .5),
 m = { a: subFirst ? ea : eb, b: subFirst ? eb : ea, phase: "turn", t: 0, hold: 0 };
+lure && armed[6]--;
 [ea, eb].forEach(x => (setAct(x, "breeding"), C.walk.get(x).pair = m))
 }
 ta.touch = now
@@ -69,7 +72,7 @@ return
 }
 mateSnap(m), m.hold -= dt;
 if (m.hold <= 0) {
-const bug = boxFull() || makeBug({ ...computeOffspring(sb, tb) });
+const bug = boxFull() || makeBug(eggItems(computeOffspring(sb, tb)));
 !1 === bug.dead && (ecsSpawn({
 young: { st: "egg", bug, pT: parentTier(sb, tb), r: min(bugLen(sb), bugLen(tb)) * .25, ck: ri(3), lt: ri(3), pv: ri(2), eaten: 0, ready: 0, t: 0, mv: 0, trail: [] },
 pos: { x: (sp.x + tp.x) / 2, y: (sp.y + tp.y) / 2, dir: rf(-PI, PI) }, vel: {}

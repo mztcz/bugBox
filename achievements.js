@@ -138,7 +138,7 @@ const kinds = new Set;
 bugsOwned.forEach(b => (b.abilities || []).forEach(a => kinds.add(a)));
 kinds.size >= 10 && achieve("breeder10"), kinds.size >= ABIL_IDS.length && achieve("breeder20");
 bugsOwned.filter(b => (b.abilities || []).length >= 4).length >= 3 && achieve("elite4");
-boxFull() && achieve("fullBox");
+bugsOwned.length + youngAll().length >= 100 && achieve("fullBox");
 bugsOwned.length > 1 && bugsOwned.every(b => b.mated) && achieve("matedAll")
 }
 function achKids(...parents) {

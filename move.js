@@ -77,6 +77,11 @@ break
 }
 })
 }
+// Bark Shelter (obstacle.sh): a resting bug touching it heals 1 HP/s in the peaceful box
+const sysShelter = (dtS, bugs) => eachObstacle((o, _, oe) => o.sh && bugs.forEach(be => {
+const b = C.bug.get(be), p = C.pos.get(be), c = obstCap(oe, p.x, p.y);
+["thinking", "waiting", "observing"].includes(C.walk.get(be).act) && c[0] < c[3] + bugLen(b) / 2 && (b.curHp = min(maxHpOf(b), b.curHp + dtS))
+}));
 const ROCK_PAD = 20, ROCK_FORCE = 2.5;
 // Point vs obstacle capsule (OBST_CAP turned by rot): [distance to the core segment, unit direction x, y, capsule radius]
 function obstCap(oe, x, y) {

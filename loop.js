@@ -2,7 +2,7 @@ const dropMs = () => ABILITIES.jump.dur / 2;
 let simLastT = 0,
 tickDebt = 0;
 function drawBoxBackdrop() {
-boxCx.clearRect(-boxOX, -boxOY, boxLW + 2 * boxOX, boxLH + 2 * boxOY), boxK() < 1 && (boxCx.strokeStyle = "#fa4", boxCx.lineWidth = 2, boxCx.strokeRect(-1, -1, boxLW + 2, boxLH + 2));
+boxCx.clearRect(-boxOX, -boxOY, boxLW + 2 * boxOX, boxLH + 2 * boxOY), boxK() < 1 && (boxCx.strokeStyle = combatState ? "#fa4" : "#4cf", boxCx.lineWidth = 2, boxCx.strokeRect(-1, -1, boxLW + 2, boxLH + 2));
 if (bgOn && combatState && 3 !== bugTheme && drawBg()) return;
 boxCx.fillStyle = "#0a0809", boxCx.fillRect(0, 0, boxLW, boxLH), boxCx.fillStyle = "#120f0a";
 for (let i = 0; i < boxLW; i += 8)
@@ -16,7 +16,7 @@ simFrame = requestAnimationFrame(simLoop);
 const real = simLastT ? min(ts - simLastT, 100) : 16.67;
 simLastT = ts;
 drawBoxBackdrop();
-if (!combatState) ecsQuery("bug").length !== bugsOwned.length && spawnBox();
+if (!combatState) ecsQuery("bug").length !== bugsHome().length && spawnBox();
 tickDebt += real * simSpd / COMBAT_STEP_MS;
 let guard = 0;
 while (tickDebt >= 1 && guard++ < MAX_STEPS_PER_FRAME) {
@@ -37,7 +37,7 @@ const t = C.walk.get(e), b = C.bug.get(e);
 t.hitT > 0 && (t.hitT = max(0, t.hitT - dt / 200));
 drag?.moved && drag.e === e || C.combat.get(e)?.fakeT > 0 || (t.actT -= "walking" === t.act && t.slide == null && 5e3 * C.vel.get(e).v < spdOf(b) * dt ? 0 : dt) > 0 || ("thinking" === t.act || "fleeing" === t.act ? decide(e) : t.slide != null ? wallNext(e) : think(e))
 });
-fight && sysCombatAI(dt);
+fight ? sysCombatAI(dt) : sysShelter(dtS, all);
 const ents = fight ? all.filter(e => !aiAct(C.walk.get(e)) && !C.combat.get(e).dead) : all;
 sysGoToPoint(ents);
 sysSteer(dt, ents), sysMove(dtS, all);

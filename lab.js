@@ -1,5 +1,5 @@
 function openLab() {
-labSt = newLab(), showScreen("s-lab"), renderLab();
+labSt = newLab(), $("bt-unmate").style.display = dev ? "" : "none", showScreen("s-lab"), renderLab();
 const lay = $("lab-layout");
 lay && (lay.scrollTop = 0)
 }
@@ -23,12 +23,17 @@ if ("result" === st.phase) {
 const l = st.larva, pA = st.pA, pB = st.pB;
 lay.innerHTML = `
       <div class="phase-box" style="max-width:520px;">
-        <h3 class="tc">🥚 NEW BUG!</h3>
+        <h3 class="tc" id="lab-new" style="display:flex;align-items:center;justify-content:center;gap:8px;">NEW BUG!</h3>
         <div id="lab-parents-row" style="display:flex;gap:8px;justify-content:center;align-items:flex-start;margin:10px 0;"></div>
         <div id="lab-child-row" style="display:flex;justify-content:center;margin:10px 0;"></div>
-        <div class="tc"><button class="nav-lab bt" style="width:160px;padding:6px 28px;height:auto;">← Lab 🧬</button></div>
+        <div class="tc">${inv[44] > 0 && !l.dead ? `<button class="bt" id="bt-ray" style="height:auto;padding:6px 10px;margin-right:8px;">☢️ Reroll abilities ×${inv[44]}</button>` : ""}<button class="nav-lab bt" style="width:160px;padding:6px 28px;height:auto;">← Lab 🧬</button></div>
       </div>`;
 lay.style.cursor = "pointer", lay.onclick = labBack;
+// title pictures: larva of the new bug left, its pupa or cocoon right (the lab makes no egg)
+const y = { bug: l, lt: ri(3), pv: ri(2), eaten: 3, mv: 0, trail: [] }, pic = f => { const c = document.createElement("canvas"), g = hidpi(c, 36, 36), k = 30 / (2 * pupaGeo(l)[1] + bugLen(l)); return g.translate(18, 18), g.scale(k, k), f(g), c };
+l.dead || $("lab-new").prepend(pic(g => LARVA[y.lt](g, y, { x: 1 === y.lt ? lSize(y)[0] / 2 : 0, y: 0, dir: 0 }))), l.dead || $("lab-new").append(pic(g => drawPupa(g, y, { x: 0, y: 0, dir: 0 }, 0)));
+// Mutation Ray: the child's abilities are rolled again like at birth
+$("bt-ray") && ($("bt-ray").onclick = e => (e.stopPropagation(), inv[44]--, inheritAbilities(l, pA, pB), renderLab()));
 const parentsRow = $("lab-parents-row"),
 childRow = $("lab-child-row");
 const mkCard = (bug, dead, isChild, lbl) => {

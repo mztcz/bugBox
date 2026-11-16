@@ -55,7 +55,7 @@ sciShown().map(([k, lbl, tip]) => sciBtn(k, lbl, tip, sciCur()[k])).join("")
 }
 let hudWas = null;
 const HUD_FIGHT_ONLY = ["bt-leave", "bt-pause", "bt-bg"],
-HUD_BOX_ONLY = ["bt-lab", "bt-boo", "bt-box-shop"];
+HUD_BOX_ONLY = ["bt-lab", "bt-boo", "bt-box-shop", "bt-inv"];
 function syncHud(force) {
 const c = combatState;
 if (c === hudWas && !force) return;
@@ -63,7 +63,7 @@ hudWas = c;
 HUD_FIGHT_ONLY.forEach(id => $(id).style.display = c && (dev || "bt-bg" !== id) ? "" : "none");
 HUD_BOX_ONLY.forEach(id => $(id).style.display = c ? "none" : "");
 $("box-title").style.color = c ? "#fa4" : "#4f8", $("box-title").textContent = c && { mc: "MORTAL COMBAT T", boss: "BOSS FIGHT T", rb: "RAID BOSS T", wb: "WORLD BOSS T" }[fightMode] + enemyTier || "BUGBOX", $("bt-next").style.display = $("bt-res").style.display = "none";
-boxCv.style.borderColor = c ? boxK() < 1 ? "transparent" : "#fa4" : "#4cf";
+boxCv.style.borderColor = boxK() < 1 ? "transparent" : c ? "#fa4" : "#4cf";
 syncSciHud()
 }
 const MAX_FOOD = 30;
@@ -87,7 +87,8 @@ boxLH = 300;
 // Fixed game world (full box area in game px, side ratio follows the window within 1:2..2:1, kept during a fight); the canvas only zooms it (boxS)
 const BOX_AREA = 26e4, BOX_RATIO_MIN = .5, BOX_RATIO_MAX = 2;
 // Fight box area = tierMax / 4 of the full box (T1 only 1/4, T4 open = full)
-const boxK = () => combatState ? Math.sqrt(min(tierMax, 4) / 4) : 1;
+// Peaceful box area = (Box Expansion level + 1) / 4 of the full box
+const boxK = () => Math.sqrt((combatState ? min(tierMax, 4) : boxLv + 1) / 4);
 function resizeBoxCV() {
 const dpr = window.devicePixelRatio || 1, k = boxK(), rect = boxCv.getBoundingClientRect(), W = rect.width || 360, H = rect.height || 300,
 keep = ecsQuery("combat").length, ar = clamp(W / H, BOX_RATIO_MIN, BOX_RATIO_MAX), FW = keep ? boxLW / k : Math.sqrt(BOX_AREA * ar), FH = keep ? boxLH / k : BOX_AREA / FW, z = dpr * (boxS = min(W / FW, H / FH));
@@ -102,7 +103,7 @@ ecsQuery("pos").forEach(e => { const p = C.pos.get(e); p.x *= sx, p.y *= sy })
 boxW0 = boxLW, boxH0 = boxLH, boxC0 = combatState
 }
 function bugsInBoxView() {
-return ecsQuery("bug", "pos").map(e => {
+return ecsQuery("bug", "pos").filter(e => !C.combat.get(e)?.decoy).map(e => {
 const b = C.bug.get(e),
 p = C.pos.get(e),
 tm = C.team.get(e) || {
@@ -133,7 +134,7 @@ const o = { r, kind: k, v, rot: (45 * ri(8) + rf(10, 35)) * PI / 180, x, y };
 return placed.push(o), o
 }
 }
-const spawnObst = o => o && ecsSpawn({ obstacle: { r: o.r, kind: o.kind, v: o.v, rot: o.rot }, pos: { x: o.x, y: o.y, dir: 0 } });
+const spawnObst = o => o && ecsSpawn({ obstacle: { r: o.r, kind: o.kind, v: o.v, rot: o.rot, sh: o.sh }, pos: { x: o.x, y: o.y, dir: 0 } });
 function genObstacles(inCombat) {
 const placed = [];
 for (let i = 1 + ri(3); i--;) spawnObst(placeObst(rnd(obstKinds), placed, inCombat))
@@ -142,19 +143,25 @@ for (let i = 1 + ri(3); i--;) spawnObst(placeObst(rnd(obstKinds), placed, inComb
 function offerObst() {
 const left = shuf(OBST.map((_, k) => k).filter(k => !obstKinds.includes(k)));
 if (left.length < 3) return ov("ov-res", 1);
-const d = document.createElement("div"), row = document.createElement("div"), done = () => (d.remove(), ov("ov-res", 1));
-d.style = "position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:160;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px";
-d.innerHTML = '<div class="dos-title" style="font-size:15px">CHOOSE AN OBSTACLE</div>', row.style = "display:flex;gap:8px", d.appendChild(row);
+const d = popup("CHOOSE AN OBSTACLE"), row = document.createElement("div"), done = () => (d.remove(), ov("ov-res", 1));
+row.style = "display:flex;gap:8px", d.appendChild(row);
 left.slice(0, 3).forEach(k => {
 const b = document.createElement("button"), cv = document.createElement("canvas"), g = cv.getContext("2d");
 cv.width = cv.height = 56, cv.style = "display:block;margin:0 auto 4px", g.translate(28, 28), OBST[k][1](g, 20, OBST[k][0][0]);
 b.appendChild(cv), b.append(OBST_NAME[k]), b.onclick = () => (obstKinds.push(k), savedWorld.obs.push({ kind: k }), done()), row.appendChild(b)
 });
 const no = document.createElement("button");
-no.className = "bt", no.textContent = "None", no.onclick = done, d.appendChild(no), document.body.appendChild(d);
+no.className = "bt", no.textContent = "None", no.onclick = done, d.appendChild(no);
 // 2 small confetti bursts at both sides of the title
 const r = d.firstChild.getBoundingClientRect();
 confetti([[r.left - 14, r.left - 4, r.bottom], [r.right + 4, r.right + 14, r.bottom]], 1)
+}
+// full-screen popup with a title; returns its element (remove() closes it)
+function popup(title) {
+const d = document.createElement("div");
+d.style = "position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:160;display:flex;flex-direction:column;align-items:center;justify-content:safe center;gap:12px;padding:20px;overflow:auto";
+d.innerHTML = `<div class="dos-title" style="font-size:15px">${title}</div>`;
+return document.body.appendChild(d)
 }
 function bugEntity(b, x, y, dir, tm) {
 return {
@@ -167,7 +174,7 @@ team: { team: tm }
 }
 const eachObstacle = fn => ecsQuery("obstacle", "pos").map(e => fn(C.obstacle.get(e), C.pos.get(e), e));
 function snapObstacles() {
-return eachObstacle((o, p) => ({ r: o.r, kind: o.kind, v: o.v, rot: o.rot, x: p.x, y: p.y }))
+return eachObstacle((o, p) => ({ r: o.r, kind: o.kind, v: o.v, rot: o.rot, sh: o.sh, x: p.x, y: p.y }))
 }
 function snapFood() {
 return ecsQuery("food", "pos").map(e => { const p = C.pos.get(e); return { x: p.x, y: p.y } })
@@ -195,9 +202,9 @@ if (!combatState) {
 const have = new Map();
 ecsQuery("bug").forEach(e => {
 const b = C.bug.get(e);
-bugsOwned.includes(b) ? have.set(b, e) : ecsKill(e)
+bugsOwned.includes(b) && !b.away ? have.set(b, e) : ecsKill(e)
 });
-bugsOwned.forEach(b => {
+awayStep(0), bugsHome().forEach(b => {
 if (have.has(b)) return;
 const dir = random() * TAU;
 think(ecsSpawn(bugEntity(b, 30 + random() * (boxLW - 60), 30 + random() * (boxLH - 60), dir, -1)))
@@ -209,12 +216,12 @@ const gap = boxLH / (arr.length + 1);
 arr.forEach((b, i) => {
 const c = bugEntity(b, (0 === tm ? .18 : .82) * boxLW + rf(-.04, .04) * boxLW, gap * (i + 1 + rf(-.25, .25)), (0 === tm ? 0 : PI) + rf(-.35, .35), tm);
 const mhp = maxHpOf(b);
-c.combat = newCombat(b, max(1, min(b.curHp, mhp)), mhp);
+c.combat = newCombat(b, max(1, min(b.curHp, mhp)), mhp), b.decoy && (c.combat.decoy = b.decoy, c.combat.bit = {});
 const e = ecsSpawn(c);
-think(e), q[tm].push(e)
+b.decoy ? setAct(e, "fighting") : think(e), q[tm].push(e)
 })
 };
-side(fightTeam, 0), side(enemies, 1);
+side(fightTeam.concat(decoys), 0), side(enemies, 1);
 // drop-in: fall starts after 1 s, landings by 3 s, teams alternate, random order inside a team; fightMs < 0 until the last landing (loop.js tick)
 const ts = q[0].concat(q[1]).map(() => rf(1e3 + dropMs(), 3e3)).sort((a, b) => a - b), ord = [];
 q.forEach(shuf);
