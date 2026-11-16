@@ -5,7 +5,7 @@ boxFull = () => bugsOwned.length + youngAll().length >= 25 * (boxLv + 1);
 const MATE_HOLD_MIN = 3000, MATE_HOLD_MAX = 7000, MATE_TURN_MAX = 8000;
 const LOVE_BITE_REACH = 2.5, LOVE_BITE_CONE = 1;
 const mateOdds = () => bugsOwned.length <= 3 ? 1 : bugsOwned.length <= 10 ? .5 : .25;
-const nibble = (a, y, t = C.bug.get(y)) => (C.walk.get(y).hitT = 1, t.curHp = max(1, (t.curHp == null ? maxHpOf(t) : t.curHp) - statLin(a, "str", 1, 10) * rollVar()));
+const nibble = (a, y, t = C.bug.get(y)) => (C.walk.get(y).hitT = 1, t.curHp = max(1, (t.curHp == null ? maxHpOf(t) : t.curHp) - armorCut(t, statLin(a, "str", 1, 10) * rollVar())));
 const canParent = b => hpFrac(b) >= 1 && !b.mated && !b.away;
 function interactEligible(e) {
 const b = C.bug.get(e);

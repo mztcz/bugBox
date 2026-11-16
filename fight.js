@@ -23,7 +23,7 @@ const foeN = () => BOSS[fightMode] ? 1 : +fightMode || max(1, fightTeam.length),
 entryFee = (T, n = foeN()) => 1 === fightMode && 1 === T ? 0 : 2 * T * tierRate(T) * n;
 const keepHp = () => ecsQuery("team", "combat").forEach(e => { const c = C.combat.get(e); C.team.get(e).team || c.dead || (C.bug.get(e).curHp = max(1, round(c.curHp))) });
 const lookOf = b => ({ ...Object.fromEntries(SK.map(k => [k, b[k]])), morph: JSON.parse(JSON.stringify(b.morph)), hue: b.hue }),
-fxEnd = () => bugsOwned.forEach(b => b.fx?.on && (b.str -= b.fx.d, delete b.fx));
+fxEnd = () => bugsOwned.forEach(b => b.fx?.on && (b.str -= b.fx.d, b.arm -= b.fx.a, delete b.fx));
 // foes + bet are given by the Arena Ticket (bet = payout) and by the Magnifier preview (foes only); fight items work in all modes but MC, Mirror Shard and Bounty not in boss modes
 function startFight(btn, T, foes, bet) {
 const plain = !bet && "mc" !== fightMode, open = plain && !BOSS[fightMode], peek = plain && !foes && armed[11] > 0;
@@ -38,7 +38,7 @@ fightFx = bet ? { bet } : plain ? { mir: foes.mir && armed[17]--, slip: useArmed
 if (open && useArmed(19)) { const b = rnd(foes); b.bounty = 1, b.name = "📜 " + b.name }
 decoys = plain ? [50, 60, 61].flatMap((i, n) => useArmed(i) ? [makeBug({ ...lookOf(rnd(fightTeam)), name: "Decoy", abilities: [], decoy: n + 1 })] : []) : [];
 // Protein Chunk, Chitin Polish: on for this match
-fightTeam.forEach(b => b.fx && !b.fx.on && (b.fx.on = 1, b.str += b.fx.d = b.fx.str ? min(20, b.str + 1) - b.str : 0));
+fightTeam.forEach(b => b.fx && !b.fx.on && (b.fx.on = 1, b.str += b.fx.d = b.fx.str ? min(20, b.str + 1) - b.str : 0, b.arm += b.fx.a = b.fx.pol ? min(20, b.arm + 1) - b.arm : 0));
 // one match = one fight, or all steps of one MC
 "mc" === fightMode && T > 1 && match || (match = { foes: [], prize: 0, kills: 0, ms: 0 });
 bgPick(), bet || fightNum++, enemies = foes, groundMarks = [], dmgPops = [], fightDone = !1, foodLeft = 3 + dna.lv[2], combatState = !0, simSpd = 1, tickDebt = 0, syncSpeedLabel();

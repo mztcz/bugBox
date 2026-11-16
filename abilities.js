@@ -61,7 +61,7 @@ return abs(norm(atan2(dy, dx) - p.dir)) <= fovHalfOf(b)
 const liveE = x => { const c = C.combat.get(x); return c && !c.dead && c.curHp > 0 };
 const memMsOf = b => statLin(b, "per", 3e3, 12e3), scanOf = b => statLin(b, "per", 0, PI);
 const huntTierOf = b => { const i = b.per; return i <= 3 ? 1 : i <= 6 ? 2 : i <= 8 ? 3 : 4 };
-const rollVar = () => .8 + .4 * random();
+const rollVar = () => .8 + .4 * random(), armorCut = (b, d) => max(d * .25, d - statLin(b, "arm", 0, 5));
 const abilShow = (cb, id) => (cb.abTxt = ABILITIES[id].name, cb.abT = 2e3);
 function biteDodged(atkB, p, tb, tp, atkTeam, tcb, atkE) {
 const base = clamp(.12 + .02 * (tb.agi - atkB.agi), 0, .25), r = random() - base;
@@ -97,11 +97,10 @@ flankMult = fd < PI / 3 ? 1 : fd < TAU / 3 ? 1.5 : 2;
 if (atkE != null && (tcb.flankA > 0 || fd >= PI / 3 && tb.per < 5)) { tcb.avengeE = atkE, tcb.avengeA = atan2(p.y - tp.y, p.x - tp.x), tcb.flankA > 0 && flankEnd(tcb) }
 // decoy: no damage, counts the bites of each attacker
 if (tcb.decoy) return tcb.bit[atkE] = (tcb.bit[atkE] || 0) + 1, void(C.walk.get(te).hitT = 1);
-let dmg = statLin(ab, "str", 1, 10) * rollVar() * flankMult * mult;
+let dmg = armorCut(tb, statLin(ab, "str", 1, 10) * rollVar() * flankMult * mult);
 if (hasAbil(tb, "chitin")) dmg *= .5;
 if (hasAbil(tb, "thickshell") && fd < FRONT_CONE) dmg *= .7, abilShow(tcb, "thickshell");
 if (hasAbil(tb, "laststand") && tcb.curHp < tcb.maxHp * .25) dmg *= .6, abilShow(tcb, "laststand");
-tb.fx?.on && tb.fx.pol && (dmg = min(dmg, max(1, dmg - 1)));
 hasAbil(tb, "ilearn") && (tcb.learn[atkE] = (tcb.learn[atkE] || 0) + 1);
 abilReady(te, "badtaste") && (cb.prepK = 2, abilFire(te, "badtaste"));
 abilReady(te, "scuttle") && (tcb.scutT = ABILITIES.scuttle.dur, abilFire(te, "scuttle"));
