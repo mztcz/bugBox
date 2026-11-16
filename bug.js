@@ -7,7 +7,7 @@ const statSum = o => SK.reduce((s, k) => s + o[k], 0);
 const STAT_SUM_MAX = 50, STAT_LIM = [3, 5, 7, 10, 13];
 const tierOf = s => min(5, floor(s / 10) + 1), bossSum = T => T > 4 ? STAT_SUM_MAX : 10 * T - 1,
 tierRate = T => 2 ** T, bugValue = s => tierRate(tierOf(s)) * s,
-starsOf = s => s >= STAT_SUM_MAX ? 5 : s < 10 ? 0 : max(0, s % 10 - 5), ROLES = [["Bulwark", "Ripper", "Runner", "Scout", "Scarab"], ["Tough", "Strong", "Swift", "Recon", "Smart"], ["Eggshell", "Weakling", "Slug", "Mole", "Drone"], ["Fragile", "Weak", "Slow", "Blind", "Dumb"]],
+starsOf = s => s >= STAT_SUM_MAX ? 5 : s < 10 ? 0 : max(0, s % 10 - 5), ROLES = [["Bulwark", "Ripper", "Runner", "Scout", "Scarab"], ["Tough", "Strong", "Swift", "Recon", "Armored"], ["Eggshell", "Weakling", "Slug", "Mole", "Ladybug"], ["Soft", "Weak", "Slow", "Blind", "Fragile"]],
 roleOf = o => { const i = shuf([0, 1, 2, 3, 4]).sort((a, b) => o[SK[b]] - o[SK[a]]), v = i.map(j => o[SK[j]]), R = (g, j) => ROLES[g][i[j]], T = tierOf(statSum(o)), h = T > 3 ? 3 : 2, l = max(2, T);
 return v[1] >= v[2] + h ? R(1, 1) + " " + R(0, 0) : v[0] >= v[1] + h ? R(0, 0) : v[3] <= v[2] - l ? R(3, 3) + " " + R(2, 4) : v[4] <= v[3] - l ? R(2, 4) : "Brawler" };
 function genStats(T, S = T > 1 ? 10 * (T - 1) + min(ri(10), ri(10)) : 7 + ri(3)) {
@@ -55,7 +55,7 @@ con: 4,
 str: 3,
 agi: 3,
 per: 5,
-int: 3,
+arm: 3,
 abilities: [],
 ...o
 };

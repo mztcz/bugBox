@@ -10,7 +10,7 @@ try { localStorage.setItem("bugbox_wb", JSON.stringify({ week: wbWeek, bugs: Obj
 function buildEnemies(T) {
 const m = BOSS[fightMode], k = fightMode + T, w = weekOf(), c = "chaos" === fightMode;
 // tutorial first fight: all stats 1, half HP; CHAOS: player count ±33 %, each enemy tier T±1
-if (!m) return Array.from({ length: c ? max(1, round(fightTeam.length * rf(.67, 1.33))) : fightTeam.length }, () => makeBug([12, 14].includes(tutStep) ? { con: 1, str: 1, agi: 1, per: 1, int: 1, hue: rf(0, 45), hpMul: .5, abilities: [] } : { ...genStats(c ? clamp(T + ri(3) - 1, 1, 5) : T), hue: rf(0, 45) }));
+if (!m) return Array.from({ length: c ? max(1, round(fightTeam.length * rf(.67, 1.33))) : fightTeam.length }, () => makeBug([12, 14].includes(tutStep) ? { con: 1, str: 1, agi: 1, per: 1, arm: 1, hue: rf(0, 45), hpMul: .5, abilities: [] } : { ...genStats(c ? clamp(T + ri(3) - 1, 1, 5) : T), hue: rf(0, 45) }));
 wbWeek !== w && (Object.keys(bosses).forEach(x => "w" === x[0] && delete bosses[x]), wbWeek = w);
 const S = min(bossSum(T), 5 * tierLim(T));
 if (!bosses[k] || statSum(bosses[k]) !== S) {
@@ -53,7 +53,7 @@ combatState = !1, tickDebt = 0, simSpd = speedBeforePause, ecsQuery("team").forE
 const tallyFight = (lb, f) => (lb.fights = (lb.fights || 0) + 1, lb.killsTotal = (lb.killsTotal || 0) + (f.killsThis || 0)),
 buryDead = dead => dead.forEach(f => {
 const lb = ownedById(f.b.id), c = C.combat.get(f.eid) || f;
-lb && !c.buried && (c.buried = 1, tallyFight(lb, f), hasAbil(lb, "fake") ? lb.curHp = 1 : (lb.losses++, bugsOwned = bugsOwned.filter(b => b.id !== f.b.id), run.end = `${lb.name} died in fight T${enemyTier}`))
+lb && !c.buried && (c.buried = 1, tallyFight(lb, f), hasAbil(lb, "ifake") ? lb.curHp = 1 : (lb.losses++, bugsOwned = bugsOwned.filter(b => b.id !== f.b.id), run.end = `${lb.name} died in fight T${enemyTier}`))
 });
 function showFightResult() {
 resultTimer = null;

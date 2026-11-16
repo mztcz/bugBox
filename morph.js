@@ -1,17 +1,16 @@
 const GEAR = {
-pincers: [{ sizeMult: .85, sweep: .4, baseGap: .4, tip: .4 }, { sizeMult: 1.35, sweep: .95, baseGap: .7, tip: 1.1 }, { sizeMult: 1.8, sweep: 1.6, baseGap: .95, tip: 2 }],
 ant: [{ spread: 1.1 }, { spread: 2 }, { spread: 3 }],
 antb: [{ spread: 2.2, len: .28 }, { spread: 3.2, len: .28 }, { spread: 3.2, len: .56 }],
 eyes: [{ spread: .4, fwd: .85, sizeMult: .35 }, { spread: .62, fwd: .65, sizeMult: .35 }, { spread: .9, fwd: .4, sizeMult: .35 }]
 };
 const GEAR_KEYS = Object.keys(GEAR);
-const GEAR_LABEL = { pincers: "Pincers", ant: "Antennae", antb: "Antennae Bwd", eyes: "Eyes" };
+const GEAR_LABEL = { ant: "Antennae", antb: "Antennae Bwd", eyes: "Eyes" };
 const SIZE_LABEL = ["N", "W", "XW"];
 const MORPH_FREE = { bodySegments: [1, 3], segmentGradient: [1, 5] };
 const MORPH_STAT = { bodyLength: [16, 29], bodyWidth: [2, 11], headSize: [2, 6], legLen: [5, 14], headGearSize: [0, 2] };
 const MORPH_RANGE = { ...MORPH_FREE, ...MORPH_STAT };
 function statMorph(s) {
-return { bodyLength: statLin(s, "con", 15.5, 29), bodyWidth: statLin(s, "str", 2, 11), headSize: 2 + floor((s.int - 1) / 4), legLen: statLin(s, "agi", 5, 14), headGearSize: s.per < 7 ? 0 : s.per < 13 ? 1 : 2 }
+return { bodyLength: statLin(s, "con", 15.5, 29), bodyWidth: statLin(s, "arm", 2, 11), headSize: 2 + floor((s.per - 1) / 4), mand: s.str, legLen: statLin(s, "agi", 5, 14), headGearSize: s.per < 7 ? 0 : s.per < 13 ? 1 : 2 }
 }
 function randomMorph() {
 const m = {};
@@ -63,7 +62,6 @@ t.closePath()
 function backPattern(t, gk, cy, rx, ry) {
 t.lineWidth = .5;
 const seg = (x1, y1, x2, y2, x3, y3) => { t.beginPath(), t.moveTo(x1, y1), t.lineTo(x2, y2), x3 != null && t.lineTo(x3, y3), t.stroke() };
-"pincers" === gk ? (seg(-rx * .5, cy - ry * .5, 0, cy - ry, rx * .5, cy - ry * .5), seg(-rx * .5, cy + ry * .5, 0, cy + ry, rx * .5, cy + ry * .5)) :
 "ant" === gk ? (seg(-rx * .6, cy, rx * .6, cy), seg(0, cy - ry * .6, 0, cy + ry * .6)) :
 "antb" === gk ? (seg(-rx * .5, cy - ry * .5, rx * .5, cy + ry * .5), seg(rx * .5, cy - ry * .5, -rx * .5, cy + ry * .5)) :
 (hexPath(t, cy, rx * .45, ry * .45), t.stroke())
@@ -104,15 +102,8 @@ shape(cy, rw, rh), nl && (backPattern(t, gk, cy, rw, rh), t.lineWidth = .9), cy 
 shape(hy, hs, hs);
 const gs = sh ? strokeShades(sh.hue, sh.gear) : null,
 dual = (path, w1, w2) => { gs && (t.lineWidth = w1, t.strokeStyle = gs.base), path(), gs && gs.over && (t.lineWidth = w2, t.strokeStyle = gs.over, path()) };
-if (gk === "pincers") {
-const p = hs * g.sizeMult;
-for (const s of [-1, 1]) dual(() => {
-t.beginPath(), t.moveTo(s * hs * g.baseGap, hy - hs * .3);
-nl ? (t.lineTo(s * (hs + p * g.sweep) * .6, hy - hs - p * .5), t.lineTo(s * hs * g.tip, hy - hs - p * .95)) :
-t.bezierCurveTo(s * (hs + p * g.sweep), hy - hs - p, s * hs * g.tip, hy - hs - p, s * hs * g.tip, hy - hs - p * .95);
-t.stroke()
-}, 2, .9)
-} else if (gk === "ant" || gk === "antb") for (const s of [-1, 1]) dual(() => {
+mandibles(t, cfg, hy, hs, nl, gs);
+if (gk === "ant" || gk === "antb") for (const s of [-1, 1]) dual(() => {
 const bw = gk === "antb", ax = s * hs * g.spread, ay = hy - hs * (bw ? 1.2 : 1.4);
 t.beginPath(), t.moveTo(s * hs * .3, hy - hs * .8), t.lineTo(ax, ay);
 t.lineTo(ax + (bw ? -s * hs * g.len : s), ay + (bw ? hs * g.len * 2 : -hs * 1.1)), t.stroke()
@@ -123,7 +114,8 @@ if (nl) { t.beginPath(), t.moveTo(ex - er, ey), t.lineTo(ex, ey - er), t.lineTo(
 else sh && (t.fillStyle = bulgeGrad(t, ex, ey, er, sh.hue, sh.gear)), t.beginPath(), t.arc(ex, ey, er, 0, 7), t.fill()
 }
 }
-function drawMorphBug(ctx, cfg, color, x, y, rot, { alpha = 1, scale = 1, walk = null, shadow = !0, glow = null, hue = null, flat = !1 } = {}) {
+function drawMorphBug(ctx, cfg, color, x, y, rot, { alpha = 1, scale = 1, walk = null, shadow = !0, glow = null, hue = null, flat = !1, bite = 0 } = {}) {
+bite && (cfg = { ...cfg, bite });
 const nl = !flat && 3 === bugTheme, sh = hue != null && SHADE[bugTheme] ? { hue, ...SHADE[bugTheme] } : null;
 ctx.save(), ctx.globalAlpha = alpha, shadow && !nl && morphShadow(ctx, cfg, x, y, rot, scale, walk), ctx.translate(x, y), ctx.rotate(rot), ctx.scale(scale, scale);
 glow ? (ctx.shadowColor = glow, ctx.shadowBlur = 14) : nl && (ctx.shadowColor = color, ctx.shadowBlur = 15);
@@ -132,7 +124,7 @@ ctx.fillStyle = ctx.strokeStyle = color, renderMorphParts(ctx, cfg, walk, sh, nl
 const shCv = Object.assign(document.createElement("canvas"), { width: 0, height: 0 }), shCx = shCv.getContext("2d");
 function morphShadow(ctx, cfg, x, y, rot, scale = 1, walk = null) {
 const c = cos(rot) / scale, s = sin(rot) / scale, M = ctx.getTransform(), z = hypot(M.a, M.b),
-R = (cfg.bodyLength / 2 + 3.4 * cfg.headSize + cfg.bodyWidth / 2 + cfg.legLen + 4) * scale, n = Math.ceil(2 * R * z);
+R = (cfg.bodyLength / 2 + headTop(cfg) + cfg.bodyWidth / 2 + cfg.legLen + 4) * scale, n = Math.ceil(2 * R * z);
 shCv.height < n && (shCv.width = shCv.height = n), shCx.setTransform(1, 0, 0, 1, 0, 0), shCx.clearRect(0, 0, n, n);
 shCx.setTransform(z, 0, 0, z, n / 2, n / 2), shCx.rotate(rot), shCx.scale(scale, scale), shCx.fillStyle = shCx.strokeStyle = "#000";
 renderMorphParts(shCx, cfg, walk, null, !1, [2 * c + 2.5 * s, 2.5 * c - 2 * s]);
@@ -145,13 +137,27 @@ function setGait(v) { gait = +v }
 function morphColor(hue) { return 3 === bugTheme ? `hsl(${hue},95%,62%)` : 1 === palette ? `hsl(${15+hue%60},${15+hue%40}%,${8+hue*7%28}%)` : 2 === palette ? `hsl(${20+hue%40},30%,${18+hue%12}%)` : `hsl(${hue},70%,45%)` }
 function morphR(b) { const m = ensureMorph(b); return max(m.bodyWidth / 2 + .733 * m.legLen, morphTop(m)) }
 function morphTop(m) { return m.bodyLength / 2 + 3.4 * m.headSize }
+const mandK = m => ((m.mand ?? 1) - 1) / 19, headTop = m => max(3.4 * m.headSize, .7 * m.headSize + 3.5 + 10.5 * mandK(m) + 1);
+function mandibles(t, cfg, hy, hs, nl, gs) {
+const k = mandK(cfg), c = cfg.bite || 0, L = 3.5 + 10.5 * k, w = .7 + 3.3 * k, cv = .4 + 2.1 * k,
+bx = hs * .56, by = hy - hs * .7, tx = max(.4, bx * .6 * (1 - .5 * k)) * (1 - c) - .1 * L * c, ty = by - L, cx = bx + L * .28 * cv * (1 - .5 * c), cy = by - L * .62,
+Bi = [bx - w * .5, by], Ci = [cx - w * .7, cy + w * .1], f0 = t.fillStyle,
+q = u => [(1 - u) * (1 - u) * Bi[0] + 2 * u * (1 - u) * Ci[0] + u * u * tx, (1 - u) * (1 - u) * Bi[1] + 2 * u * (1 - u) * Ci[1] + u * u * ty],
+tri = (s, a, b, d) => (t.beginPath(), t.moveTo(s * a[0], a[1]), t.lineTo(s * b[0], b[1]), t.lineTo(s * d[0], d[1]), t.closePath(), nl ? t.stroke() : t.fill());
+gs && (t.fillStyle = gs.base);
+for (const s of [-1, 1]) {
+t.beginPath(), t.moveTo(s * (bx + w * .5), by), t.quadraticCurveTo(s * (cx + w * .4), cy, s * tx, ty), t.quadraticCurveTo(s * Ci[0], Ci[1], s * Bi[0], Bi[1]), t.closePath(), nl ? t.stroke() : t.fill();
+for (const u of cfg.mand >= 15 ? [.36, .62] : cfg.mand >= 10 ? [.5] : []) { const m = q(u); tri(s, q(u - .09), [m[0] - .17 * L, m[1] - .04 * L], q(u + .09)) }
+}
+t.fillStyle = f0
+}
 function morphFitScale(cfg, w, h) {
-const bl = morphTop(cfg) + cfg.bodyLength / 2,
+const bl = headTop(cfg) + cfg.bodyLength,
 bw = max(cfg.bodyWidth + 1.47 * cfg.legLen, 2.2 * cfg.bodyWidth, 4 * cfg.headSize);
 return min(w / bw, h / bl) * .9
 }
 function drawMorphCentered(ctx, b, w, h, rot) {
-const cfg = ensureMorph(b), top = morphTop(cfg), tot = top + cfg.bodyLength / 2;
-if (rot) { const d = 1.7 * cfg.headSize; return void drawMorphBug(ctx, cfg, morphColor(b.hue), w / 2 - d * sin(rot), h / 2 + d * cos(rot), rot, { shadow: !1, hue: b.hue }) }
+const cfg = ensureMorph(b), top = cfg.bodyLength / 2 + headTop(cfg), tot = top + cfg.bodyLength / 2;
+if (rot) { const d = headTop(cfg) / 2; return void drawMorphBug(ctx, cfg, morphColor(b.hue), w / 2 - d * sin(rot), h / 2 + d * cos(rot), rot, { shadow: !1, hue: b.hue }) }
 drawMorphBug(ctx, cfg, morphColor(b.hue), w / 2, max(2, (h - tot) / 2) + top, 0, { shadow: !1, hue: b.hue })
 }

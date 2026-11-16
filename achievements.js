@@ -36,7 +36,7 @@ const ACHIEVEMENTS = [
 ["strong", "breed a strong bug (str 5+)"],
 ["fast", "breed a fast bug (agi 5+)"],
 ["aware", "breed an aware bug (per 5+)"],
-["clever", "breed a clever bug (int 5+)"],
+["armored", "breed an armored bug (arm 5+)"],
 ["weak", "breed a weak bug (stat sum 5)"],
 ["powerful", "breed a powerful bug (stat sum 20+)"],
 ["superior", "breed a superior bug (stat sum 30+)"],
@@ -156,7 +156,7 @@ function achChild(b, pT) {
 achBug(b), tierOf(statSum(b)) > pT && achieve("newTier"), achieve("breed"), achStep("bred", [10, 50], "bred");
 const sum = statSum(b),
 na = (b.abilities || []).length;
-[["con", "heavy"], ["str", "strong"], ["agi", "fast"], ["per", "aware"], ["int", "clever"]].forEach(([k, a]) => b[k] >= 5 && achieve(a));
+[["con", "heavy"], ["str", "strong"], ["agi", "fast"], ["per", "aware"], ["arm", "armored"]].forEach(([k, a]) => b[k] >= 5 && achieve(a));
 sum <= 5 && achieve("weak");
 achAt(sum, [[20, "powerful"], [30, "superior"], [40, "elite"]]);
 achAt(na, [[1, "skilled"], [2, "skilful"], [3, "expert"], [4, "master"]]);

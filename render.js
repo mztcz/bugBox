@@ -35,7 +35,7 @@ const cb = C.combat.get(e) || {};
 if (cb.dead && !(cb.phoenixT > 0) && !(cb.fakeT > 0)) return;
 const b = C.bug.get(e),
 p = C.pos.get(e),
-list = (b.abilities || []).filter(id => id === "phoenix" ? !cb.phoenixUsed : id === "fake" ? cb.fakeUsed < 2 : !0);
+list = (b.abilities || []).filter(id => id === "phoenix" ? !cb.phoenixUsed : id === "ifake" ? cb.fakeUsed < 2 : !0);
 const r = morphR(b);
 let yy = p.y + 4;
 list.forEach(id => {
@@ -103,14 +103,15 @@ return;
 }
 cb.greyAt = 0;
 const hitFrac = t.hitT || 0;
-let offX = 7 * hitFrac * (cb.hitDx || 0) + 14 / 3 * cb.biteT * cos(p.dir),
-offY = 7 * hitFrac * (cb.hitDy || 0) + 14 / 3 * cb.biteT * sin(p.dir);
+const lg = 14 / 3 * max(0, cb.biteT - 300) / 200, bt = 500 - cb.biteT, bite = bt < 120 ? bt / 120 : bt < 300 ? 1 : (500 - bt) / 200;
+let offX = 7 * hitFrac * (cb.hitDx || 0) + lg * cos(p.dir),
+offY = 7 * hitFrac * (cb.hitDy || 0) + lg * sin(p.dir);
 if (cb.loudT > 0) { const amp = (cfg.legLen * 0.5 / 3) * sin(cb.loudT / 20), sa = p.dir + HALF_PI; offX += cos(sa) * amp, offY += sin(sa) * amp }
 boxCx.globalAlpha = 1;
 const k = cb.airT > 0 ? sin(PI * (1 - cb.airT / cb.airMs)) * (cb.dashT > 0 ? .5 : 1) : 0, by = p.y + offY - bugLen(b) * k * (cb.dashT > 0 ? .5 : 1), s = 1 + .15 * k;
 k && 3 !== bugTheme && morphShadow(boxCx, cfg, p.x + offX, p.y + offY, p.dir + HALF_PI, 1.5 - 1.2 * k);
 boxCx.save(), boxCx.translate(p.x + offX, by), boxCx.scale(s, s);
-drawBugStyled(boxCx, b, 0, 0, p.dir, 1, b === inspected, k ? null : posPhase(t), sci("col") ? TEAM_HUE[tm.team] : null, !k);
+drawBugStyled(boxCx, b, 0, 0, p.dir, 1, b === inspected, k ? null : posPhase(t), sci("col") ? TEAM_HUE[tm.team] : null, !k, bite);
 boxCx.restore();
 drawHit(b, t, p.x + offX, by, p.dir);
 post.push(() => {

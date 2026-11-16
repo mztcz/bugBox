@@ -119,7 +119,7 @@ td.ab{color:var(--abil);white-space:normal;min-width:100px}
 
 <script>
 const {floor,min,max,random,round}=Math, $=id=>document.getElementById(id);
-const SK=["con","str","agi","per","int"], SN=["CON","STR","AGI","PER","INT"], STAT_LIM=[3,5,7,10,13], STAT_SUM_MAX=50;
+const SK=["con","str","agi","per","arm"], SN=["CON","STR","AGI","PER","ARM"], STAT_LIM=[3,5,7,10,13], STAT_SUM_MAX=50;
 const ri=n=>floor(random()*n), rsign=()=>random()<.5?-1:1, clamp=(v,a,b)=>max(a,min(b,v));
 const shuf=a=>{for(let i=a.length-1;i>0;i--){const j=floor(random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 const statSum=o=>SK.reduce((s,k)=>s+o[k],0), tierOf=s=>min(5,floor(s/10)+1), tierLim=T=>STAT_LIM[T-1];
@@ -140,7 +140,7 @@ D:{name:"Two embryos, the stronger survives",note:"Each stat from a random paren
 fn:(a,b,c)=>{const draw=()=>{const s={},base={};SK.forEach(k=>{const r=random();base[k]=random()<.5?a[k]:b[k];s[k]=clamp(base[k]+(r<.25?-1:r<.5?1:0),1,20)});return [s,base]};
 const x=draw(),y=draw(),[s,base]=statSum(x[0])>=statSum(y[0])?x:y;Object.assign(c,s);capSum(c);return base}}};
 const COL={A:"#d9a02b",B:"#8ca83d",C:"#6fa8c9",D:"#b79bd0"};
-const ABILITIES={};[["dash","Dash","agi"],["jump","Jump","agi"],["knockout","Knock Out","str"],["kickback","Kick Back","str"],["flanking","Flanking","int"],["strongbite","Strong Bite","str"],["swiftbite","Swift Bite","agi"],["backflip","Backflip","agi"],["grab","Grab","str"],["mark","Mark","int"],["phoenix","Phoenix","con"],["fake","Fake Death","int"],["loud","Loud","per"],["cry","Cry","per"],["v360","360","per"],["braced","Braced","con"],["focus","Focus","int"],["tank","Tank","str"],["zoom","Zoom","agi"],["flee","Flee","int"],["resilient","Resilient","con"],["chitin","Chitin","con"]].forEach(([id,name,stat])=>ABILITIES[id]={name,stat});
+const ABILITIES={};[["dash","Dash","agi"],["jump","Jump","agi"],["knockout","Knock Out","str"],["kickback","Kick Back","str"],["iflanking","iFlanking","per"],["strongbite","Strong Bite","str"],["swiftbite","Swift Bite","agi"],["backflip","Backflip","agi"],["grab","Grab","str"],["imark","iMark","per"],["phoenix","Phoenix","con"],["ifake","iFake Death","per"],["loud","Loud","per"],["cry","Cry","per"],["v360","360","per"],["braced","Braced","arm"],["ifocus","iFocus","per"],["tank","Tank","str"],["zoom","Zoom","agi"],["iflee","iFlee","per"],["resilient","Resilient","con"],["chitin","Chitin","arm"]].forEach(([id,name,stat])=>ABILITIES[id]={name,stat});
 const ABIL_MAX=4, ABIL_INHERIT_ONE=.5, ABIL_INHERIT_BOTH=.75, ABIL_ROLL_CHANCE=[.25,.2,.1,.05,0], ABIL_BY_STAT={};
 SK.forEach(k=>ABIL_BY_STAT[k]=Object.keys(ABILITIES).filter(id=>ABILITIES[id].stat===k));
 const abilOrder=b=>SK.filter(k=>b[k]>=5).sort((x,y)=>b[y]-b[x]||(x<y?-1:1));

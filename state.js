@@ -3,11 +3,11 @@ function setAct(e, act, ms = 1 / 0) {
 const t = C.walk.get(e);
 return t.slide = null, t.act = act, t.actT = ms
 }
-const intMs = e => statLin(C.bug.get(e), "int", 5e3, 500);
-const think = (e, k = 1) => setAct(e, "thinking", k * intMs(e) + rf(-250, 250));
+const perMs = e => statLin(C.bug.get(e), "per", 5e3, 500);
+const think = (e, k = 1) => setAct(e, "thinking", k * perMs(e) + rf(-250, 250));
 const aiAct = t => "fighting" === t.act || "fleeing" === t.act;
 const newDir = e => C.vel.get(e).wanderAngle = C.pos.get(e).dir + rsign() * rf(0, TAU / 3);
-const SN = ["CON", "STR", "AGI", "PER", "INT"];
+const SN = ["CON", "STR", "AGI", "PER", "ARM"];
 let dzAnim = 0,
 money = 500,
 bugsOwned = [],
@@ -45,7 +45,7 @@ const ctx = canvas.getContext("2d");
 return ctx.setTransform(dpr, 0, 0, dpr, 0, 0), ctx
 }
 // Saved game (one game): key bugbox_save, format SAVE_VER; gameOn = intro left (saving allowed). In a fight the save keeps fight HP and dead, loading applies them like Leave
-const SAVE_KEY = "bugbox_save", SAVE_VER = 1, saveOk = s => s?.v === SAVE_VER && Array.isArray(s.bugs);
+const SAVE_KEY = "bugbox_save", SAVE_VER = 2, saveOk = s => s?.v === SAVE_VER && Array.isArray(s.bugs);
 let gameOn = 0;
 const gameSnap = () => ({ v: SAVE_VER, dev, money, bid, fightNum, tierMax, statCap, obstKinds, achSt, run, bugs: bugsOwned, world: savedWorld || worldSnap(), bosses: Object.fromEntries(Object.entries(bosses).filter(([k]) => "w" !== k[0])), sci: [scienceOn, sciSt], set: [[sound.sfx, sound.mus, sound.mv], bgOn, bugTheme, gait, palette], items: [inv, armed, boxLv, trophy],
 fight: combatState && { T: enemyTier, d: fightDone, f: bugsInBoxView().filter(f => 0 === f.team && !C.combat.get(f.eid).buried).map(f => ({ b: { id: f.b.id }, curHp: f.curHp, killsThis: f.killsThis, dead: f.dead })) } });

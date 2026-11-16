@@ -7,7 +7,7 @@
 //        node .claude/tool-fight-sim.cjs c [n]   BOSS T1-T5 vs 1 bug of that tier (random genStats / max tier sum / max tier sum with CON and STR
 //                                                at the tier limit); RB T1-T5 vs 1-10 bugs of that tier; WB T1-T5: one WB keeps its HP loss (the game's
 //                                                wbKeep) over fights of a fresh team of 3/5/10 bugs until it dies: median fights to kill (max 10) (default n 200, WB n/10)
-//        node .claude/tool-fight-sim.cjs custom '{"a":[{"con":5,"str":5,"agi":5,"per":5,"int":5,"abilities":["dash"]}],"b":[...],"mode":1,"tier":3,"n":500}'
+//        node .claude/tool-fight-sim.cjs custom '{"a":[{"con":5,"str":5,"agi":5,"per":5,"arm":5,"abilities":["dash"]}],"b":[...],"mode":1,"tier":3,"n":500}'
 //        a/b team entries without stats get genStats(tier); "b" omitted = the game's buildEnemies (bosses for boss modes)
 // Output: % wins of team A, % draws (no end within CAP_MS game time), median fight length, median HP % left in the winning team.
 // Glass taps: STALL_MS game time with no HP change = the game's triple-tap panic (panicAll), as a player does. After a panic the bugs get
@@ -51,7 +51,7 @@ function load() {
     const simGame = buildEnemies;
     var simFoes = null; buildEnemies = T => simFoes ? simFoes : simGame(T);
     Object.keys(SFX).forEach(k => SFX[k] = () => 0);
-    function simBug(o, T) { const s = o.con == null ? genStats(T) : o; return makeBug({ con: s.con, str: s.str, agi: s.agi, per: s.per, int: s.int, abilities: o.abilities || s.abilities || [] }) }
+    function simBug(o, T) { const s = o.con == null ? genStats(T) : o; return makeBug({ con: s.con, str: s.str, agi: s.agi, per: s.per, arm: s.arm, abilities: o.abilities || s.abilities || [] }) }
     const simHp = () => ecsQuery("combat").reduce((s, e) => s + C.combat.get(e).curHp, 0);
     function simFight(A, B, mode, T, cap, keepBoss) {
       dev = 1, money = 1e9, tierMax = T, tutStep = -1, fightMode = mode, B || keepBoss || (bosses = {});
@@ -102,7 +102,7 @@ function camp(ctx, c) {
 // cell makers: run inside a worker, use the game's genStats / SK / capSum
 const MAKERS = {
   // ability: same random tier bug on both sides (all members of a team), A has the ability
-  abil: (ctx, { id, size, tier }) => { const k = ctx.vm("ABILITIES")[id].stat, gen = () => { let x; do x = ctx.genStats(tier); while (x[k] < 5); return x }, s = Array.from({ length: size }, gen), st = x => ({ con: x.con, str: x.str, agi: x.agi, per: x.per, int: x.int });
+  abil: (ctx, { id, size, tier }) => { const k = ctx.vm("ABILITIES")[id].stat, gen = () => { let x; do x = ctx.genStats(tier); while (x[k] < 5); return x }, s = Array.from({ length: size }, gen), st = x => ({ con: x.con, str: x.str, agi: x.agi, per: x.per, arm: x.arm });
     return [s.map(x => ({ ...st(x), abilities: [id] })), s.map(x => ({ ...st(x), abilities: [] }))] },
   // stat: sum S of a random tier bug; B = even split; A = even split, +3 in stat k taken from the other 4 in turn (stats min 1, so fewer than 3 at a T1 sum 5-7)
   stat: (ctx, { stat: k, size, tier }) => { const mk = () => { const S = ctx.vm("statSum")(ctx.genStats(tier)), SK = ctx.vm("SK"), ev = Object.fromEntries(SK.map((x, i) => [x, Math.floor(S / 5) + (i < S % 5)]));
@@ -113,7 +113,7 @@ const MAKERS = {
     if (!v) return {};
     const S = ctx.vm(`min(bossSum(${tier}), 5 * tierLim(${tier}))`), L = ctx.vm(`tierLim(${tier})`);
     if (v === "max") return ctx.genStats(tier, S);
-    const o = { con: L, str: L }, rest = S - 2 * L; ["agi", "per", "int"].forEach((x, i) => o[x] = Math.floor(rest / 3) + (i < rest % 3)); return o
+    const o = { con: L, str: L }, rest = S - 2 * L; ["agi", "per", "arm"].forEach((x, i) => o[x] = Math.floor(rest / 3) + (i < rest % 3)); return o
   }), null]
 };
 function runJob(ctx, j) { return j.camp ? camp(ctx, j) : cell(ctx, { n: j.n, mode: j.mode, tier: j.tier, swap: j.swap, a: j.a, b: j.b, make: j.maker && (c => MAKERS[j.maker](c, j)) }) }

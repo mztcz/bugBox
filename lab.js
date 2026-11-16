@@ -106,7 +106,7 @@ const BREED_SORT = [
 ["str", "Str", b => b.str],
 ["agi", "Agi", b => b.agi],
 ["per", "Per", b => b.per],
-["int", "Int", b => b.int],
+["arm", "Arm", b => b.arm],
 ["abi", "Abi", b => b.abilities.length + b.abilities.map(id => ABILITIES[id].name).join()],
 ["pwr", "Pwr", statSum]
 ];
