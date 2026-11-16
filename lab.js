@@ -95,8 +95,8 @@ b && labApplyCard(div, b)
 function labPick(b, div, grid, addOnly) {
 const selected = labSt.pA?.id === b.id || labSt.pB?.id === b.id;
 if (selected && addOnly) return;
-if (!selected && !canParent(b)) return void flashBlocked(div);
-if (!selected && boxFull()) return flashBlocked(div), void toast("Box full");
+if (!selected && !canParent(b)) return void blocked(div);
+if (!selected && boxFull()) return void blocked(div, "Box full");
 labSt.pA?.id === b.id ? (labSt.pA = labSt.pB, labSt.pB = null) : labSt.pB?.id === b.id ? labSt.pB = null : labSt.pA ? labSt.pB ? (labSt.pA = labSt.pB, labSt.pB = b) : labSt.pB = b : labSt.pA = b, labApplyAll(grid)
 }
 const BREED_SORT = [

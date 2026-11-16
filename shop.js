@@ -12,8 +12,8 @@ bestBug = () => bugsHome().reduce((m, b) => m && statSum(m) >= statSum(b) ? m : 
 let itemSel = null;
 function buyItem(i, div) {
 const c = itemCost(i);
-if (!dev && money < c) return flashBlocked(div), void toast("Not enough money!");
-money -= c, itemGet(i), updateMoney(), renderShop(), saveGame()
+if (!dev && money < c) return void blocked(div, "Not enough money!");
+money -= c, SFX.buy(), itemGet(i), updateMoney(), renderShop(), saveGame()
 }
 function openInv() {
 itemSel = null;
@@ -82,7 +82,7 @@ return b.cost = round(bugValue(statSum(b)) * (1 + .25 * starsOf(statSum(b))) + 1
 });
 // Reroll costs 1 Lucky Dice (item 18); free in Dev
 function shopReroll(bt) {
-if (!dev && !(inv[18] > 0)) return flashBlocked(bt), void toast("Reroll needs a Lucky Dice (tab Items)");
+if (!dev && !(inv[18] > 0)) return void blocked(bt, "Reroll needs a Lucky Dice (tab Items)");
 dev || inv[18]--, shopCart = shopCart.filter(b => !shopPool[shopTab - 1].includes(b)), shopPool[shopTab - 1] = shopRoll(shopTab), renderShop()
 }
 function setShopTab(t) { tierGate(t) && (shopTab = t, renderShop()) }
@@ -128,8 +128,8 @@ e.stopPropagation(), toggleCart(item, div)
 function toggleCart(item, div) {
 if (shopCart.includes(item)) shopCart = shopCart.filter(x => x !== item), money += item.cost;
 else {
-if (!dev && money < item.cost) return flashBlocked(div), void toast("Not enough money!");
-money -= item.cost, shopCart.push(item)
+if (!dev && money < item.cost) return void blocked(div, "Not enough money!");
+money -= item.cost, shopCart.push(item), SFX.buy()
 }
 [...$("shop-grid").children].forEach((d, i) => shopApplyCard(d, d.lastChild, shopPool[shopTab - 1][i])), updateShopFooter(), updateMoney()
 }

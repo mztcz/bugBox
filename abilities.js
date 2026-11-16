@@ -113,7 +113,7 @@ tcb.imX -= tcb.hitDy * sh, tcb.imY += tcb.hitDx * sh;
 spawnDmgPop(tp, dmg, atkTeam, ha, tb);
 hasAbil(tb, "cry") && (tcb.callT = ABILITIES.cry.dur, tcb.callR = callRadius(tb), tcb.callTeam = atkTeam ? 0 : 1, tcb.callCry = 1, tcb.callX = tp.x, tcb.callY = tp.y);
 if (tcb.curHp <= 0 && !(hasAbil(tb, "phoenix") && !tcb.phoenixUsed && !tcb.muted)) {
-tcb.dead = !0, tcb.curHp = 0, tcb.fakeT = 0, hasAbil(tb, "alarm") && (tcb.alarmT = ABILITIES.alarm.dur), cb.killsThis = (cb.killsThis || 0) + 1, cb.memT = 0, cb.searchPhase = 0;
+tcb.dead = !0, tcb.curHp = 0, tcb.fakeT = 0, SFX.die(), hasAbil(tb, "alarm") && (tcb.alarmT = ABILITIES.alarm.dur), cb.killsThis = (cb.killsThis || 0) + 1, cb.memT = 0, cb.searchPhase = 0;
 groundMarks.push({ x: tp.x, y: tp.y, hue: tb.hue, t: 1 })
 }
 }

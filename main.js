@@ -88,7 +88,7 @@ try { s = JSON.parse(decodeURIComponent(escape(atob($("imp-txt").value.trim())))
 saveOk(s) ? confirm("Load this save? The current game is replaced.") && (gameOn = 0, localStorage.setItem(SAVE_KEY, JSON.stringify(s)), location.reload()) : toast("Invalid save code")
 };
 $("bt-set").onclick = () => {
-$("gset-snd").checked = sound.on;
+$("gset-mus").value = sound.mus * 100, $("gset-sfx").value = sound.sfx * 100, $("gset-mv").value = sound.mv;
 $("gset-sci").checked = scienceOn;
 $("gset-bg").checked = !!bgOn;
 $("gset-thm").value = bugTheme;
@@ -96,7 +96,13 @@ $("gset-gait").value = gait;
 $("gset-pal").value = palette;
 impRow(0), ov("ov-set", 1)
 };
-$("gset-snd").onchange = e => { sound.on = e.target.checked };
+$("gset-mus").oninput = e => (sound.mus = e.target.value / 100, mus.side = -1);
+$("gset-sfx").onchange = e => (sound.sfx = e.target.value / 100, SFX.feed());
+$("gset-mv").onchange = e => sound.mv = +e.target.value;
+// audio starts on the first tap (browser rule), pauses while the page is hidden; music scheduler every 100 ms
+["pointerdown", "pointerup"].forEach(t => addEventListener(t, () => document.hidden || "running" === sound.ctx?.state || actx().resume(), !0));
+document.addEventListener("visibilitychange", () => sound.ctx && sound.ctx[document.hidden ? "suspend" : "resume"]());
+setInterval(musTick, 100);
 $("bt-fow").onclick = () => toggleFow();
 let tap0, cardDrag = 0;
 document.addEventListener("touchstart", e => tap0 = e.touches[0], { passive: !0 });

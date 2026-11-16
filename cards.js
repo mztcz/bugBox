@@ -61,7 +61,7 @@ opts.onImgTap && opts.onImgTap(div)
 }
 }
 skullWrap.onclick = e2 => {
-e2.stopPropagation(), flashBlocked(div), achieve("cull"), achieve("kill"), run.end = bug.name + " culled", setTimeout(() => {
+e2.stopPropagation(), flashBlocked(div), SFX.die(), achieve("cull"), achieve("kill"), run.end = bug.name + " culled", setTimeout(() => {
 killPh = null, killPhClose = null;
 opts.onKill && opts.onKill(div)
 }, 150)
@@ -106,6 +106,14 @@ function toastNext() {
 const el = $("toast"), r = $("box-canvas").getBoundingClientRect();
 r.height && (toastBot = innerHeight - r.bottom + 10), el.style.bottom = toastBot + "px";
 toastLbl(), el.classList.add("show"), setTimeout(() => (el.classList.remove("show"), setTimeout(() => (toastQ.shift(), toastQ.length && toastNext()), 300)), 2000)
+}
+// blocked tap: blue flash + lock sound + optional toast
+const blocked = (div, msg) => (flashBlocked(div), SFX.lock(), msg && toast(msg));
+// full-screen colour flash fading out in 0.35 s (new tier)
+function screenFlash(col) {
+const d = document.createElement("div");
+d.style = `position:fixed;inset:0;background:${col};opacity:.6;pointer-events:none;z-index:450;transition:opacity .35s`, document.body.appendChild(d);
+requestAnimationFrame(() => requestAnimationFrame(() => d.style.opacity = 0)), setTimeout(() => d.remove(), 400)
 }
 function flashBlocked(div, ms = 0) {
 div.classList.remove("blocked-fade"), div.classList.add("card-sel2", "blocked-fill"), setTimeout(() => requestAnimationFrame(() => requestAnimationFrame(() => {

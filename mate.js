@@ -34,7 +34,7 @@ continue
 const subFirst = ba.str < bbg.str || (ba.str === bbg.str && random() < .5),
 m = { a: subFirst ? ea : eb, b: subFirst ? eb : ea, phase: "turn", t: 0, hold: 0 };
 lure && armed[6]--;
-[ea, eb].forEach(x => (setAct(x, "breeding"), C.walk.get(x).pair = m))
+[ea, eb].forEach(x => (setAct(x, "breeding"), C.walk.get(x).pair = m)), SFX.mate()
 }
 ta.touch = now
 }

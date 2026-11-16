@@ -228,9 +228,20 @@ Gen = generation · K = kills · F = fights fought</p>
 <div class="intro-frame" style="max-width:320px;width:100%;">
 <div class="dos-title" style="font-size:15px;margin-bottom:4px;">⚙ SETTINGS</div>
 <hr class="dos-hr">
-<label style="display:flex;align-items:center;gap:8px;font-size:11px;color:#aabbaa;padding:6px 2px;cursor:pointer;">
-<input type="checkbox" id="gset-snd" checked style="accent-color:#4f8;width:14px;height:14px;">
-Sound effects
+<label style="display:flex;align-items:center;gap:8px;font-size:11px;color:#aabbaa;padding:6px 2px;">
+Music
+<input type="range" id="gset-mus" min="0" max="100" style="flex:1;accent-color:#4f8;">
+</label>
+<label style="display:flex;align-items:center;gap:8px;font-size:11px;color:#aabbaa;padding:6px 2px;">
+Sound
+<input type="range" id="gset-sfx" min="0" max="100" style="flex:1;accent-color:#4f8;">
+</label>
+<label style="display:flex;align-items:center;gap:8px;font-size:11px;color:#aabbaa;padding:6px 2px;">
+Music style
+<select id="gset-mv" style="flex:1;background:#0a0a12;color:#aabbaa;border:1px solid #2a2a4a;font-size:11px;padding:2px;">
+<option value="0">A</option>
+<option value="1">B</option>
+</select>
 </label>
 <label style="display:flex;align-items:center;gap:8px;font-size:11px;color:#aabbaa;padding:6px 2px;cursor:pointer;">
 <input type="checkbox" id="gset-sci" style="accent-color:#4f8;width:14px;height:14px;" onchange="setScience(this.checked)">

@@ -30,7 +30,7 @@ const plain = !bet && "mc" !== fightMode, open = plain && !BOSS[fightMode], peek
 foes ||= open && armed[17] > 0 ? Object.assign(fightTeam.map(b => makeBug({ ...lookOf(b), hue: rf(0, 45), abilities: b.abilities.slice() })), { mir: 1 }) : buildEnemies(T);
 // fee by the enemies that come (each at its own tier)
 const fee = bet ? 0 : foes.reduce((s, b) => s + entryFee(tierOf(statSum(b)), 1), 0);
-if (!dev && money < fee) return flashBlocked(btn), void toast("Not enough money!");
+if (!dev && money < fee) return void blocked(btn, "Not enough money!");
 // Magnifier: enemy cards before the fee is paid
 if (peek) { armed[11]--; const d = cardRow(popup(`ENEMIES · ENTRY $${fee}`), foes); return ["⚔ Fight", "← Back"].forEach((t, i) => { const b = document.createElement("button"); b.className = i ? "bt" : "warn bt", b.textContent = t, b.onclick = () => (d.remove(), i || startFight(btn, T, foes)), d.appendChild(b) }) }
 money -= fee, enemyTier = T, updateMoney(), keepHp();
@@ -68,7 +68,7 @@ allPlayer = all.filter(f => 0 === f.team),
 allEnemy = all.filter(f => 1 === f.team);
 keepHp();
 const rt = $("res-title"), show = () => (renderResult(), $("bt-res").style.display = "");
-rt.textContent = won ? "VICTORY!" : "DEFEAT", rt.style.color = won ? "#44ff88" : "#ff4444", won && SFX.win();
+rt.textContent = won ? "VICTORY!" : "DEFEAT", rt.style.color = won ? "#44ff88" : "#ff4444", won ? (SFX.win(), confetti(spans5(boxCv), 3)) : SFX.lose();
 // Arena Ticket fight: only the payout, no records, achievements or fight counts of owned bugs
 if (fightFx.bet) return won && (money += match.prize = fightFx.bet), updateMoney(), saveGame(), show(), ov("ov-res", 1);
 dead0.length && achStep("lost", [1, 10], "lost", dead0.length);
@@ -76,7 +76,7 @@ const kills = allPlayer.reduce((s, f) => s + (f.killsThis || 0), 0);
 addKills(kills);
 buryDead(dead0), awayStep(1);
 if (won) {
-"boss" === fightMode && enemyTier >= tierMax && enemyTier < 5 && toast(`Tier ${enemyTier} boss is defeated. T${tierMax = enemyTier + 1} opens`);
+"boss" === fightMode && enemyTier >= tierMax && enemyTier < 5 && (toast(`Tier ${enemyTier} boss is defeated. T${tierMax = enemyTier + 1} opens`), screenFlash(TIER_COL[tierMax]));
 // Bounty enemy ×3, Mirror Shard ×2, Betting Slip payout on top
 const prize = allEnemy.reduce((s, f) => s + bugValue(statSum(f.b)) * (f.b.bounty ? 3 : 1), 0) * prizeK() * (fightFx.mir ? 2 : 1) + (fightFx.slip || 0);
 money += prize, match.prize += prize, alive0.forEach(f => {
@@ -168,6 +168,6 @@ const c = C.combat.get(e);
 if (c.curHp <= 0) { c.dead = !0, c.curHp = 0, c.phoenixT = 0, c.fakeT = 0, clearActionState(c) }
 else if (c.dead) { c.phoenixT = 0, c.fakeT = 0 }
 });
-fightDone = !0, resultTimer = setTimeout(showFightResult, 1000)
+fightDone = !0, resultTimer = setTimeout(showFightResult, 1000), slowT = 600, shake()
 }
 }

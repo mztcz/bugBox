@@ -11,8 +11,7 @@ d <= ccb.callR && d < bd && (bd = d, best = ccb)
 return best
 }
 function panicAll() {
-boxCv.classList.remove("shake"), void boxCv.offsetWidth, boxCv.classList.add("shake");
-setTimeout(() => boxCv.classList.remove("shake"), 500);
+shake();
 ecsQuery("bug", "pos", "combat").forEach(e => {
 const cb = C.combat.get(e), t = C.walk.get(e), p = C.pos.get(e);
 if (cb.dead) return;
@@ -23,7 +22,7 @@ flee(e, c ? atan2(c.y - p.y, c.x - p.x) : (floor(atan2(p.y - boxLH / 2, p.x - bo
 })
 }
 const abilReady = (e, id) => { const cb = C.combat.get(e); return !cb.muted && hasAbil(C.bug.get(e), id) && !(cb.cd[id] > 0) };
-const abilFire = (e, id) => { const cb = C.combat.get(e); cb.cd[id] = ABILITIES[id].cd, abilShow(cb, id) };
+const abilFire = (e, id) => { const cb = C.combat.get(e); cb.cd[id] = ABILITIES[id].cd, abilShow(cb, id), SFX.abil(ABILITIES[id].stat) };
 const ACTION_KEYS = ["flyT", "airT", "dashT", "spinRemain", "dashHitPend",
 "backflipT", "grabTarget", "grabbedBy", "grabDragLeft",
 "grabTimeLeft", "mvSpd", "imX", "imY", "aimLock", "aimTarget"];
@@ -76,7 +75,7 @@ const fake = ocb => ocb.fakeT > 0 || ocb.bit?.[e] >= ocb.decoy;
 if (cb.dead && !(cb.phoenixT > 0)) { cb.alarmT > 0 && (cb.alarmT -= dt), clearActionState(cb); return }
 tickTimers(cb, p, dt);
 cb.muted = ents.some(oe => { const ocb = C.combat.get(oe), op = C.pos.get(oe); return ocb.loudT > 0 && !ocb.dead && C.team.get(oe).team !== tm.team && hypot(op.x - p.x, op.y - p.y) < loudRadius(C.bug.get(oe)) });
-if (cb.curHp <= 0 && !cb.dead) { cb.phoenixUsed = 1; cb.phoenixT = ABILITIES.phoenix.dur; cb.dead = true; cb.curHp = 0; clearActionState(cb); return }
+if (cb.curHp <= 0 && !cb.dead) { cb.phoenixUsed = 1; cb.phoenixT = ABILITIES.phoenix.dur; cb.dead = true; SFX.die(); cb.curHp = 0; clearActionState(cb); return }
 if (cb.dead && cb.phoenixT > 0) {
 cb.phoenixT -= dt;
 if (cb.phoenixT > 0) return;

@@ -1,6 +1,9 @@
 const dropMs = () => ABILITIES.jump.dur / 2;
 let simLastT = 0,
-tickDebt = 0;
+tickDebt = 0,
+slowT = 0; // real ms left of the last-kill slow motion (0.3×)
+// screen shake of the box canvas (panic, last kill)
+const shake = () => (boxCv.classList.remove("shake"), void boxCv.offsetWidth, boxCv.classList.add("shake"), setTimeout(() => boxCv.classList.remove("shake"), 500));
 function drawBoxBackdrop() {
 boxCx.clearRect(-boxOX, -boxOY, boxLW + 2 * boxOX, boxLH + 2 * boxOY), boxK() < 1 && (boxCx.strokeStyle = combatState ? "#fa4" : "#4cf", boxCx.lineWidth = 2, boxCx.strokeRect(-1, -1, boxLW + 2, boxLH + 2));
 if (bgOn && combatState && 3 !== bugTheme && drawBg()) return;
@@ -17,7 +20,7 @@ const real = simLastT ? min(ts - simLastT, 100) : 16.67;
 simLastT = ts;
 drawBoxBackdrop();
 if (!combatState) ecsQuery("bug").length !== bugsHome().length && spawnBox();
-tickDebt += real * simSpd / COMBAT_STEP_MS;
+tickDebt += real * simSpd * (slowT > 0 ? .3 : 1) / COMBAT_STEP_MS, slowT -= real;
 let guard = 0;
 while (tickDebt >= 1 && guard++ < MAX_STEPS_PER_FRAME) {
 tickDebt -= 1, tick(COMBAT_STEP_MS, combatState), combatState && fightMs >= 0 && checkFightEnd();

@@ -41,7 +41,7 @@ btn.style = "width:100%;margin-top:7px;font-size:10px;", div.appendChild(btn), b
 e.stopPropagation();
 if (itemSel != null) return itemOnBug(b), void openBoo(!0, fightTeam);
 const idx = fightTeam.findIndex(x => x.id === b.id);
-return idx >= 0 ? (fightTeam.splice(idx, 1), booApplyCard(div, btn, b), void updateBooUI()) : bossFit(b) ? fightTeam.length >= teamMax() ? (flashBlocked(div), void toast(`Max ${teamMax()} fighters!`)) : (fightTeam.push(b), booApplyCard(div, btn, b), void updateBooUI()) : void flashBlocked(div)
+return idx >= 0 ? (fightTeam.splice(idx, 1), booApplyCard(div, btn, b), void updateBooUI()) : bossFit(b) ? fightTeam.length >= teamMax() ? void blocked(div, `Max ${teamMax()} fighters!`) : (fightTeam.push(b), booApplyCard(div, btn, b), void updateBooUI()) : void blocked(div)
 }, div.dataset.bid = b.id, g.appendChild(div)
 })
 }
