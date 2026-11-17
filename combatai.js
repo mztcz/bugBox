@@ -38,7 +38,6 @@ abs(cb.kbY) < .15 && (cb.kbY = 0);
 const st = cb.kbX || cb.kbY ? cb.spinRemain * (1 - damp) : cb.spinRemain;
 p.dir += cb.spinDir * st, cb.spinRemain -= st;
 }
-cb.biteT > 0 && (cb.biteT = max(0, cb.biteT - dt));
 for (const k in cb.cd) cb.cd[k] -= dt;
 cb.stunT > 0 && (cb.stunT -= dt);
 cb.loudT > 0 && (cb.loudT -= dt);
@@ -230,7 +229,7 @@ cb.dashT = ABILITIES.dash.dur; abilFire(e, "dash"); cb.dashHitPend = 1; cb.airT 
 if (cb.dashHitPend && minD <= attackReach) {
 cb.dashHitPend = 0; cb.dashT = 0; cb.airT = 0;
 biteDodged(b, p, tb, tp, tm.team, tcb, e) || (applyBite(cb, b, p, target, tb, tp, 1, tm.team, e), biteNoticed(target));
-biteDone(cb, b, tm.team);
+biteDone(e, b, tm.team);
 }
 let moveSpd = cb.dashT > 0 ? spd * 8 : minD > attackReach && seesPoint(b, p, tp.x, tp.y) ? spd * RUSH * facing(p, toT) : spd;
 if (aiming) moveSpd = 0;
@@ -289,7 +288,7 @@ abilReady(e, "clamp") && (tcb.clampT = ABILITIES.clamp.dur, abilFire(e, "clamp")
 cb.biteE === target || (cb.biteE = target, cb.biteN = 0), cb.biteN++;
 if (cb.biteN >= 3 && tcb.stunT <= 0 && abilReady(e, "backflip")) { cb.backflipT = ABILITIES.backflip.dur, cb.airT = cb.airMs = cb.backflipT / 2; abilFire(e, "backflip") }
 }
-biteDone(cb, b, tm.team, cb.swiftPend ? .5 : 1), cb.swiftPend = 0;
+biteDone(e, b, tm.team, cb.swiftPend ? .5 : 1), cb.swiftPend = 0;
 if (abilReady(e, "strongbite") && !cb.strongPend) { cb.strongPend = 1; abilFire(e, "strongbite") }
 if (abilReady(e, "swiftbite") && !cb.swiftPend) { cb.swiftPend = 1; abilFire(e, "swiftbite") }
 if (abilReady(e, "loud")) { cb.loudT = ABILITIES.loud.dur; abilFire(e, "loud") }

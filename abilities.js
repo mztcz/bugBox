@@ -45,7 +45,7 @@ const ABIL_BY_STAT = {};
 SK.forEach(k => ABIL_BY_STAT[k] = ABIL_IDS.filter(id => ABILITIES[id].stat === k));
 const shuf = a => { for (let i = a.length - 1; i > 0; i--) { const j = floor(random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]] } return a };
 const bitePrepOf = (b, k = 1) => statLin(b, "agi", BITE_PREP_MAX, BITE_PREP_MIN) * k + rf(-125, 125),
-biteDone = (cb, b, t, k = 1) => (SFX.bite(t), cb.biteT = 500, cb.bitePrep = cb.bitePrepMax = bitePrepOf(b, k * cb.prepK), cb.prepK = 1);
+biteDone = (e, b, t, k = 1, cb = C.combat.get(e)) => (SFX.bite(t), C.walk.get(e).biteT = 500, cb.bitePrep = cb.bitePrepMax = bitePrepOf(b, k * cb.prepK), cb.prepK = 1);
 const FOV_MIN_DEG = 90, FOV_MAX_DEG = 94.5;
 function engageDistOf(b) { const m = ensureMorph(b); return m.bodyLength / 2 + m.headSize * 2 }
 function bugRadius(b) { const m = ensureMorph(b); return m.bodyLength / 2 + m.headSize }
@@ -119,7 +119,7 @@ groundMarks.push({ x: tp.x, y: tp.y, hue: tb.hue, t: 1 })
 const COMBAT_DEFAULTS = {
 dead: !1, killsThis: 0,
 prepVisT: 0,
-kbX: 0, kbY: 0, hitDx: 0, hitDy: 0, biteT: 0,
+kbX: 0, kbY: 0, hitDx: 0, hitDy: 0,
 stunT: 0,
 flyT: 0, flyDx: 0, flyDy: 0, flySp: 0, flyE: -1, airT: 0, airMs: 1, spinRemain: 0, spinDir: 1,
 dashT: 0, dashHitPend: 0,

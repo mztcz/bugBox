@@ -52,7 +52,7 @@ for (const [x, y, k2] of [[s.a, s.b, "ta"], [s.b, s.a, "tb"]]) {
 if (!s[k2]) continue;
 const px = C.pos.get(x), py = C.pos.get(y), bx = C.bug.get(x), tx = C.walk.get(x), a = atan2(py.y - px.y, py.x - px.x);
 C.vel.get(x).wanderAngle = a, turnToward(x, a, turningOf(bx) * dtS);
-abs(norm(a - px.dir)) < LOVE_BITE_CONE && (tx.prepT = (tx.prepT || (tx.prepMax = bitePrepOf(bx))) - dt) <= 0 && (s[k2] = tx.prepT = 0, nibble(bx, y), SFX.bite())
+abs(norm(a - px.dir)) < LOVE_BITE_CONE && (tx.prepT = (tx.prepT || (tx.prepMax = bitePrepOf(bx))) - dt) <= 0 && (s[k2] = tx.prepT = 0, tx.biteT = 500, nibble(bx, y), SFX.bite())
 }
 if (s.ta || s.tb) return
 }
