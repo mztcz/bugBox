@@ -47,7 +47,7 @@ boxCx.fillText(`${ABILITIES[id].name}${has?" "+(cd<=0?"\u2713":(cd/1000).toFixed
 }
 // red hit flash; tutorial: blue tint with blue glow fading in 0.35 s
 const tint = (b, col, a, x, y, dir) => a > 0 && a <= 1 && drawMorphBug(boxCx, ensureMorph(b), col, x, y, dir + HALF_PI, { alpha: a, shadow: !1, glow: "#4cf" === col ? col : null }),
-clampOf = (t, bt = 500 - (t.biteT || 0)) => bt < 120 ? bt / 120 : bt < 300 ? 1 : (500 - bt) / 200,
+lungeOf = t => 14 / 3 * max(0, (t.biteT || 0) - 300) / 200, clampOf = (t, bt = 500 - (t.biteT || 0)) => bt < 120 ? bt / 120 : bt < 300 ? 1 : (500 - bt) / 200,
 drawHit = (b, t, x, y, dir) => (tint(b, "#ff2828", t.hitT, x, y, dir), tutTint?.b === b && tint(b, "#4cf", 1 - (performance.now() - tutTint.at) / 350, x, y, dir));
 const drawFood = (p, c1, c2) => {
 boxCx.fillStyle = c1, boxCx.beginPath(), boxCx.arc(p.x, p.y, 4, 0, 7), boxCx.fill();
@@ -81,8 +81,9 @@ drawOrder.forEach(e => {
 const b = C.bug.get(e),
 p = C.pos.get(e), t = C.walk.get(e);
 if (!inCombat) {
-drawBugStyled(boxCx, b, p.x, p.y, p.dir, 1, b === inspected, posPhase(t), null, !0, clampOf(t));
-drawHit(b, t, p.x, p.y, p.dir);
+const lg = lungeOf(t), lx = p.x + lg * cos(p.dir), ly = p.y + lg * sin(p.dir);
+drawBugStyled(boxCx, b, lx, ly, p.dir, 1, b === inspected, posPhase(t), null, !0, clampOf(t));
+drawHit(b, t, lx, ly, p.dir);
 const r = morphR(b);
 post.push(() => {
 (!fow && (b === inspected || hpFrac(b) < 1 || scienceOn && sci("hp"))) && drawHpBar(p, hpFrac(b), r);
@@ -104,7 +105,7 @@ return;
 }
 cb.greyAt = 0;
 const hitFrac = t.hitT || 0;
-const lg = 14 / 3 * max(0, (t.biteT || 0) - 300) / 200;
+const lg = lungeOf(t);
 let offX = 7 * hitFrac * (cb.hitDx || 0) + lg * cos(p.dir),
 offY = 7 * hitFrac * (cb.hitDy || 0) + lg * sin(p.dir);
 if (cb.loudT > 0) { const amp = (cfg.legLen * 0.5 / 3) * sin(cb.loudT / 20), sa = p.dir + HALF_PI; offX += cos(sa) * amp, offY += sin(sa) * amp }
