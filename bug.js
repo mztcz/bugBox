@@ -2,12 +2,12 @@ function statColor(v) {
 const n = round(v);
 return TIER_COL[n <= 4 ? 1 : n <= 9 ? 2 : 4]
 }
-const TIER_COL = ["", "#cc7722", "#cccc22", "#00ff66", "#22dddd", "#cc66ff"];
+const TIER_COL = ["", "#cc7722", "#cccc22", "#00ff66", "#22dddd", "#aa44ff"];
 const statSum = o => SK.reduce((s, k) => s + o[k], 0);
 const STAT_SUM_MAX = 60, STAT_LIM = [3, 5, 7, 10, 13, 15];
 const tierOf = s => min(5, floor(s / 10)), bossSum = T => T > 4 ? STAT_SUM_MAX : 10 * T + 9,
 tierRate = T => 2 ** (T + 1), bugValue = s => tierRate(tierOf(s)) * s,
-starsOf = s => s >= STAT_SUM_MAX ? 5 : s < 10 ? 0 : max(0, s % 10 - 5), ROLES = [["Bulwark", "Ripper", "Scarab", "Runner", "Scarab", "Scout"], ["Tough", "Strong", "Armored", "Swift", "Smart", "Recon"], ["Eggshell", "Weakling", "Ladybug", "Slug", "Drone", "Mole"], ["Soft", "Weak", "Fragile", "Slow", "Dumb", "Blind"]],
+starsOf = s => s >= STAT_SUM_MAX ? 5 : s < 10 ? 0 : max(0, s % 10 - 5), ROLES = [["Bulwark", "Ripper", "Shellback", "Runner", "Scarab", "Scout"], ["Tough", "Strong", "Armored", "Swift", "Smart", "Recon"], ["Eggshell", "Weakling", "Ladybug", "Slug", "Drone", "Mole"], ["Soft", "Weak", "Fragile", "Slow", "Dumb", "Blind"]],
 roleOf = o => { const i = shuf(SK.map((_, j) => j)).sort((a, b) => o[SK[b]] - o[SK[a]]), v = i.map(j => o[SK[j]]), R = (g, j) => ROLES[g][i[j]], T = tierOf(statSum(o)), h = T > 2 ? 3 : 2, l = max(2, T + 1), n = SK.length - 1;
 return v[1] >= v[2] + h ? R(1, 1) + " " + R(0, 0) : v[0] >= v[1] + h ? R(0, 0) : v[n - 1] <= v[n - 2] - l ? R(3, n - 1) + " " + R(2, n) : v[n] <= v[n - 1] - l ? R(2, n) : "Brawler" };
 function genStats(T, S = T > 0 ? 10 * T + min(ri(10), ri(10)) : 7 + ri(3)) {

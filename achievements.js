@@ -44,7 +44,6 @@ const ACHIEVEMENTS = [
 ["elite", "breed an elite bug (stat sum 40+)"],
 ["supreme", "breed a supreme bug (stat sum 50+)"],
 ["maxed", "breed a maxed bug (stat sum 60)"],
-["fiveStars", "breed a five-star bug (stat sum 60)"],
 ["newTier", "breed a bug of a higher tier than both parents"],
 ...[0, 1, 2, 3, 4, 5].map(T => ["ownT" + T, `own a T${T} bug`]),
 ...[1, 2, 3, 4, 5].flatMap(T => [1, 2, 3, 4].map(n => [`t${T}s${n}`, `own a T${T} ${"★".repeat(n)} bug`])),
@@ -153,7 +152,7 @@ achAt(p.kids, [[5, "playboy"], [10, "familyMan"], [15, "rabbit"], [20, "genghisK
 }
 function achBug(b) {
 const s = statSum(b), T = tierOf(s), n = starsOf(s);
-achieve("ownT" + T), n > 4 ? achieve("fiveStars") : n && achieve(`t${T}s${n}`)
+achieve("ownT" + T), n && n < 5 && achieve(`t${T}s${n}`)
 }
 function achChild(b, pT) {
 achBug(b), tierOf(statSum(b)) > pT && achieve("newTier"), achieve("breed"), achStep("bred", [10, 50], "bred");
