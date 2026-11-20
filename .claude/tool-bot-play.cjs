@@ -4,7 +4,7 @@
 // Usage: node .claude/tool-bot-play.cjs [games per strategy = 20] [strategies = careful,greedy,breeder] [parallel pages = 4]
 // Strategies: careful = fights only when its team stat sum (x HP fraction) beats the expected enemy stat sum (RB/WB: sum x HP multiplier);
 //                       BOSS with its tier bug of the highest CON+STR once that bug's stat sum is at least the boss sum - 2;
-//             greedy  = highest open tier, mode with the highest prize it can field and afford (all modes; MC prize = all 5 steps), MC: next step
+//             greedy  = highest open tier, mode with the highest prize it can field and afford (all modes; MC prize = all 6 steps), MC: next step
 //                       whenever it can pay the fee; careful and breeder take the next MC step only with a stat-sum advantage, else Leave;
 //             breeder = careful + breeds in the Lab after every fight (bugs of the highest open tier first, best CON+STR + sum/2 pairs, while 2 can mate; at 30 bugs it sends
 //                       the weakest down to 24 into CHAOS at their lowest tier: prize chance instead of nothing; the player kills no bugs).
@@ -17,7 +17,7 @@
 // still no bite after the last wait, or fight not over after 600 s game time = Leave (draw).
 // No bugs and no money for a Shop bug: opens the Shop (eggs and pupae get ready), feeds the young in the box until a bug emerges.
 // Finished games are kept in <tmp>/bugbox-bot-<games>.jsonl: after a restart the same command continues.
-// Output: table per strategy (time and fights to T2..T5 open and to the T5 BOSS win, game over share and tier, money curve,
+// Output: table per strategy (time and fights to T1..T5 open and to the T5 BOSS win, game over share and tier, money curve,
 // dead ends = steps where the UI did not let the bot go on, JS errors). Full data: <tmp>/bugbox-bot.json
 const fs = require("fs"), path = require("path"), os = require("os");
 let pw; try { pw = require("playwright") } catch { pw = require("/opt/node-tools/node_modules/playwright") }
@@ -40,14 +40,14 @@ window.__spots = ents => { const r = boxCv.getBoundingClientRect(), out = []; en
 window.__hpf = b => (b.curHp == null ? maxHpOf(b) : b.curHp) / maxHpOf(b);
 window.__opts = strat => {
   const out = [], fm = fightMode, et = enemyTier, own = bugsOwned.slice().sort((a, b) => statSum(b) * __hpf(b) - statSum(a) * __hpf(a));
-  const ft = fightTeam, eS = T => T > 1 ? 10 * T - 7.15 : 8;
-  for (let T = 1; T <= tierMax; T++) for (const m of MODES) {
-    if ("mc" === m && T > 1) continue;
+  const ft = fightTeam, eS = T => T > 0 ? 10 * T + 2.85 : 8;
+  for (let T = 0; T <= tierMax; T++) for (const m of MODES) {
+    if ("mc" === m && T > 0) continue;
     fightMode = m, enemyTier = T;
     const cs = b => b.con + b.str, fit = m === "boss" ? own.filter(bossFit).sort((a, b) => cs(b) - cs(a)) : own.filter(bossFit), team = fightTeam = fit.slice(0, teamMax()), n = foeN();
     if (!team.length || (typeof m === "number" && team.length < m)) continue;
     const boss = BOSS[m], eSum = boss ? bossSum(T) * boss[1] : n * eS(T), fee = entryFee(T, n);
-    const prize = boss ? bugValue(bossSum(T)) * prizeK() : "mc" === m ? [1, 2, 3, 4, 5].reduce((s, t) => s + bugValue(round(eS(t))), 0) : n * bugValue(round(eS(T))), mine = team.reduce((s, b) => s + statSum(b) * __hpf(b), 0);
+    const prize = boss ? bugValue(bossSum(T)) * prizeK() : "mc" === m ? [0, 1, 2, 3, 4, 5].reduce((s, t) => s + bugValue(round(eS(t))), 0) : n * bugValue(round(eS(T))), mine = team.reduce((s, b) => s + statSum(b) * __hpf(b), 0);
     out.push({ m, T, ids: team.map(b => b.id), fee, prize, adv: m === "boss" ? (statSum(team[0]) >= bossSum(T) - 2 && __hpf(team[0]) >= 1 ? 2 : 0) : mine / eSum, unlock: m === "boss" && T === tierMax });
   }
   fightMode = fm, enemyTier = et, fightTeam = ft;
@@ -90,7 +90,7 @@ async function playGame(browser, strat, gi) {
     for (let k = 0; k < MAX_BUGS; k++) {
       s = await st(); if (s.bugs.length + (await ev("shopCart.length")) >= MAX_BUGS) break;
       // strongest affordable card of the highest affordable open tier
-      const pick = await ev(`(() => { const left = money - ${reserve}; for (let T = tierMax; T >= 1; T--) { const p = shopPool[T - 1].map((b, i) => ({ i, b })).filter(o => !shopCart.includes(o.b) && o.b.cost <= left).sort((x, y) => statSum(y.b) - statSum(x.b))[0]; if (p) return { T, i: p.i } } return null })()`);
+      const pick = await ev(`(() => { const left = money - ${reserve}; for (let T = tierMax; T >= 0; T--) { const p = shopPool[T].map((b, i) => ({ i, b })).filter(o => !shopCart.includes(o.b) && o.b.cost <= left).sort((x, y) => statSum(y.b) - statSum(x.b))[0]; if (p) return { T, i: p.i } } return null })()`);
       if (!pick) break;
       (await ev("shopTab")) === pick.T || await tap(`#shop-tabs button >> nth=${pick.T}`, "shop tab");
       if (!await tap(`#shop-grid > .card >> nth=${pick.i}`, "shop card")) break;
@@ -163,7 +163,7 @@ async function playGame(browser, strat, gi) {
     await go("s-boo");
     const mi = [1, 2, 3, 6, "boss", "mayhem", "chaos", "mc", "rb", "wb"].indexOf(o.m);
     await tap(`#s-boo .bt-mode >> nth=${mi}`, "mode");
-    (await ev("enemyTier")) === o.T || await tap(`#tier-row button >> nth=${o.T - 1}`, "tier");
+    (await ev("enemyTier")) === o.T || await tap(`#tier-row button >> nth=${o.T}`, "tier");
     const sel = await ev("fightTeam.map(b => b.id)");
     for (const id of sel) o.ids.includes(id) || await tap(`#boo-grid .card[data-bid="${id}"]`, "unselect");
     for (const id of o.ids) sel.includes(id) || await ev(`!!ownedById(${id})`) && await tap(`#boo-grid .card[data-bid="${id}"]`, "select");
@@ -187,7 +187,7 @@ async function playGame(browser, strat, gi) {
     process.env.BOT_DEBUG && console.error(`${strat}#${gi} f${log.fights} ${o.m} T${o.T} n${o.ids.length} adv ${o.adv.toFixed(2)} ${won ? "WIN" : "loss"} $${s.money} bugs ${s.bugs.length} tierMax ${s.tierMax} ${ptime(s).toFixed(1)} min, dead ends ${dead.length}`);
     await page.locator("button.bt", { hasText: /^None$/ }).count() && await tap("button.bt >> text=None", "offer None");
     s = await st();
-    for (let T = 2; T <= s.tierMax; T++) log.opens[T] || (log.opens[T] = { min: ptime(s), fights: log.fights });
+    for (let T = 1; T <= s.tierMax; T++) log.opens[T] || (log.opens[T] = { min: ptime(s), fights: log.fights });
     if (won && o.m === "boss" && o.T === 5) { log.won = { min: ptime(s), fights: log.fights }; stop = "T5 boss won"; break }
     await tap("#res-body .nav-box", "result BugBox");
   }
@@ -217,10 +217,10 @@ async function playGame(browser, strat, gi) {
   console.log(`bot ${GAMES} games per strategy, ${Math.round((Date.now() - t0) / 1e3)} s real. cells: median player min / median fights / games reaching`);
   console.log(["", ...STRATS].join("\t"));
   const row = (name, fn) => console.log([name, ...STRATS.map(st => fn(logs.filter(l => l.strat === st)))].join("\t"));
-  for (let T = 2; T <= 5; T++) row(`T${T} open`, g => { const r = g.filter(l => l.opens[T]); return `${f0(med(r.map(l => l.opens[T].min)))}m/${f0(med(r.map(l => l.opens[T].fights)))}f/${r.length}` });
+  for (let T = 1; T <= 5; T++) row(`T${T} open`, g => { const r = g.filter(l => l.opens[T]); return `${f0(med(r.map(l => l.opens[T].min)))}m/${f0(med(r.map(l => l.opens[T].fights)))}f/${r.length}` });
   row("T5 boss won", g => { const r = g.filter(l => l.won); return `${f0(med(r.map(l => l.won.min)))}m/${f0(med(r.map(l => l.won.fights)))}f/${r.length}` });
   row("game over %", g => f0(100 * g.filter(l => l.stop === "game over").length / g.length) + "%");
-  for (let T = 1; T <= 5; T++) row(` over in T${T}`, g => g.filter(l => l.stop === "game over" && l.tierEnd === T).length);
+  for (let T = 0; T <= 5; T++) row(` over in T${T}`, g => g.filter(l => l.stop === "game over" && l.tierEnd === T).length);
   row("other ends", g => Object.entries(g.filter(l => l.stop !== "game over" && !l.won).reduce((a, l) => (a[l.stop] = (a[l.stop] || 0) + 1, a), {})).map(([k, v]) => `${k} ${v}`).join(", ") || "–");
   row("fights (median)", g => f0(med(g.map(l => l.fights))));
   row("forced fights", g => f0(med(g.map(l => l.forced || 0))));

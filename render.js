@@ -35,7 +35,7 @@ const cb = C.combat.get(e) || {};
 if (cb.dead && !(cb.phoenixT > 0) && !(cb.fakeT > 0)) return;
 const b = C.bug.get(e),
 p = C.pos.get(e),
-list = (b.abilities || []).filter(id => id === "phoenix" ? !cb.phoenixUsed : id === "ifake" ? cb.fakeUsed < 2 : !0);
+list = (b.abilities || []).filter(id => id === "phoenix" ? !cb.phoenixUsed : id === "fake" ? cb.fakeUsed < 2 : !0);
 const r = morphR(b);
 let yy = p.y + 4;
 list.forEach(id => {

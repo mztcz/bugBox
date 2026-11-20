@@ -86,9 +86,9 @@ let boxLW = 360, boxOX = 0, boxOY = 0, boxS = 1,
 boxLH = 300;
 // Fixed game world (full box area in game px, side ratio follows the window within 1:2..2:1, kept during a fight); the canvas only zooms it (boxS)
 const BOX_AREA = 26e4, BOX_RATIO_MIN = .5, BOX_RATIO_MAX = 2;
-// Fight box area = tierMax / 4 of the full box (T1 only 1/4, T4 open = full)
+// Fight box area = (tierMax + 1) / 4 of the full box (T0 only 1/4, T3 open = full)
 // Peaceful box area = (Box Expansion level + 1) / 4 of the full box
-const boxK = () => Math.sqrt((combatState ? min(tierMax, 4) : boxLv + 1) / 4);
+const boxK = () => Math.sqrt((combatState ? min(tierMax + 1, 4) : boxLv + 1) / 4);
 function resizeBoxCV() {
 const dpr = window.devicePixelRatio || 1, k = boxK(), rect = boxCv.getBoundingClientRect(), W = rect.width || 360, H = rect.height || 300,
 keep = ecsQuery("combat").length, ar = clamp(W / H, BOX_RATIO_MIN, BOX_RATIO_MAX), FW = keep ? boxLW / k : Math.sqrt(BOX_AREA * ar), FH = keep ? boxLH / k : BOX_AREA / FW, z = dpr * (boxS = min(W / FW, H / FH));

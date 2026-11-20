@@ -1,9 +1,9 @@
-const GAME_VERSION = "75.24";
+const GAME_VERSION = "75.25";
 const {PI,random,max,min,hypot,sin,cos,atan2,round,abs,sign,pow,floor}=Math;
 const TAU=2*PI, HALF_PI=PI/2;
 const $ = id => document.getElementById(id);
 function pathPts(g, n, fn) { for (let i = 0; i < n; i++) { const [x, y] = fn(i); i ? g.lineTo(x, y) : g.moveTo(x, y) } }
-const SK = ["con", "str", "agi", "per", "arm"];
+const SK = ["con", "str", "arm", "agi", "int", "per"];
 // volumes 0–1: sfx = Sound, mus = Music; mv = music variant (0 A, 1 B)
 const sound = { sfx: .8, mus: .4, mv: 0, ctx: null };
 function actx() { return sound.ctx || (sound.ctx = new(window.AudioContext || window.webkitAudioContext)) }
@@ -16,7 +16,7 @@ slide && o.frequency.exponentialRampToValueAtTime(max(20, slide), t + dur);
 g.gain.setValueAtTime((vol || .15) * (dest ? 1 : sound.sfx), t), g.gain.exponentialRampToValueAtTime(.001, t + dur);
 o.connect(g), g.connect(dest || c.destination), o.start(t), o.stop(t + dur)
 }
-const ABIL_SND = { con: [180, .12, "triangle", .16, 110], str: [130, .1, "square", .1, 70], agi: [900, .07, "sine", .1, 1700], per: [1400, .09, "sine", .08, 1e3], arm: [520, .11, "triangle", .12, 780] }, abilSndT = {};
+const ABIL_SND = { con: [180, .12, "triangle", .16, 110], str: [130, .1, "square", .1, 70], agi: [900, .07, "sine", .1, 1700], per: [1400, .09, "sine", .08, 1e3], int: [520, .11, "triangle", .12, 780], arm: [520, .11, "triangle", .12, 780] }, abilSndT = {};
 const SFX = {
 bite(t) { beep(t ? 250 : 220, .09, "square", .12, 90) },
 hatch() { beep(300, .12, "sine", .14, 620); setTimeout(() => beep(500, .16, "sine", .14, 880), 110) },

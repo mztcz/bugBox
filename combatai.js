@@ -81,8 +81,8 @@ if (cb.phoenixT > 0) return;
 cb.phoenixT = 0, cb.dead = false, cb.curHp = cb.maxHp * 0.1, abilFire(e, "phoenix");
 }
 if (cb.fakeT > 0 && (cb.fakeT = max(0, cb.fakeT - dt))) return;
-if (abilReady(e, "ifake") && cb.fakeUsed < 2 && !cb.fakeT && cb.curHp < cb.maxHp * (cb.fakeUsed ? .25 : .5)) {
-cb.fakeUsed++; cb.fakeT = ABILITIES.ifake.dur; clearActionState(cb); abilFire(e, "ifake"); return;
+if (abilReady(e, "fake") && cb.fakeUsed < 2 && !cb.fakeT && cb.curHp < cb.maxHp * (cb.fakeUsed ? .25 : .5)) {
+cb.fakeUsed++; cb.fakeT = ABILITIES.fake.dur; clearActionState(cb); abilFire(e, "fake"); return;
 }
 if (cb.grabbedBy >= 0) {
 const hcb = C.combat.get(cb.grabbedBy);
@@ -122,13 +122,13 @@ let target = null,
 minD2 = 1 / 0,
 lockOk = 0;
 const bossAI = tm.team && BOSS[fightMode], inCone = oe => { const op = C.pos.get(oe); return abs(norm(atan2(op.y - p.y, op.x - p.x) - p.dir)) < FRONT_CONE };
-const focusOn = hasAbil(b, "ifocus");
+const focusOn = hasAbil(b, "focus");
 let focusHp = 1 / 0;
 const visR = visRangeOf(b),
 visR2 = visR * visR,
 fovHalf = fovHalfOf(b);
 const myS = snap.get(e);
-const wary = hasAbil(b, "iwary");
+const wary = hasAbil(b, "wary");
 let scary = 1, skip = 0;
 const consider = (oe, d2) => {
 const sc = wary && C.bug.get(oe).str - b.con >= 5 ? 1 : 0;
@@ -147,7 +147,7 @@ d2 = dx * dx + dy * dy;
 if (d2 >= visR2 || abs(norm(atan2(dy, dx) - myS.dir)) > fovHalf) return;
 oe === cb.lockE && (lockOk = 1), consider(oe, d2);
 });
-skip && target !== cb.curTarget && abilShow(cb, "iwary");
+skip && target !== cb.curTarget && abilShow(cb, "wary");
 if (cb.avengeE >= 0) {
 if (!liveE(cb.avengeE)) cb.avengeE = -1;
 else {
@@ -156,7 +156,7 @@ if (!(target != null && dOf(target) <= engageDist)) target = cb.avengeE;
 if (target === cb.avengeE && dOf(cb.avengeE) <= engageDist) cb.avengeE = -1
 }
 }
-if (b.per >= 5) {
+if (b.int >= 5) {
 if ((cb.swT -= dt) <= 0) {
 cb.swT = 3000;
 let pick = -1, pickHp = 1 / 0, n = 0;
@@ -178,12 +178,12 @@ cb.flyE >= 0 && (liveE(cb.flyE) ? target = cb.flyE : cb.flyE = -1);
 let minD = 1 / 0;
 cb.curTarget = target == null ? -1 : target;
 if (target) { const ts = snap.get(target); minD = hypot(ts.x - myS.x, ts.y - myS.y) }
-if (abilReady(e, "iflee") && "fleeing" !== t.act) {
+if (abilReady(e, "flee") && "fleeing" !== t.act) {
 const frac = cb.curHp / (cb.maxHp || 1),
 lvl = frac < .25 ? 2 : frac < .5 ? 1 : 0;
 if (lvl && !(cb.fledLvl >= lvl)) {
 cb.fledLvl = cb.fledLvl + 1;
-flee(e, p.dir + rf(45, 110) * PI / 180 * rsign()), cb.aimLock = 0, cb.aimTarget = -1, abilFire(e, "iflee")
+flee(e, p.dir + rf(45, 110) * PI / 180 * rsign()), cb.aimLock = 0, cb.aimTarget = -1, abilFire(e, "flee")
 }
 }
 if ("fleeing" === t.act) {
@@ -201,9 +201,9 @@ tb = C.bug.get(target),
 toT = atan2(tp.y - p.y, tp.x - p.x);
 cb.goOn = 0;
 const attackReach = engageDist + bugRadius(tb), sepAB = bugRadius(b) + bugRadius(tb);
-if (abilReady(e, "imark")) {
-abilFire(e, "imark");
-cb.callT = ABILITIES.imark.dur, cb.callR = callRadius(b), cb.callTeam = tm.team, cb.callCry = 0, cb.callX = tp.x, cb.callY = tp.y;
+if (abilReady(e, "mark")) {
+abilFire(e, "mark");
+cb.callT = ABILITIES.mark.dur, cb.callR = callRadius(b), cb.callTeam = tm.team, cb.callCry = 0, cb.callX = tp.x, cb.callY = tp.y;
 }
 const air = cb.flyT > 0;
 let airT = cb.airT > 0 || tcb.airT > 0;
@@ -240,7 +240,7 @@ cb.grabDx = cos(toT); cb.grabDy = sin(toT);
 }
 }
 const fr = flankRange(b), gap = minD - bugRadius(tb);
-abilReady(e, "iflanking") && !cb.flankA && gap < fr && (cb.flankA = 1.5 * PI);
+abilReady(e, "flanking") && !cb.flankA && gap < fr && (cb.flankA = 1.5 * PI);
 if (cb.backflipT > 0) {
 cb.mvA = p.dir + PI, cb.mvSpd = spd;
 } else if (air) {

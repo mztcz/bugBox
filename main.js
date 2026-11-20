@@ -40,7 +40,7 @@ if (e.target.closest(".bt-shop")) return leaveFight(), openShop();
 if (e.target.closest(".bt-lab")) return leaveFight(), openLab();
 if (e.target.closest(".bt-inv")) return openInv();
 e.target.closest(".bt-box") && (leaveFight(), openBox())
-}), document.addEventListener("click", closeKill), $("bt-combat").onclick = e => startFight(e.currentTarget, "mc" === fightMode ? 1 : enemyTier), $("bt-next").onclick = e => startFight(e.currentTarget, enemyTier + 1);
+}), document.addEventListener("click", closeKill), $("bt-combat").onclick = e => startFight(e.currentTarget, "mc" === fightMode ? 0 : enemyTier), $("bt-next").onclick = e => startFight(e.currentTarget, enemyTier + 1);
 $("bt-speed").onclick = () => {
 const seq = [.5, 1, 2, 4, 16],
 cur = simSpd === 0 ? speedBeforePause : simSpd,

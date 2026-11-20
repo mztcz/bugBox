@@ -86,7 +86,7 @@ td.ab{color:var(--abil);white-space:normal;min-width:100px}
 
 <div class="wrap">
 <h1>bugBox Breeding Sim <button class="q" data-h="h0" aria-label="Help">?</button></h1>
-<div class="help" id="h0" hidden><p>Start: T1 bugs from the Shop. Each mating pairs the two unmated bugs with the highest Pwr (stat sum). The child is unmated and can mate in the same round.</p><p>A round ends after the set number of matings, or when fewer than 2 unmated bugs remain. Then all bugs can mate again.</p><p>Can mate after N rounds: a child born in round R can mate from round R + N. 0 = already in the round it is born.</p><p>Box full: mating goes on, and for every new child the weakest bug (lowest Pwr, never the new child) is removed.</p><p>m+ = 1 mating. s+ = finish the round (all its matings; if the round is over, run the whole next round). s+10 = 10 whole rounds. ▶ / ■ = start / stop automatic matings at the chosen speed.</p><p>G = generation counted along the longest line of ancestors (max of parents + 1). g = counted along the shortest line (min of parents + 1). G1 × G7 → G8 (g2).</p><p>All 4 methods run in parallel from the same start bugs. Cards, log and table show the selected method. Abilities follow the game rules (lab.js v74.63) in every method.</p></div>
+<div class="help" id="h0" hidden><p>Start: T0 bugs from the Shop. Each mating pairs the two unmated bugs with the highest Pwr (stat sum). The child is unmated and can mate in the same round.</p><p>A round ends after the set number of matings, or when fewer than 2 unmated bugs remain. Then all bugs can mate again.</p><p>Can mate after N rounds: a child born in round R can mate from round R + N. 0 = already in the round it is born.</p><p>Box full: mating goes on, and for every new child the weakest bug (lowest Pwr, never the new child) is removed.</p><p>m+ = 1 mating. s+ = finish the round (all its matings; if the round is over, run the whole next round). s+10 = 10 whole rounds. ▶ / ■ = start / stop automatic matings at the chosen speed.</p><p>G = generation counted along the longest line of ancestors (max of parents + 1). g = counted along the shortest line (min of parents + 1). G1 × G7 → G8 (g2).</p><p>All 4 methods run in parallel from the same start bugs. Cards, log and table show the selected method. Abilities follow the game rules (lab.js v74.63) in every method.</p></div>
 
 <div class="ctl" id="ctl">
 <label>Method</label><div class="seg" id="models"></div><button class="q" data-h="hM" aria-label="Methods help">?</button>
@@ -119,28 +119,28 @@ td.ab{color:var(--abil);white-space:normal;min-width:100px}
 
 <script>
 const {floor,min,max,random,round}=Math, $=id=>document.getElementById(id);
-const SK=["con","str","agi","per","arm"], SN=["CON","STR","AGI","PER","ARM"], STAT_LIM=[3,5,7,10,13], STAT_SUM_MAX=50;
+const SK=["con","str","arm","agi","int","per"], SN=["CON","STR","ARM","AGI","INT","PER"], STAT_LIM=[3,5,7,10,13,15], STAT_SUM_MAX=60;
 const ri=n=>floor(random()*n), rsign=()=>random()<.5?-1:1, clamp=(v,a,b)=>max(a,min(b,v));
 const shuf=a=>{for(let i=a.length-1;i>0;i--){const j=floor(random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
-const statSum=o=>SK.reduce((s,k)=>s+o[k],0), tierOf=s=>min(5,floor(s/10)+1), tierLim=T=>STAT_LIM[T-1];
+const statSum=o=>SK.reduce((s,k)=>s+o[k],0), tierOf=s=>min(5,floor(s/10)), tierLim=T=>STAT_LIM[T];
 const starsOf=s=>s>=STAT_SUM_MAX?5:s<10?0:max(0,s%10-5);
-function genStats(T,S=T>1?10*(T-1)+min(ri(10),ri(10)):7+ri(3)){const lim=tierLim(T),ks=shuf(SK.slice()),s={};S=min(S,5*lim);
-for(let n=4;n>=0;n--){const lo=max(1,S-lim*n);S-=s[ks[n]]=lo+ri(min(lim,S-n)-lo+1)}return s}
+function genStats(T,S=T>0?10*T+min(ri(10),ri(10)):7+ri(3)){const lim=tierLim(T),ks=shuf(SK.slice()),s={};S=min(S,SK.length*lim);
+for(let n=SK.length-1;n>=0;n--){const lo=max(1,S-lim*n);S-=s[ks[n]]=lo+ri(min(lim,S-n)-lo+1)}return s}
 const capSum=o=>{let ks;while(statSum(o)>STAT_SUM_MAX&&(ks=SK.filter(k=>o[k]>1)).length)o[ks[ri(ks.length)]]--;return o};
 const mutQ4=()=>{const r=random();return r<.25?-1:r<.5?0:r<.75?1:2};
 const gameStats=up=>(a,b,c)=>{const avg={};
 SK.forEach(k=>{const s=a[k]+b[k],h=s%2&&(up||rsign());c[k]=avg[k]=(s+h)/2,h&&(c.meta[k+"P"]=h>0===a[k]>b[k]?"A":"B",c.meta[k+"U"]=h>0)});
 shuf(SK.slice()).slice(0,2).forEach(k=>c[k]=clamp(c[k]+mutQ4(),1,20));capSum(c);return avg};
 const METHODS={
-A:{name:"Current game (lab.js v74.63)",note:"Parents' average; an odd sum rounds .5 up or down at random. 2 random stats mutate −1 / 0 / +1 / +2 (25 % each). Stats 1–20, sum max 50. Drift +0.20 / stat / generation.",fn:gameStats(0)},
+A:{name:"Current game (lab.js v74.63)",note:"Parents' average; an odd sum rounds .5 up or down at random. 2 random stats mutate −1 / 0 / +1 / +2 (25 % each). Stats 1–20, sum max 60. Drift +0.20 / stat / generation.",fn:gameStats(0)},
 B:{name:"Current game, .5 rounds up",note:"Same as A, but an odd sum always rounds .5 up. Drift +0.20 / stat / generation plus +0.5 on every odd sum.",fn:gameStats(1)},
-C:{name:"Average + shifted mutation",note:"Base = parents' average (.5 rounds up). Every stat mutates −1 (20 %), 0 (40 %), +1 (30 %), +2 (10 %). Stats 1–20, sum max 50. Drift +0.30 / stat / generation.",
+C:{name:"Average + shifted mutation",note:"Base = parents' average (.5 rounds up). Every stat mutates −1 (20 %), 0 (40 %), +1 (30 %), +2 (10 %). Stats 1–20, sum max 60. Drift +0.30 / stat / generation.",
 fn:(a,b,c)=>{const avg={};SK.forEach(k=>{const r=random();avg[k]=round((a[k]+b[k])/2);c[k]=clamp(avg[k]+(r<.2?-1:r<.6?0:r<.9?1:2),1,20)});capSum(c);return avg}},
-D:{name:"Two embryos, the stronger survives",note:"Each stat from a random parent, mutation −1 (25 %) / +1 (25 %), no bonus. Two embryos form, the one with the higher sum is born. Stats 1–20, sum max 50. Drift ≈ +0.11 / stat / generation, slows down at high values.",
+D:{name:"Two embryos, the stronger survives",note:"Each stat from a random parent, mutation −1 (25 %) / +1 (25 %), no bonus. Two embryos form, the one with the higher sum is born. Stats 1–20, sum max 60. Drift ≈ +0.11 / stat / generation, slows down at high values.",
 fn:(a,b,c)=>{const draw=()=>{const s={},base={};SK.forEach(k=>{const r=random();base[k]=random()<.5?a[k]:b[k];s[k]=clamp(base[k]+(r<.25?-1:r<.5?1:0),1,20)});return [s,base]};
 const x=draw(),y=draw(),[s,base]=statSum(x[0])>=statSum(y[0])?x:y;Object.assign(c,s);capSum(c);return base}}};
 const COL={A:"#d9a02b",B:"#8ca83d",C:"#6fa8c9",D:"#b79bd0"};
-const ABILITIES={};[["dash","Dash","agi"],["jump","Jump","agi"],["knockout","Knock Out","str"],["kickback","Kick Back","str"],["iflanking","iFlanking","per"],["strongbite","Strong Bite","str"],["swiftbite","Swift Bite","agi"],["backflip","Backflip","agi"],["grab","Grab","str"],["imark","iMark","per"],["phoenix","Phoenix","con"],["ifake","iFake Death","per"],["loud","Loud","per"],["cry","Cry","per"],["v360","360","per"],["braced","Braced","arm"],["ifocus","iFocus","per"],["tank","Tank","str"],["zoom","Zoom","agi"],["iflee","iFlee","per"],["resilient","Resilient","con"],["chitin","Chitin","arm"]].forEach(([id,name,stat])=>ABILITIES[id]={name,stat});
+const ABILITIES={};[["dash","Dash","agi"],["jump","Jump","agi"],["knockout","Knock Out","str"],["kickback","Kick Back","str"],["flanking","Flanking","int"],["strongbite","Strong Bite","str"],["swiftbite","Swift Bite","agi"],["backflip","Backflip","agi"],["grab","Grab","str"],["mark","Mark","int"],["phoenix","Phoenix","con"],["fake","Fake Death","int"],["loud","Loud","per"],["cry","Cry","per"],["v360","360","per"],["braced","Braced","arm"],["focus","Focus","int"],["tank","Tank","str"],["zoom","Zoom","agi"],["flee","Flee","int"],["resilient","Resilient","con"],["chitin","Chitin","arm"]].forEach(([id,name,stat])=>ABILITIES[id]={name,stat});
 const ABIL_MAX=4, ABIL_INHERIT_ONE=.5, ABIL_INHERIT_BOTH=.75, ABIL_ROLL_CHANCE=[.25,.2,.1,.05,0], ABIL_BY_STAT={};
 SK.forEach(k=>ABIL_BY_STAT[k]=Object.keys(ABILITIES).filter(id=>ABILITIES[id].stat===k));
 const abilOrder=b=>SK.filter(k=>b[k]>=5).sort((x,y)=>b[y]-b[x]||(x<y?-1:1));
@@ -161,7 +161,7 @@ const scaleOf=(o,s)=>max(s,...SK.map(k=>o[k]>=11?20:o[k]>=6?10:5));
 const K=()=>+$("nMate").value||Infinity, unmated=()=>S.bugs.filter(b=>!b.mated&&b.r+ +$("mat").value<=S.round);
 const cap=()=>+$("cap").value;
 const canMate=()=>S.mates<K()&&unmated().length>=2;
-function restart(){play(0);tA=tB=tLin=tNew=0;bid=1;const base=JSON.stringify(Array.from({length:+$("nStart").value},()=>makeBug(genStats(1))));
+function restart(){play(0);tA=tB=tLin=tNew=0;bid=1;const base=JSON.stringify(Array.from({length:+$("nStart").value},()=>makeBug(genStats(0))));
 for(const m in METHODS){S=SIMS[m]={m,bid,bugs:JSON.parse(base),round:1,mates:0,n:0,hist:[],rStarts:[0],mt:[],scale:5,log:[]};
 S.start=S.bugs.slice();S.bugs.forEach(b=>S.scale=scaleOf(b,S.scale));S.log.push(`Shop: bought ${S.bugs.map(b=>`${b.name} (${statSum(b)})`).join(", ")}`);snap(null)}S=SIMS[cur];render()}
 function snap(child){const sums=S.bugs.map(statSum),best=S.bugs.reduce((x,y)=>statSum(y)>statSum(x)?y:x);
@@ -245,7 +245,7 @@ $("nbPanel").hidden=!$("showNb").checked;$("chPanel").hidden=!$("showCh").checke
 const rs=[...new Set(S.mt.map(x=>x.r))],nr=rs.includes(nbR)?nbR:rs[rs.length-1];
 $("nbR").innerHTML=`<option value="0">latest</option>`+rs.map(r=>`<option value="${r}"${r===nbR?" selected":""}>R${r} (${S.mt.filter(x=>x.r===r).length})</option>`).join("");
 $("nb").innerHTML=rs.length?S.mt.filter(x=>x.r===nr).map(({a,b,c})=>(c.id===selC?`<div class="card par" data-c="${c.id}">${mini(a,"A")}${mini(b,"B")}</div>`:"")+card(c,c.id===selC)).join(""):"<div class='cmeta'>Press Step.</div>";
-if($("showCh").checked){const yM=Math.min(50,Math.ceil((max(...Object.values(SIMS).map(x=>x.hist[x.hist.length-1].best))+2)/10)*10);
+if($("showCh").checked){const yM=Math.min(60,Math.ceil((max(...Object.values(SIMS).map(x=>x.hist[x.hist.length-1].best))+2)/10)*10);
 chart("c1","l1","Pwr (stat sum)",all?Object.keys(METHODS).flatMap(m=>[[m,COL[m],x=>x.avg,0,SIMS[m].hist],["",COL[m],x=>x.best,0,SIMS[m].hist,1]]):[["best Pwr","#8ca83d",x=>x.best],["avg Pwr","#d9a02b",x=>x.avg],["child","#efe7d4",x=>x.child,1]],yM,[0,10,20,30,40,50].filter(v=>v<=yM),all?"solid avg, dashed best":"");
 const sM=Math.max(5,...S.hist.flatMap(x=>x.bs)),sY=sM<=5?5:sM<=10?10:20;
 chart("c2","l2","stat value of the best bug",SK.map((k,i)=>["best "+SN[i],["#b4553f","#d9a02b","#8ca83d","#6fa8c9","#b79bd0"][i],x=>x.bs[i]]),sY,sY===5?[0,1,2,3,4,5]:sY===10?[0,2,4,6,8,10]:[0,5,10,15,20]);

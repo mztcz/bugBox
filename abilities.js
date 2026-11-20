@@ -1,5 +1,5 @@
 const bugLen = b => b ? ensureMorph(b).bodyLength : 22;
-const callRadius = b => bugLen(b) * 7, loudRadius = b => bugLen(b) * 3, dashRange = b => bugLen(b) * 7, flankRange = b => bugLen(b) * 2, flankEnd = cb => { cb.flankA = 0, cb.cd.iflanking = ABILITIES.iflanking.cd };
+const callRadius = b => bugLen(b) * 7, loudRadius = b => bugLen(b) * 3, dashRange = b => bugLen(b) * 7, flankRange = b => bugLen(b) * 2, flankEnd = cb => { cb.flankA = 0, cb.cd.flanking = ABILITIES.flanking.cd };
 const GRAB_HOLD_MS = 2500, FRONT_CONE = 20 * PI / 180, KB_DAMP = .72;
 const BITE_PREP_MAX = 2000, BITE_PREP_MIN = 1000;
 const ABILITIES = {};
@@ -8,22 +8,22 @@ const ABILITIES = {};
 ["jump", "Jump", "agi", 9e3, 600, `As soon as it reaches biting range with the target within 20 degrees of its nose, leaps over the target in {d}s, turning 150-210 degrees in mid-air, and lands at its rear, then turns straight back to it. The target must turn on its own to bite back.`],
 ["knockout", "Knock Out", "str", 8e3, 2400, `On a bite, stuns the target for {d}s + 0.1s per point your STR beats its CON (min 0.2s). Braced bugs are immune.`],
 ["kickback", "Kick Back", "str", 5e3, 350, `On a bite, shoves the target 1.5 of its body lengths, plus 0.14 for every point your STR beats its CON (minus 0.14 per point short, min 0.25), stuns it {d}s and, while sliding, spins it 60 degrees per body length shoved (max 180), plus a random -20 to +20 in steps of 10. Braced bugs go half as far, no stun, no spin.`],
-["iflanking", "iFlanking", "per", 6e3, 0, `Once within 2 own body lengths of the target, even in biting reach, sidesteps around it to reach its rear, then bites. Gives up when bitten, when muted by Loud, when the target gets 3 body lengths away, or after circling 270 degrees. The cooldown starts when the flank ends.`],
+["flanking", "Flanking", "int", 6e3, 0, `Once within 2 own body lengths of the target, even in biting reach, sidesteps around it to reach its rear, then bites. Gives up when bitten, when muted by Loud, when the target gets 3 body lengths away, or after circling 270 degrees. The cooldown starts when the flank ends.`],
 ["strongbite", "Strong Bite", "str", 7e3, 0, `Charges after a bite: the next bite deals double damage.`],
 ["swiftbite", "Swift Bite", "agi", 7e3, 0, `Charges after a bite: the next bite needs half the usual wind-up (${BITE_PREP_MAX} ms at AGI 1 to ${BITE_PREP_MIN} ms at AGI 20).`],
 ["backflip", "Backflip", "agi", 6e3, 1000, `After its 3rd bite on the same target, if the target is not stunned, leaps backward and keeps backing off on foot, {d}s in total; the first half is airborne. Slides along any wall it backs into.`],
 ["grab", "Grab", "str", 9e3, 0, `Seizes an enemy from behind its flanks and drags it 1 body length backward at half walking speed (max ${GRAB_HOLD_MS / 1e3}s). The victim cannot act.`],
-["imark", "iMark", "per", 6e3, 3e3, `While it has a target, marks the target's spot with a green X for {d}s. Every ally within 7 body lengths that cannot see an enemy heads there; on arrival with nothing in sight it turns 270 degrees, then resumes its search.`],
+["mark", "Mark", "int", 6e3, 3e3, `While it has a target, marks the target's spot with a green X for {d}s. Every ally within 7 body lengths that cannot see an enemy heads there; on arrival with nothing in sight it turns 270 degrees, then resumes its search.`],
 ["phoenix", "Phoenix", "con", 0, 5000, `Once per fight: on death, lies still for {d}s, then rises again at 10% HP.`],
-["ifake", "iFake Death", "per", 0, 3000, `Plays dead for {d}s, twice per fight: below 50% HP, then below 25% HP. Enemies stop targeting it.`],
+["fake", "Fake Death", "int", 0, 3000, `Plays dead for {d}s, twice per fight: below 50% HP, then below 25% HP. Enemies stop targeting it.`],
 ["loud", "Loud", "per", 10e3, 4800, `After a bite attempt, screams for {d}s: every enemy within 3 body lengths cannot use any ability.`],
 ["cry", "Cry", "per", 0, 7e3, `Passive. When bitten, cries for {d}s: every ally within 7 body lengths that cannot see an enemy comes to its aid and follows it while it moves.`],
 ["v360", "360", "per", 0, 0, `Passive. Notices anything beside or behind it within a quarter of its sight range.`],
 ["braced", "Braced", "arm", 0, 0, `Passive. Immune to Knock Out and Kick Back stun; Kick Back shoves it half as far and never spins it.`],
-["ifocus", "iFocus", "per", 0, 0, `Passive. Targets the weakest visible enemy by current HP instead of the closest one.`],
+["focus", "Focus", "int", 0, 0, `Passive. Targets the weakest visible enemy by current HP instead of the closest one.`],
 ["tank", "Tank", "str", 0, 0, `Passive. Keeps walking at full speed even while biting and shoves any bug without Tank out of its path. Only the glass stops it.`],
 ["zoom", "Zoom", "agi", 0, 0, `Passive. Walks and turns at double speed, Dash included.`],
-["iflee", "iFlee", "per", 0, 0, `Twice per fight, below 50% HP and below 25% HP, turns away and runs for 2.5-7s (shorter with higher PER) before hunting again. Bitten while stuck, it fights back instead. Plays dead first if it can.`],
+["flee", "Flee", "int", 0, 0, `Twice per fight, below 50% HP and below 25% HP, turns away and runs for 2.5-7s (shorter with higher INT) before hunting again. Bitten while stuck, it fights back instead. Plays dead first if it can.`],
 ["resilient", "Resilient", "con", 0, 0, `Passive. 50% more max HP than its CON alone gives.`],
 ["chitin", "Chitin", "arm", 0, 0, `Passive. Every bite it takes does half damage.`],
 ["thickshell", "Thick Shell", "arm", 0, 0, `Passive. A bite from within 20 degrees of its nose does 30% less damage.`],
@@ -33,8 +33,8 @@ const ABILITIES = {};
 ["antennae", "Antennae", "per", 0, 0, `Passive. Sees 50% farther.`],
 ["scent", "Scent Trail", "per", 0, 4e3, `Passive. When it loses its target, follows the target's scent for {d}s instead of looking around.`],
 ["alarm", "Alarm Scent", "per", 0, 5e3, `Passive. On death, releases a cloud 7 body lengths wide for {d}s: allies inside it need 30% less wind-up to bite.`],
-["iwary", "iWary", "per", 0, 0, `Passive. Does not target an enemy whose STR beats its CON by 5 or more while it sees another one.`],
-["ilearn", "iLearn", "per", 0, 0, `Passive. Every bite it takes from an enemy raises its dodge chance against that enemy by 5 points, up to +25 (dodge up to 50%).`],
+["wary", "Wary", "int", 0, 0, `Passive. Does not target an enemy whose STR beats its CON by 5 or more while it sees another one.`],
+["learn", "Learn", "int", 0, 0, `Passive. Every bite it takes from an enemy raises its dodge chance against that enemy by 5 points, up to +25 (dodge up to 50%).`],
 ["scuttle", "Scuttle", "agi", 5e3, 1500, `When bitten, walks and turns at double speed for {d}s.`],
 ["clamp", "Clamp", "str", 7e3, 2e3, `On a bite, holds on: the target turns at half speed for {d}s.`]
 ].forEach(([id, name, stat, cd, dur, txt]) => ABILITIES[id] = { name, stat, cd, dur, txt });
@@ -59,21 +59,21 @@ if (hasAbil(b, "v360") && d2 < vr * vr * .0625) return !0;
 return abs(norm(atan2(dy, dx) - p.dir)) <= fovHalfOf(b)
 }
 const liveE = x => { const c = C.combat.get(x); return c && !c.dead && c.curHp > 0 };
-const memMsOf = b => statLin(b, "per", 3e3, 12e3), scanOf = b => statLin(b, "per", 0, PI);
-const huntTierOf = b => { const i = b.per; return i <= 3 ? 1 : i <= 6 ? 2 : i <= 8 ? 3 : 4 };
+const memMsOf = b => statLin(b, "int", 3e3, 12e3), scanOf = b => statLin(b, "int", 0, PI);
+const huntTierOf = b => { const i = b.int; return i <= 3 ? 1 : i <= 6 ? 2 : i <= 8 ? 3 : 4 };
 const rollVar = () => .8 + .4 * random(), armorCut = (b, d) => max(d * .25, d - statLin(b, "arm", 0, 5));
 const abilShow = (cb, id) => (cb.abTxt = ABILITIES[id].name, cb.abT = 2e3);
 function biteDodged(atkB, p, tb, tp, atkTeam, tcb, atkE) {
 const base = clamp(.12 + .02 * (tb.agi - atkB.agi), 0, .25), r = random() - base;
-if (r >= (hasAbil(tb, "ilearn") ? min(.25, .05 * (tcb.learn[atkE] || 0)) : 0)) return !1;
-return r >= 0 && abilShow(tcb, "ilearn"), spawnDmgPop(tp, 0, atkTeam, atan2(tp.y - p.y, tp.x - p.x), tb), !0
+if (r >= (hasAbil(tb, "learn") ? min(.25, .05 * (tcb.learn[atkE] || 0)) : 0)) return !1;
+return r >= 0 && abilShow(tcb, "learn"), spawnDmgPop(tp, 0, atkTeam, atan2(tp.y - p.y, tp.x - p.x), tb), !0
 }
 function wakeToFight(e) {
 const t = C.walk.get(e);
 t && !aiAct(t) && (t.scanRemain = 0, t.seekX = t.turnA = null, setAct(e, "fighting"))
 }
 function flee(e, a, panic, corner) {
-const t = C.walk.get(e), cb = C.combat.get(e), p = C.pos.get(e), ms = 2e3 + perMs(e);
+const t = C.walk.get(e), cb = C.combat.get(e), p = C.pos.get(e), ms = 2e3 + intMs(e);
 if ("fleeing" !== t.act) wakeToFight(e), setAct(e, "fleeing", ms);
 else if (panic) t.actT += ms;
 else return;
@@ -94,14 +94,14 @@ seesPoint(C.bug.get(oe), C.pos.get(oe), tp.x, tp.y) && wakeToFight(oe)
 function applyBite(cb, ab, p, te, tb, tp, mult, atkTeam, atkE) {
 const tcb = C.combat.get(te), fd = abs(norm(atan2(p.y - tp.y, p.x - tp.x) - tp.dir)),
 flankMult = fd < PI / 3 ? 1 : fd < TAU / 3 ? 1.5 : 2;
-if (atkE != null && (tcb.flankA > 0 || fd >= PI / 3 && tb.per < 5)) { tcb.avengeE = atkE, tcb.avengeA = atan2(p.y - tp.y, p.x - tp.x), tcb.flankA > 0 && flankEnd(tcb) }
+if (atkE != null && (tcb.flankA > 0 || fd >= PI / 3 && tb.int < 5)) { tcb.avengeE = atkE, tcb.avengeA = atan2(p.y - tp.y, p.x - tp.x), tcb.flankA > 0 && flankEnd(tcb) }
 // decoy: no damage, counts the bites of each attacker
 if (tcb.decoy) return tcb.bit[atkE] = (tcb.bit[atkE] || 0) + 1, void(C.walk.get(te).hitT = 1);
 let dmg = armorCut(tb, statLin(ab, "str", 1, 10) * rollVar() * flankMult * mult);
 if (hasAbil(tb, "chitin")) dmg *= .5;
 if (hasAbil(tb, "thickshell") && fd < FRONT_CONE) dmg *= .7, abilShow(tcb, "thickshell");
 if (hasAbil(tb, "laststand") && tcb.curHp < tcb.maxHp * .25) dmg *= .6, abilShow(tcb, "laststand");
-hasAbil(tb, "ilearn") && (tcb.learn[atkE] = (tcb.learn[atkE] || 0) + 1);
+hasAbil(tb, "learn") && (tcb.learn[atkE] = (tcb.learn[atkE] || 0) + 1);
 abilReady(te, "badtaste") && (cb.prepK = 2, abilFire(te, "badtaste"));
 abilReady(te, "scuttle") && (tcb.scutT = ABILITIES.scuttle.dur, abilFire(te, "scuttle"));
 tcb.curHp -= dmg, C.walk.get(te).hitT = 1;

@@ -7,14 +7,14 @@ const SLIDE_K = .25;
 const CORPSE_SLOW = .5;
 const PULL_STRONG = PI / 9, PULL_WEAK = PI / 36, WALL_NEAR = .15;
 const COMBAT_STEP_MS = 16, MAX_STEPS_PER_FRAME = 64;
-const wallNext = e => random() < statLin(C.bug.get(e), "per", .5, .05) && think(e) || decide(e);
+const wallNext = e => random() < statLin(C.bug.get(e), "int", .5, .05) && think(e) || decide(e);
 const facing = (p, a) => max(0, cos(a - p.dir));
 const busy = t => t.pair || t.dropStuck;
 function decide(e) {
 const b = C.bug.get(e), t = C.walk.get(e);
 if (t.turnA != null) return setAct(e, "turning");
 if (combatState || hpFrac(b) < 1 || random() < .7) return setAct(e, "walking", rf(WALK_MIN, WALK_MAX)), newDir(e);
-setAct(e, RARE_ACT[b.per > 4 ? ri(hasAbil(b, "iflanking") ? 4 : 3) : 0], RARE_MIN + random() * RARE_SPAN), t.rareA = PI / 3, t.rareS = rsign(), t.rareE = null
+setAct(e, RARE_ACT[b.int > 4 ? ri(hasAbil(b, "flanking") ? 4 : 3) : 0], RARE_MIN + random() * RARE_SPAN), t.rareA = PI / 3, t.rareS = rsign(), t.rareE = null
 }
 function sysSteer(dt, ents) {
 const dtS = dt / 1e3, foods = ecsQuery("food", "pos"), obs = ecsQuery("obstacle", "pos");

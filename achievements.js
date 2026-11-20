@@ -34,28 +34,31 @@ const ACHIEVEMENTS = [
 ["gen33", "produce 33 generations"],
 ["heavy", "breed a heavy bug (con 5+)"],
 ["strong", "breed a strong bug (str 5+)"],
-["fast", "breed a fast bug (agi 5+)"],
-["aware", "breed an aware bug (per 5+)"],
 ["armored", "breed an armored bug (arm 5+)"],
-["weak", "breed a weak bug (stat sum 5)"],
+["fast", "breed a fast bug (agi 5+)"],
+["clever", "breed a clever bug (int 5+)"],
+["aware", "breed an aware bug (per 5+)"],
+["weak", "breed a weak bug (stat sum 6)"],
 ["powerful", "breed a powerful bug (stat sum 20+)"],
 ["superior", "breed a superior bug (stat sum 30+)"],
 ["elite", "breed an elite bug (stat sum 40+)"],
-["fiveStars", "breed a five-star bug (stat sum 50)"],
+["supreme", "breed a supreme bug (stat sum 50+)"],
+["maxed", "breed a maxed bug (stat sum 60)"],
+["fiveStars", "breed a five-star bug (stat sum 60)"],
 ["newTier", "breed a bug of a higher tier than both parents"],
-...[1, 2, 3, 4, 5].map(T => ["ownT" + T, `own a T${T} bug`]),
-...[2, 3, 4, 5].flatMap(T => [1, 2, 3, 4].map(n => [`t${T}s${n}`, `own a T${T} ${"★".repeat(n)} bug`])),
+...[0, 1, 2, 3, 4, 5].map(T => ["ownT" + T, `own a T${T} bug`]),
+...[1, 2, 3, 4, 5].flatMap(T => [1, 2, 3, 4].map(n => [`t${T}s${n}`, `own a T${T} ${"★".repeat(n)} bug`])),
 ["skilled", "breed a skilled bug (1 ability)"],
 ["skilful", "breed a skilful bug (2 abilities)"],
 ["expert", "breed an expert bug (3 abilities)"],
 ["master", "breed a master bug (4 abilities)"],
-...[1, 2, 3, 4, 5].map(t => ["tier" + t, "win at tier " + t]),
+...[0, 1, 2, 3, 4, 5].map(t => ["tier" + t, "win at tier " + t]),
 ["win1", "win 1 v 1"],
 ["win2", "win 2 v 2"],
 ["win3", "win 3 v 3"],
 ["win6", "win 6 v 6"],
 ["winmayhem", "win mayhem"],
-...Object.entries({ mc: "mortal combat", boss: "boss fight", rb: "raid boss", wb: "world boss" }).flatMap(([m, n]) => Array.from({ length: 5 }, (_, i) => [m + (i + 1), `beat ${n} T${i + 1}`])),
+...Object.entries({ mc: "mortal combat", boss: "boss fight", rb: "raid boss", wb: "world boss" }).flatMap(([m, n]) => Array.from({ length: 6 }, (_, i) => [m + i, `beat ${n} T${i}`])),
 ["tough", "create a tough bug (survived 5 combats)"],
 ["rough", "create a rough bug (survived 10 combats)"],
 ["veteran", "create a veteran bug (survived 15 combats)"],
@@ -156,9 +159,9 @@ function achChild(b, pT) {
 achBug(b), tierOf(statSum(b)) > pT && achieve("newTier"), achieve("breed"), achStep("bred", [10, 50], "bred");
 const sum = statSum(b),
 na = (b.abilities || []).length;
-[["con", "heavy"], ["str", "strong"], ["agi", "fast"], ["per", "aware"], ["arm", "armored"]].forEach(([k, a]) => b[k] >= 5 && achieve(a));
-sum <= 5 && achieve("weak");
-achAt(sum, [[20, "powerful"], [30, "superior"], [40, "elite"]]);
+[["con", "heavy"], ["str", "strong"], ["agi", "fast"], ["per", "aware"], ["int", "clever"], ["arm", "armored"]].forEach(([k, a]) => b[k] >= 5 && achieve(a));
+sum <= SK.length && achieve("weak");
+achAt(sum, [[20, "powerful"], [30, "superior"], [40, "elite"], [50, "supreme"], [60, "maxed"]]);
 achAt(na, [[1, "skilled"], [2, "skilful"], [3, "expert"], [4, "master"]]);
 SK.every(k => b[k] >= 5) && achieve("allFive"),
 SK.some(k => b[k] >= 10) && achieve("statTen"),

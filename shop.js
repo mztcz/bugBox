@@ -67,14 +67,14 @@ return d
 }
 // Arena Ticket: two strangers of a random open tier fight 1v1, the picked one wins = payout
 function openBet(pay) {
-const T = 1 + ri(tierMax), pair = [0, 1].map(() => makeBug({ ...genStats(T), hue: 20 * ri(18) })), d = cardRow(popup(`BET: TAP THE WINNER (WIN $${pay})`), pair, b => (d.remove(), leaveFight(), fightMode = 1, fightTeam = [b], startFight(null, T, pair.filter(x => x !== b), pay)))
+const T = ri(tierMax + 1), pair = [0, 1].map(() => makeBug({ ...genStats(T), hue: 20 * ri(18) })), d = cardRow(popup(`BET: TAP THE WINNER (WIN $${pay})`), pair, b => (d.remove(), leaveFight(), fightMode = 1, fightTeam = [b], startFight(null, T, pair.filter(x => x !== b), pay)))
 }
 let shopPool = [],
 shopCart = [],
-shopTab = 1;
+shopTab = 0;
 function openShop() {
-shopCart = [], shopTab = 1;
-shopPool = [1, 2, 3, 4, 5].map(shopRoll), renderShop(), showScreen("s-shop")
+shopCart = [], shopTab = 0;
+shopPool = [0, 1, 2, 3, 4, 5].map(shopRoll), renderShop(), showScreen("s-shop")
 }
 const shopRoll = T => Array.from({ length: 6 + dna.lv[1] }, () => {
 const b = makeBug(genStats(T));
@@ -83,7 +83,7 @@ return b.cost = round(bugValue(statSum(b)) * (1 + .25 * starsOf(statSum(b))) + 1
 // Reroll costs 1 Lucky Dice (item 18); free in Dev
 function shopReroll(bt) {
 if (!dev && !(inv[18] > 0)) return void blocked(bt, "Reroll needs a Lucky Dice (tab Items)");
-dev || inv[18]--, shopCart = shopCart.filter(b => !shopPool[shopTab - 1].includes(b)), shopPool[shopTab - 1] = shopRoll(shopTab), renderShop()
+dev || inv[18]--, shopCart = shopCart.filter(b => !shopPool[shopTab].includes(b)), shopPool[shopTab] = shopRoll(shopTab), renderShop()
 }
 function setShopTab(t) { tierGate(t) && (shopTab = t, renderShop()) }
 function shopApplyCard(div, btn, item) {
@@ -98,7 +98,7 @@ doneBtn.textContent = n > 0 ? "Buy →" : "BugBox →", doneBtn.disabled = !1
 }
 function renderShop() {
 const g = $("shop-grid");
-$("shop-tabs").innerHTML = (shopTab < 6 ? '<button class="bt-tier" onclick="shopReroll(this)">↻ Reroll 🎲' + (inv[18] || 0) + "</button>" : "") + [1, 2, 3, 4, 5, 6].map(t => `<button class="bt-tier${t === shopTab ? " prim" : ""}"${t < 6 ? lockAttr(t, 1) : ""} onclick="setShopTab(${t})">${t < 6 ? "T" + t : "Items"}</button>`).join("");
+$("shop-tabs").innerHTML = (shopTab < 6 ? '<button class="bt-tier" onclick="shopReroll(this)">↻ Reroll 🎲' + (inv[18] || 0) + "</button>" : "") + [0, 1, 2, 3, 4, 5, 6].map(t => `<button class="bt-tier${t === shopTab ? " prim" : ""}"${t < 6 ? lockAttr(t, 1) : ""} onclick="setShopTab(${t})">${t < 6 ? "T" + t : "Items"}</button>`).join("");
 g.innerHTML = "";
 // Items tab: working items first, bought at once (no cart)
 if (shopTab > 5) return SHOP_ITEMS.map((_, i) => i).sort((a, b) => ITEM_ON.includes(b) - ITEM_ON.includes(a)).forEach(i => {
@@ -106,7 +106,7 @@ const [icon, name, , desc] = SHOP_ITEMS[i], on = ITEM_ON.includes(i), cost = ite
 div.className = "card" + (on && !itemMax(i) && (dev || money >= cost) ? "" : " card-off"), div.innerHTML = `<div class="card-head"><div class="card-img" style="font-size:30px;">${icon}</div><div class="card-info"><div class="card-name">#${i + 1} ${name}</div><div class="card-line"><span class="c-money">$${cost}</span> ${own}</div><div class="card-line">${desc}</div></div></div><button class="card-bt${on ? " bt-sel" : ""}" style="width:100%;margin-top:8px;"${on && !itemMax(i) ? "" : " disabled"}>${on ? itemMax(i) ? "Max" : "Buy $" + cost : "Coming soon"}</button>`;
 on && !itemMax(i) && (div.lastChild.onclick = () => buyItem(i, div)), g.appendChild(div)
 }), updateShopFooter(), armOverWatch();
-shopPool[shopTab - 1].forEach((item, i) => {
+shopPool[shopTab].forEach((item, i) => {
 const div = makeBugCard({
 name: item.name,
 line3: `<span class="c-money">$${item.cost}</span>`,
@@ -131,7 +131,7 @@ else {
 if (!dev && money < item.cost) return void blocked(div, "Not enough money!");
 money -= item.cost, shopCart.push(item), SFX.buy()
 }
-[...$("shop-grid").children].forEach((d, i) => shopApplyCard(d, d.lastChild, shopPool[shopTab - 1][i])), updateShopFooter(), updateMoney()
+[...$("shop-grid").children].forEach((d, i) => shopApplyCard(d, d.lastChild, shopPool[shopTab][i])), updateShopFooter(), updateMoney()
 }
 const OVER_DELAY = 3000;
 let overTimer = null;

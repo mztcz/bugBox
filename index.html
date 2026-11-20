@@ -175,15 +175,15 @@ if(typeof window[n]==="undefined")bar().textContent+="NOT LOADED: "+n+"\n"})
 <hr class="dos-hr">
 <div id="itab-info" class="itab" style="font-size:10px;color:#aabbaa;line-height:1.8;max-height:60vh;overflow-y:auto;padding:0 4px;">
 <p><b style="color:#ffdd44;">STATS</b><br>
-CON toughness · STR power · AGI speed · PER senses and wits · ARM armor</p>
+CON toughness · STR power · ARM armor · AGI speed · INT wits · PER perception</p>
 <p><b style="color:#ffdd44;">FEEDING</b><br>
 Drop food in the box: each item restores 1/5 of max HP.</p>
 <p><b style="color:#ffdd44;">BREEDING</b><br>
 Pick two bugs (Parent A + B) to hatch a new Gen+1 larva. Only full-HP bugs can mate. Each stat is the parents' average, then 2 stats mutate.</p>
 <p><b style="color:#ffdd44;">FIGHT TIERS</b><br>
-T01–T05: tier = tens of the stat sum (T1 5–9, T2 10–19 … T5 40–50); enemies T1 7–9, T2–T5 10×(T−1) to 10×T−1, entry fee 2×T×$2^T per enemy, prize = value of the beaten enemies (BOSS ×2, RB and WB ×3)<br>
-MC: one bug fights T1 to T5 in a row, food drops after each win<br>
-BOSS: one bug of tier T vs a double-size boss (stat sum 10×T−1, T5 50, T−1 abilities)<br>
+T0–T5: tier = tens of the stat sum (T0 6–9, T1 10–19 … T5 50–60); enemies T0 7–9, T1–T5 10×T to 10×T+9, entry fee 2×(T+1)×$2^(T+1) per enemy, prize = value of the beaten enemies (BOSS ×2, RB and WB ×3)<br>
+MC: one bug fights T0 to T5 in a row, food drops after each win<br>
+BOSS: one bug of tier T vs a double-size boss (stat sum 10×T+9, T5 60, T abilities, max 4)<br>
 RB: 1–10 bugs vs a triple-size boss with 10× HP<br>
 WB: like RB with 50× HP; its lost HP stays until Sunday 23:59<br>
 Bugs that LOSE a fight DIE permanently.</p>

@@ -1,26 +1,26 @@
 const BOSS = { boss: [1.5, 1], rb: [3, 10], wb: [3, 50] }, weekOf = () => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate() - (d.getDay() + 6) % 7).toDateString() };
 // fightFx = item effects of the running fight (bet payout, mir = Mirror Shard, slip payout); decoys = decoy bugs of the player team
 let bosses = {}, wbWeek = "", match = null, fightFx = {}, decoys = [];
-try { const s = JSON.parse(localStorage.getItem("bugbox_wb")); s && (wbWeek = s.week, Object.entries(s.bugs).forEach(([k, b]) => bosses[k] = { ...b, id: bid++, role: roleOf(b), abilities: b.abilities.filter(a => ABILITIES[a]) })) } catch (e) {}
+try { const s = JSON.parse(localStorage.getItem("bugbox_wb")); s?.v === SAVE_VER && (wbWeek = s.week, Object.entries(s.bugs).forEach(([k, b]) => bosses[k] = { ...b, id: bid++, role: roleOf(b), abilities: b.abilities.filter(a => ABILITIES[a]) })) } catch (e) {}
 function wbKeep() {
 if ("wb" !== fightMode || !combatState) return;
 ecsQuery("team", "combat").forEach(e => { const c = C.combat.get(e); C.team.get(e).team && (c.dead ? delete bosses["wb" + enemyTier] : C.bug.get(e).curHp = c.curHp) });
-try { localStorage.setItem("bugbox_wb", JSON.stringify({ week: wbWeek, bugs: Object.fromEntries(Object.entries(bosses).filter(([k]) => "w" === k[0])) })) } catch (e) {}
+try { localStorage.setItem("bugbox_wb", JSON.stringify({ v: SAVE_VER, week: wbWeek, bugs: Object.fromEntries(Object.entries(bosses).filter(([k]) => "w" === k[0])) })) } catch (e) {}
 }
 function buildEnemies(T) {
 const m = BOSS[fightMode], k = fightMode + T, w = weekOf(), c = "chaos" === fightMode;
 // tutorial first fight: all stats 1, half HP; CHAOS: player count ±33 %, each enemy tier T±1
-if (!m) return Array.from({ length: c ? max(1, round(fightTeam.length * rf(.67, 1.33))) : fightTeam.length }, () => makeBug([12, 14].includes(tutStep) ? { con: 1, str: 1, agi: 1, per: 1, arm: 1, hue: rf(0, 45), hpMul: .5, abilities: [] } : { ...genStats(c ? clamp(T + ri(3) - 1, 1, 5) : T), hue: rf(0, 45) }));
+if (!m) return Array.from({ length: c ? max(1, round(fightTeam.length * rf(.67, 1.33))) : fightTeam.length }, () => makeBug([12, 14].includes(tutStep) ? { con: 1, str: 1, arm: 1, agi: 1, int: 1, per: 1, hue: rf(0, 45), hpMul: .5, abilities: [] } : { ...genStats(c ? clamp(T + ri(3) - 1, 0, 5) : T), hue: rf(0, 45) }));
 wbWeek !== w && (Object.keys(bosses).forEach(x => "w" === x[0] && delete bosses[x]), wbWeek = w);
-const S = min(bossSum(T), 5 * tierLim(T));
+const S = min(bossSum(T), SK.length * tierLim(T));
 if (!bosses[k] || statSum(bosses[k]) !== S) {
-const b = bosses[k] = makeBug({ ...genStats(T, S), hue: rf(0, 45), hpMul: m[1], abilities: shuf(ABIL_IDS.slice()).slice(0, T - 1) });
+const b = bosses[k] = makeBug({ ...genStats(T, S), hue: rf(0, 45), hpMul: m[1], abilities: shuf(ABIL_IDS.slice()).slice(0, min(4, T)) });
 ["bodyLength", "bodyWidth", "headSize", "legLen"].forEach(x => b.morph[x] *= m[0])
 }
 return [bosses[k]]
 }
 const foeN = () => BOSS[fightMode] ? 1 : +fightMode || max(1, fightTeam.length), prizeK = () => (BOSS[fightMode] || [1])[0],
-entryFee = (T, n = foeN()) => 1 === fightMode && 1 === T ? 0 : 2 * T * tierRate(T) * n;
+entryFee = (T, n = foeN()) => 1 === fightMode && 0 === T ? 0 : 2 * (T + 1) * tierRate(T) * n;
 const keepHp = () => ecsQuery("team", "combat").forEach(e => { const c = C.combat.get(e); C.team.get(e).team || c.dead || (C.bug.get(e).curHp = max(1, round(c.curHp))) });
 const lookOf = b => ({ ...Object.fromEntries(SK.map(k => [k, b[k]])), morph: JSON.parse(JSON.stringify(b.morph)), hue: b.hue }),
 fxEnd = () => bugsOwned.forEach(b => b.fx?.on && (b.str -= b.fx.d, b.arm -= b.fx.a, delete b.fx));
@@ -53,7 +53,7 @@ combatState = !1, tickDebt = 0, simSpd = speedBeforePause, ecsQuery("team").forE
 const tallyFight = (lb, f) => (lb.fights = (lb.fights || 0) + 1, lb.killsTotal = (lb.killsTotal || 0) + (f.killsThis || 0)),
 buryDead = dead => dead.forEach(f => {
 const lb = ownedById(f.b.id), c = C.combat.get(f.eid) || f;
-lb && !c.buried && (c.buried = 1, tallyFight(lb, f), hasAbil(lb, "ifake") ? lb.curHp = 1 : (lb.losses++, bugsOwned = bugsOwned.filter(b => b.id !== f.b.id), run.end = `${lb.name} died in fight T${enemyTier}`))
+lb && !c.buried && (c.buried = 1, tallyFight(lb, f), hasAbil(lb, "fake") ? lb.curHp = 1 : (lb.losses++, bugsOwned = bugsOwned.filter(b => b.id !== f.b.id), run.end = `${lb.name} died in fight T${enemyTier}`))
 });
 function showFightResult() {
 resultTimer = null;

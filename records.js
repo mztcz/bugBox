@@ -30,9 +30,9 @@ const dna = { n: 0, lv: [0, 0, 0] },
 LEGACY = [["Start money", l => "+$" + 150 * l], ["Shop stock", l => 6 + l + " bugs per tab"], ["Fight food", l => 3 + l + " food per fight"]];
 try { Object.assign(dna, JSON.parse(localStorage.getItem("bugbox_dna"))) } catch (e) {}
 const saveDna = () => { try { localStorage.setItem("bugbox_dna", JSON.stringify(dna)) } catch (e) {} };
-// Game end screen: game over (no next) or game won (next = what follows Continue). DNA = 1 per open tier above T1 + 2 for the win + 1 per 10 achievements; a game pays only what it has not paid yet (run.dna)
+// Game end screen: game over (no next) or game won (next = what follows Continue). DNA = 1 per open tier above T0 + 2 for the win + 1 per 10 achievements; a game pays only what it has not paid yet (run.dna)
 function gameEnd(next) {
-const due = tierMax - 1 + 2 * run.won + floor(ACHIEVEMENTS.filter(a => achSt.done[a[0]]).length / 10), d = due - run.dna, t = $("over-title"), col = next ? "#44ff88" : "#ff4444";
+const due = tierMax + 2 * run.won + floor(ACHIEVEMENTS.filter(a => achSt.done[a[0]]).length / 10), d = due - run.dna, t = $("over-title"), col = next ? "#44ff88" : "#ff4444";
 run.dna = due, dna.n += d, saveDna(), saveGame();
 t.textContent = next ? "GAME WON" : "GAME OVER", t.style.color = col, t.style.textShadow = `0 0 16px ${col}88`;
 $("over-body").innerHTML = (next ? `Time ${fmtT(run.ms)} \u00b7 Fights ${fightNum} \u00b7 Kills ${run.kills}<br>Best bug: ${run.bestSumName} (${run.bestSum})` : "Looks like you have ran out of bugs to kill... Good!") + `<br><b style="color:#4cf;">+${d} DNA</b>`;

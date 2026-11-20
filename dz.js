@@ -1,4 +1,4 @@
-let dz = Object.assign({ hue: 120, con: 5, str: 5, agi: 5, per: 5, arm: 5, link: 1, abils: ["", "", "", ""] }, randomMorph()),
+let dz = Object.assign({ hue: 120, con: 5, str: 5, arm: 5, agi: 5, int: 5, per: 5, link: 1, abils: ["", "", "", ""] }, randomMorph()),
 dzSide = 0, dzZoom = 1;
 dzSync();
 function dzSync() { dz.link && Object.assign(dz, statMorph(dz)) }
@@ -103,9 +103,9 @@ fr.style.maxHeight = (r.height - 8) + "px";
 fr.style.marginTop = max(4, r.top + (r.height - fr.offsetHeight) / 2) + "px"
 }
 function dzSpawn() {
-const { hue, con, str, agi, per, arm, abils, link, ...m } = dz,
+const { hue, con, str, arm, agi, int: intel, per, abils, link, ...m } = dz,
 picked = abils.filter(a => a),
-nb = makeBug({ hue: hue, morph: { ...m }, con: con, str: str, agi: agi, per: per, arm: arm, abilities: picked });
+nb = makeBug({ hue, morph: { ...m }, con, str, arm, agi, int: intel, per, abilities: picked });
 if (link || Object.assign(nb.morph, m), !combatState) return bugsOwned.push(nb), achOwn(1), void updateMoney();
 const mhp = maxHpOf(nb);
 nb.curHp = mhp;
