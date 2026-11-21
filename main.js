@@ -63,10 +63,12 @@ try { raw = localStorage.getItem(SAVE_KEY), saved = raw && JSON.parse(raw) } cat
 raw && !saveOk(saved) && (saved = null, dropSave(raw), toast("Saved game can't be loaded. New game"));
 saved && ($("s-intro1").querySelector(".press-key").innerHTML = '[ TAP TO CONTINUE ] <span id="bt-new" style="padding:8px 4px;">[ NEW GAME ]</span>');
 $("s-intro1").onclick = e => {
-const tut = e.target.closest("#bt-tut"), go = saved && !tut && !e.target.closest("#bt-new");
-if (saved && !go && !confirm("Start a new game?")) return;
+// TEMP while developing: a tap on the 3rd bug always starts a new Dev game, even with a save, no confirm.
+// Official release: drop dv from go and from the confirm check (with a save, only NEW GAME / TUTORIAL start a new game).
+const tut = e.target.closest("#bt-tut"), dv = "intro-art" === e.target.id && devHit(e), go = saved && !tut && !dv && !e.target.closest("#bt-new");
+if (saved && !go && !dv && !confirm("Start a new game?")) return;
 if (go) try { gameOn = 1, loadGame(saved) } catch (err) { return dropSave(JSON.stringify(saved)), location.reload() }
-else dev = "intro-art" === e.target.id && devHit(e) ? 1 : 0;
+else dev = dv ? 1 : 0;
 dev || ($("bt-des").style.display = "none");
 // new game: Legacy screen first when there is DNA or a bought level
 go ? openBox() : dna.n || dna.lv.some(l => l) ? (renderLegacy(), $("bt-leg").onclick = () => legGo(tut), showScreen("s-leg")) : legGo(tut)
