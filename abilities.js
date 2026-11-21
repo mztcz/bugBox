@@ -30,7 +30,7 @@ const ABILITIES = {};
 ["badtaste", "Bad Taste", "con", 6e3, 0, `Whoever bites it needs twice the usual wind-up for its next bite.`],
 ["laststand", "Last Stand", "arm", 0, 0, `Passive. Below 25% HP every bite it takes does 40% less damage.`],
 ["hardback", "Hard Back", "arm", 0, 0, `Passive. A bite in the side does x1 damage instead of x1.5, a bite in the back x1.5 instead of x2.`],
-["spikes", "Spikes", "arm", 0, 0, `Passive. In a fight, whoever bites it loses as much HP as its armor took off that bite. The biter's own armor does not reduce it; it can kill.`],
+["spikes", "Spikes", "arm", 0, 0, `Passive. Whoever bites it loses as much HP as its armor took off that bite. The biter's own armor does not reduce it. In a fight it can kill; a love bite leaves at least 1 HP.`],
 ["glutton", "Glutton", "con", 0, 0, `Passive. Food heals it twice as much.`],
 ["antennae", "Antennae", "per", 0, 0, `Passive. Sees 50% farther.`],
 ["scent", "Scent Trail", "per", 0, 4e3, `Passive. When it loses its target, follows the target's scent for {d}s instead of looking around.`],

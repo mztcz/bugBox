@@ -5,7 +5,13 @@ boxFull = () => bugsOwned.length + youngAll().length >= 25 * (boxLv + 1);
 const MATE_HOLD_MIN = 3000, MATE_HOLD_MAX = 7000, MATE_TURN_MAX = 8000;
 const LOVE_BITE_REACH = 2.5, LOVE_BITE_CONE = 1;
 const mateOdds = () => bugsOwned.length <= 3 ? 1 : bugsOwned.length <= 10 ? .5 : .25;
-const nibble = (a, y, t = C.bug.get(y)) => (C.walk.get(y).hitT = 1, t.curHp = max(1, (t.curHp == null ? maxHpOf(t) : t.curHp) - armorCut(t, statLin(a, "str", 1, 10) * rollVar())));
+// love bite, never below 1 HP; Spikes hurt the biter by what the armor took off
+const hpNow = b => b.curHp == null ? maxHpOf(b) : b.curHp;
+function nibble(x, y) {
+const a = C.bug.get(x), t = C.bug.get(y), raw = statLin(a, "str", 1, 10) * rollVar(), cut = armorCut(t, raw);
+C.walk.get(y).hitT = 1, t.curHp = max(1, hpNow(t) - cut);
+hasAbil(t, "spikes") && raw > cut && (C.walk.get(x).hitT = 1, a.curHp = max(1, hpNow(a) - raw + cut))
+}
 const canParent = b => hpFrac(b) >= 1 && !b.mated && !b.away;
 function interactEligible(e) {
 const b = C.bug.get(e);
@@ -52,7 +58,7 @@ for (const [x, y, k2] of [[s.a, s.b, "ta"], [s.b, s.a, "tb"]]) {
 if (!s[k2]) continue;
 const px = C.pos.get(x), py = C.pos.get(y), bx = C.bug.get(x), tx = C.walk.get(x), a = atan2(py.y - px.y, py.x - px.x);
 C.vel.get(x).wanderAngle = a, turnToward(x, a, turningOf(bx) * dtS);
-abs(norm(a - px.dir)) < LOVE_BITE_CONE && (tx.prepT = (tx.prepT || (tx.prepMax = bitePrepOf(bx))) - dt) <= 0 && (s[k2] = tx.prepT = 0, tx.biteT = 500, nibble(bx, y), SFX.bite())
+abs(norm(a - px.dir)) < LOVE_BITE_CONE && (tx.prepT = (tx.prepT || (tx.prepMax = bitePrepOf(bx))) - dt) <= 0 && (s[k2] = tx.prepT = 0, tx.biteT = 500, nibble(x, y), SFX.bite())
 }
 if (s.ta || s.tb) return
 }
