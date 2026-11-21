@@ -57,14 +57,14 @@ const r = e.target.getBoundingClientRect(), g = Object.assign(document.createEle
 g.translate(160.5 - (e.clientX - r.left) * 200 / r.width, 32.5 - (e.clientY - r.top) * 60 / r.height), g.scale(devBug.s, devBug.s), g.fillStyle = "#fff", g.strokeStyle = "#0000", renderMorphParts(g, devBug.m, null, null, !1);
 return g.getImageData(0, 0, 1, 1).data[3] > 0
 };
-// saved game: valid = TAP TO CONTINUE (dev from the save, opens the box); broken or old format = kept as bugbox_save_bad, new game
+// saved game: valid = TAP TO CONTINUE or NEW GAME (Pure, after a confirm) (dev from the save, opens the box); broken or old format = kept as bugbox_save_bad, new game
 let saved = null, raw = null;
 try { raw = localStorage.getItem(SAVE_KEY), saved = raw && JSON.parse(raw) } catch (e) {}
 raw && !saveOk(saved) && (saved = null, dropSave(raw), toast("Saved game can't be loaded. New game"));
-saved && ($("s-intro1").querySelector(".press-key").textContent = "[ TAP TO CONTINUE ]");
+saved && ($("s-intro1").querySelector(".press-key").innerHTML = '[ TAP TO CONTINUE ] <span id="bt-new" style="padding:8px 4px;">[ NEW GAME ]</span>');
 $("s-intro1").onclick = e => {
-const tut = e.target.closest("#bt-tut"), go = saved && !tut;
-if (saved && tut && !confirm("Start a new game?")) return;
+const tut = e.target.closest("#bt-tut"), go = saved && !tut && !e.target.closest("#bt-new");
+if (saved && !go && !confirm("Start a new game?")) return;
 if (go) try { gameOn = 1, loadGame(saved) } catch (err) { return dropSave(JSON.stringify(saved)), location.reload() }
 else dev = "intro-art" === e.target.id && devHit(e) ? 1 : 0;
 dev || ($("bt-des").style.display = "none");
