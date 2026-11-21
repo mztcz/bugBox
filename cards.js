@@ -14,10 +14,6 @@ c.fillStyle = "#0a0a12", c.fillRect(x, y, w, h);
 c.strokeStyle = "#555566", c.lineWidth = 1, c.strokeRect(x, y, w, h);
 c.fillStyle = col || hpColor(frac), c.fillRect(x, y, w * clamp(frac, 0, 1), h)
 }
-function drawPrepBar(p, frac, r) {
-const c = boxCx, w = 20, x = p.x - w / 2, y = p.y - r - 4;
-c.fillStyle = "#1a1a1a", c.fillRect(x, y, w, 2), c.fillStyle = "#fff", c.fillRect(x, y, w * frac, 2)
-}
 function bugCardBody(o) {
 const img = `<div style="flex-shrink:0;align-self:flex-start;">${o.showHp ? hpBar(o.dead ? 0 : o.hpFrac) : ""}<div class="card-img" id="${o.imgId}"></div></div>`,
 s = round(statSum(o.statsObj)), t = tierOf(s),

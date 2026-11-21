@@ -54,7 +54,7 @@ function dropSave(bad) { try { gameOn = 0, bad && localStorage.setItem(SAVE_KEY 
 const newGame = ask => (!ask || confirm("Restart game?")) && (dropSave(), location.reload());
 function loadGame(s) {
 ({ dev, money, bid, fightNum, tierMax, statCap, obstKinds, achSt, bugs: bugsOwned, world: savedWorld } = s);
-Object.assign(run, s.run), Object.assign(bosses, s.bosses), Object.values(bosses).forEach(b => b.id = bid++), scienceOn = s.sci[0], s.sci[1].forEach((o, i) => Object.assign(sciSt[i], o));
+Object.assign(run, s.run), Object.assign(bosses, s.bosses), Object.values(bosses).forEach(b => b.id = bid++), scienceOn = s.sci[0], s.sci[1].forEach((o, i) => Object.keys(sciSt[i]).forEach(k => k in o && (sciSt[i][k] = o[k])));
 s.set && ([sound.sfx, bgOn, bugTheme, gait, palette] = s.set, sound.sfx.length ? [sound.sfx, sound.mus, sound.mv] = sound.sfx : sound.sfx = sound.sfx ? .8 : 0), s.items && ([inv, armed, boxLv, trophy] = s.items);
 const F = s.fight;
 F && (fxEnd(), enemyTier = F.T, F.d || achieve("abandon"), dev && bugsOwned.forEach(b => b.mated = 0), F.f.forEach(f => { const b = ownedById(f.b.id); b && !f.dead && (b.curHp = max(1, round(f.curHp))) }), buryDead(F.f.filter(f => f.dead)))

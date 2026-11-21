@@ -29,6 +29,8 @@ const ABILITIES = {};
 ["thickshell", "Thick Shell", "arm", 0, 0, `Passive. A bite from within 20 degrees of its nose does 30% less damage.`],
 ["badtaste", "Bad Taste", "con", 6e3, 0, `Whoever bites it needs twice the usual wind-up for its next bite.`],
 ["laststand", "Last Stand", "arm", 0, 0, `Passive. Below 25% HP every bite it takes does 40% less damage.`],
+["hardback", "Hard Back", "arm", 0, 0, `Passive. A bite in the side does x1 damage instead of x1.5, a bite in the back x1.5 instead of x2.`],
+["spikes", "Spikes", "arm", 0, 0, `Passive. In a fight, whoever bites it loses as much HP as its armor took off that bite. The biter's own armor does not reduce it; it can kill.`],
 ["glutton", "Glutton", "con", 0, 0, `Passive. Food heals it twice as much.`],
 ["antennae", "Antennae", "per", 0, 0, `Passive. Sees 50% farther.`],
 ["scent", "Scent Trail", "per", 0, 4e3, `Passive. When it loses its target, follows the target's scent for {d}s instead of looking around.`],
@@ -93,11 +95,15 @@ seesPoint(C.bug.get(oe), C.pos.get(oe), tp.x, tp.y) && wakeToFight(oe)
 }
 function applyBite(cb, ab, p, te, tb, tp, mult, atkTeam, atkE) {
 const tcb = C.combat.get(te), fd = abs(norm(atan2(p.y - tp.y, p.x - tp.x) - tp.dir)),
-flankMult = fd < PI / 3 ? 1 : fd < TAU / 3 ? 1.5 : 2;
+hb = fd >= PI / 3 && hasAbil(tb, "hardback"), flankMult = (fd < PI / 3 ? 1 : fd < TAU / 3 ? 1.5 : 2) - .5 * hb;
 if (atkE != null && (tcb.flankA > 0 || fd >= PI / 3 && tb.int < 5)) { tcb.avengeE = atkE, tcb.avengeA = atan2(p.y - tp.y, p.x - tp.x), tcb.flankA > 0 && flankEnd(tcb) }
 // decoy: no damage, counts the bites of each attacker
 if (tcb.decoy) return tcb.bit[atkE] = (tcb.bit[atkE] || 0) + 1, void(C.walk.get(te).hitT = 1);
-let dmg = armorCut(tb, statLin(ab, "str", 1, 10) * rollVar() * flankMult * mult);
+hb && abilShow(tcb, "hardback");
+const raw = statLin(ab, "str", 1, 10) * rollVar() * flankMult * mult, ha = atan2(tp.y - p.y, tp.x - p.x);
+let dmg = armorCut(tb, raw);
+// Spikes: the biter loses what the victim's armor took off, its own armor ignored
+const sp = hasAbil(tb, "spikes") && raw - dmg;
 if (hasAbil(tb, "chitin")) dmg *= .5;
 if (hasAbil(tb, "thickshell") && fd < FRONT_CONE) dmg *= .7, abilShow(tcb, "thickshell");
 if (hasAbil(tb, "laststand") && tcb.curHp < tcb.maxHp * .25) dmg *= .6, abilShow(tcb, "laststand");
@@ -105,20 +111,22 @@ hasAbil(tb, "learn") && (tcb.learn[atkE] = (tcb.learn[atkE] || 0) + 1);
 abilReady(te, "badtaste") && (cb.prepK = 2, abilFire(te, "badtaste"));
 abilReady(te, "scuttle") && (tcb.scutT = ABILITIES.scuttle.dur, abilFire(te, "scuttle"));
 tcb.curHp -= dmg, C.walk.get(te).hitT = 1;
-const ha = atan2(tp.y - p.y, tp.x - p.x);
 tcb.hitDx = cos(ha), tcb.hitDy = sin(ha);
 const sh = bugLen(tb) * .15 * rsign();
 tcb.imX -= tcb.hitDy * sh, tcb.imY += tcb.hitDx * sh;
 spawnDmgPop(tp, dmg, atkTeam, ha, tb);
 hasAbil(tb, "cry") && (tcb.callT = ABILITIES.cry.dur, tcb.callR = callRadius(tb), tcb.callTeam = atkTeam ? 0 : 1, tcb.callCry = 1, tcb.callX = tp.x, tcb.callY = tp.y);
-if (tcb.curHp <= 0 && !(hasAbil(tb, "phoenix") && !tcb.phoenixUsed && !tcb.muted)) {
-tcb.dead = !0, tcb.curHp = 0, tcb.fakeT = 0, SFX.die(), hasAbil(tb, "alarm") && (tcb.alarmT = ABILITIES.alarm.dur), cb.killsThis = (cb.killsThis || 0) + 1, cb.memT = 0, cb.searchPhase = 0;
-groundMarks.push({ x: tp.x, y: tp.y, hue: tb.hue, t: 1 })
+dieCheck(tcb, tb, tp, cb);
+sp > 0 && (cb.curHp -= sp, abilShow(tcb, "spikes"), spawnDmgPop(p, sp, atkTeam ? 0 : 1, ha + PI, ab), dieCheck(cb, ab, p, tcb))
 }
+// death after a hit (phoenix revives later in sysCombatAI); kcb = killer
+function dieCheck(cb, b, p, kcb) {
+if (cb.curHp > 0 || hasAbil(b, "phoenix") && !cb.phoenixUsed && !cb.muted) return;
+cb.dead = !0, cb.curHp = 0, cb.fakeT = 0, SFX.die(), hasAbil(b, "alarm") && (cb.alarmT = ABILITIES.alarm.dur), kcb.killsThis = (kcb.killsThis || 0) + 1, kcb.memT = 0, kcb.searchPhase = 0;
+groundMarks.push({ x: p.x, y: p.y, hue: b.hue, t: 1 })
 }
 const COMBAT_DEFAULTS = {
 dead: !1, killsThis: 0,
-prepVisT: 0,
 kbX: 0, kbY: 0, hitDx: 0, hitDy: 0,
 stunT: 0,
 flyT: 0, flyDx: 0, flyDy: 0, flySp: 0, flyE: -1, airT: 0, airMs: 1, spinRemain: 0, spinDir: 1,

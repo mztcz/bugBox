@@ -48,7 +48,6 @@ cb.callT > 0 && (cb.callT -= dt, cb.callCry && (cb.callX = p.x, cb.callY = p.y))
 cb.backflipT > 0 && (cb.backflipT -= dt);
 cb.dashT > 0 && (cb.dashT -= dt);
 cb.airT > 0 && (cb.airT -= dt);
-cb.prepVisT > 0 && (cb.prepVisT = max(0, cb.prepVisT - dt));
 cb.grabTimeLeft > 0 && (cb.grabTimeLeft = max(0, cb.grabTimeLeft - dt));
 if (cb.flyT > 0) {
 const f = min(cb.flyT, dt / cb.airMs);
@@ -301,7 +300,6 @@ return oe !== target && !ocb.dead && ocb.curHp > 0 && !fake(ocb) && C.team.get(o
 }), canBite = inRange && facingOK || opp;
 if (canBite && !airT) {
 if (cb.bitePrep > 0) cb.bitePrep -= dt / (ents.some(oe => { const ocb = C.combat.get(oe), op = C.pos.get(oe); return ocb.alarmT > 0 && C.team.get(oe).team === tm.team && hypot(op.x - p.x, op.y - p.y) < callRadius(C.bug.get(oe)) }) ? .7 : 1);
-cb.prepVisT = 20;
 } else if (!inRange && !opp) {
 cb.bitePrep = max(cb.bitePrep, 0);
 }

@@ -87,7 +87,6 @@ drawHit(b, t, lx, ly, p.dir);
 const r = morphR(b);
 post.push(() => {
 (!fow && (b === inspected || hpFrac(b) < 1 || scienceOn && sci("hp"))) && drawHpBar(p, hpFrac(b), r);
-t.prepT > 0 && sci("bite") && drawPrepBar(p, 1 - t.prepT / t.prepMax, r);
 scienceOn && sci("nam") && drawLabel(b.name, p.x, p.y - r - 11, "#4cf");
 trophy && b === bestBug() && drawLabel("🏆", p.x, p.y - r - 19, "#fd4", 10)
 });
@@ -122,10 +121,6 @@ const f = max(0, cb.curHp / cb.maxHp);
 sci("hp") && drawHpBar(p, f, r, sci("col") ? `hsl(${TEAM_HUE[tm.team]},85%,55%)` : null)
 if (sci("nam")) drawLabel(b.name, p.x, p.y - r - 11, 0 === tm.team ? "#44ccff" : "#ffaa44")
 if (cb.abT > 0) drawLabel(cb.abTxt, p.x, p.y - r - 19, "#c8f")
-if (sci("bite") && cb.prepVisT > 0) {
-const prepR = max(0, min(1, 1 - cb.bitePrep / cb.bitePrepMax));
-prepR > 0 && drawPrepBar(p, prepR, r)
-}
 });
 if (cb.callT > 0 && sci("visr")) drawRing(p, cb.callR, cb.callCry ? "#f88" : "#8f8")
 if (cb.loudT > 0 && sci("visr")) drawRing(p, loudRadius(b), "#ff8")

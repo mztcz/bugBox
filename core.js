@@ -1,4 +1,4 @@
-const GAME_VERSION = "75.26";
+const GAME_VERSION = "75.27";
 const {PI,random,max,min,hypot,sin,cos,atan2,round,abs,sign,pow,floor}=Math;
 const TAU=2*PI, HALF_PI=PI/2;
 const $ = id => document.getElementById(id);
@@ -42,11 +42,12 @@ const MUSIC = [
 // g = gain per side (0 peaceful, 1 fight), t = next step time, n = step count, side = playing side, sw = time of the last switch
 const mus = { g: [], t: [0, 0], n: [0, 0], side: -1, sw: 0 };
 // called every 100 ms: schedules 0.3 s ahead, 1 s cross-fade on a combat state change or volume change
+// Booker keeps the music side it was opened with
 function musTick() {
 const c = sound.ctx;
 if (!c || "running" !== c.state) return;
 mus.g.length || (mus.g = [0, 1].map(() => { const g = c.createGain(); return g.gain.value = 0, g.connect(c.destination), g }));
-const side = combatState ? 1 : 0, now = c.currentTime;
+const side = mus.side >= 0 && $("s-boo").classList.contains("active") ? mus.side : combatState ? 1 : 0, now = c.currentTime;
 side !== mus.side && (mus.side = side, mus.sw = now, mus.g.forEach((g, i) => (g.gain.cancelScheduledValues(now), g.gain.setValueAtTime(g.gain.value, now), g.gain.linearRampToValueAtTime(i === side ? sound.mus : 0, now + 1))));
 mus.g.forEach((g, i) => {
 if (!sound.mus || i !== side && now > mus.sw + 1) return void(mus.t[i] = 0);

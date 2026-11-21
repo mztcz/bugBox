@@ -22,17 +22,16 @@ const SCI_KEYS = [
 ["abi", "ABI", "ability cooldown readout", 1],
 ["nam", "NAME", "bug names", 1],
 ["hp", "HP", "HP bars", 1],
-["bite", "BITE", "bite wind-up bar", 1],
 ["dmg", "DMG", "floating damage numbers", 0],
 ["col", "COL", "team colours instead of bug hue", 0]
 ];
 const sciShown = () => SCI_KEYS.filter(([, , , a, c]) => combatState ? c !== 0 : a);
-const VIZ_OFF = { zone: 0, vis: 0, vis1: 0, vis2: 0, visr: 1, bite: 1, dmg: 1, abi: 0, nam: 1, hp: 1, col: 0 };
+const VIZ_OFF = { zone: 0, vis: 0, vis1: 0, vis2: 0, visr: 1, dmg: 1, abi: 0, nam: 1, hp: 1, col: 0 };
 let scienceOn = !0;
 const sciNew = () => SCI_KEYS.reduce((o, [k]) => (o[k] = 0, o), {}),
 sciSt = [sciNew(), sciNew()],
 sciCur = () => sciSt[combatState ? 1 : 0];
-const FOW_HIDE = "zone visr bite dmg abi nam hp col vis vis1 vis2".split(" ");
+const FOW_HIDE = "zone visr dmg abi nam hp col vis vis1 vis2".split(" ");
 const sci = k => fow && FOW_HIDE.includes(k) ? 0 : scienceOn ? sciCur()[k] : VIZ_OFF[k];
 function setScience(on) {
 scienceOn = !!on, on && achieve("science"), syncSciHud()

@@ -71,7 +71,7 @@ old && old.remove();
 if (labSt.pA && labSt.pB && (isA || isB)) {
 const info = div.querySelector(".card-info"),
 gb = document.createElement("button");
-gb.className = "nav-lab bt-breed", gb.style = "font-size:10px;padding:3px 8px;margin-top:3px;", gb.textContent = "🧬 Breed", gb.onclick = e => { e.stopPropagation(), breedNow() };
+gb.className = "nav-lab bt-breed", gb.style = "position:absolute;left:0;top:100%;font-size:10px;padding:1px 8px;margin-top:2px;", gb.textContent = "🧬 Breed", gb.onclick = e => { e.stopPropagation(), breedNow() };
 info && info.appendChild(gb)
 }
 const btn = div.querySelector(".bt-sel");
