@@ -57,6 +57,8 @@ boxCx.fillStyle = c2, boxCx.beginPath(), boxCx.arc(p.x - 1, p.y - 1, 1.5, 0, 7),
 function sysRender(inCombat) {
 const fe = inspected && (ecsQuery("bug", "pos").find(en => C.bug.get(en) === inspected || C.bug.get(en).id === inspected.id) ?? ecsQuery("young").find(en => C.young.get(en).bug === inspected));
 fe == null && (inspected = null), syncFowBtn();
+// the box world (obstacles, food, young, bugs) is drawn only inside the box; HP bars, names and later layers may go outside
+boxCx.save(), boxCx.beginPath(), boxCx.rect(0, 0, boxLW, boxLH), boxCx.clip();
 sysRenderObstacles(!1), drawZoneVisOverlay();
 if (inCombat) {
 ecsQuery("combat", "pos").forEach(e => {
@@ -133,7 +135,7 @@ boxCx.stroke(), boxCx.restore();
 }
 boxCx.globalAlpha = 1;
 });
-sysRenderObstacles(!0), post.forEach(fn => fn());
+sysRenderObstacles(!0), boxCx.restore(), post.forEach(fn => fn());
 if (fow) {
 const fp = C.pos.get(fe), fb = C.bug.get(fe) || inspected,
 fr = visRangeOf(fb), fh = fovHalfOf(fb), fhr = nearVisR(fb);
