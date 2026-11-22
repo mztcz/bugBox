@@ -85,18 +85,17 @@ const seg = (x1, y1, x2, y2, x3, y3) => { t.beginPath(), t.moveTo(x1, y1), t.lin
 (hexPath(t, cy, rx * .45, ry * .45), t.stroke())
 }
 function renderMorphParts(t, cfg, wp, sh, nl, so) {
-const bl = cfg.bodyLength, legSp = bl / 4, still = wp === null, L = cfg.legLen, hx = cfg.bodyWidth / 2;
+const bl = cfg.bodyLength, legSp = bl / 4, still = wp === null, L = cfg.legLen, hx = cfg.bodyWidth / 2, [pw, pa] = wp?.length ? wp : [[wp, wp], [1, 1]];
 t.lineWidth = nl ? .9 : .8, t.lineCap = t.lineJoin = nl ? "miter" : "round";
 sh && (t.strokeStyle = hsl3(sh.hue, 62, 38));
 for (let i = 1; i <= 3; i++) {
 const ly = -bl / 2 + i * legSp, m = i - 2,
-ph = gait ? (i % 2 ? 0 : PI) : i, x = wp + ph,
-w0 = still ? 0 : sin(x) * min(L * .28 * (m ? 1.35 : .6), bl * .12), c = m * .15 * L;
+ph = gait ? (i % 2 ? 0 : PI) : i, sw = min(L * .28 * (m ? 1.35 : .6), bl * .12), c = m * .15 * L;
 // spider walk, saved here, to be used in the future with 4th leg pair:
 // fan = [55, 25, 0][i - 1] * PI / 180; rotate each leg point (dx, dy) around the root (a, ly) towards the head
 // by s * fan before adding the swing: dx' = dx * cos(fan) + s * dy * sin(fan), dy' = dy * cos(fan) - s * dx * sin(fan)
 for (const s of [-1, 1]) {
-const a = s * hx, w = c - s * w0, P = [[a, ly], [a + s * .4 * L, ly + w], [a + s * .648 * L, ly + w + .248 * L], [a + s * .733 * L, ly + w + .483 * L]],
+const j = s > 0 ? 1 : 0, x = pw[j] + ph, w0 = still ? 0 : pa[j] * sin(x) * sw, a = s * hx, w = c - s * w0, P = [[a, ly], [a + s * .4 * L, ly + w], [a + s * .648 * L, ly + w + .248 * L], [a + s * .733 * L, ly + w + .483 * L]],
 lf = still ? 0 : max(0, s * cos(x)), k = so ? [1, .6 + .4 * lf, .3 + .7 * lf, lf] : [0, 0, 0, 0];
 t.beginPath(), P.forEach(([px, py], j) => t.lineTo(px + (so ? k[j] * so[0] : 0), py + (so ? k[j] * so[1] : 0))), t.stroke()
 }
