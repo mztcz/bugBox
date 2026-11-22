@@ -34,8 +34,7 @@ const m = {};
 for (const k in MORPH_RANGE) { const [lo, hi] = MORPH_RANGE[k]; m[k] = lo + ri(hi - lo + 1) }
 return m.headGear = rnd(GEAR_KEYS), m.mandType = rnd(MAND_KEYS), m
 }
-// a morph from an older save (no mandType) gets a random mandible type and is synced again from the stats (headGearSize 0–9)
-function ensureMorph(b) { const m = b.morph ||= randomMorph(); return m.mandType || (m.mandType = rnd(MAND_KEYS), b.con && Object.assign(m, statMorph(b))), m }
+function ensureMorph(b) { return b.morph || (b.morph = randomMorph()), b.morph }
 function syncMorph(b) { return Object.assign(ensureMorph(b), statMorph(b)) }
 function inheritThird(va, vb, pool) {
 const r = random();
@@ -139,11 +138,12 @@ ctx.fillStyle = ctx.strokeStyle = color, renderMorphParts(ctx, cfg, walk, sh, nl
 }
 const shCv = Object.assign(document.createElement("canvas"), { width: 0, height: 0 }), shCx = shCv.getContext("2d");
 function morphShadow(ctx, cfg, x, y, rot, scale = 1, walk = null) {
-const c = cos(rot) / scale, s = sin(rot) / scale, M = ctx.getTransform(), z = hypot(M.a, M.b), [, y0, x1, y1] = morphBox(cfg),
-R = (hypot(x1, max(-y0, y1)) + .12 * cfg.bodyLength + 4) * scale, n = Math.ceil(2 * R * z);
+// light from the top left: offset = body height above ground (0.3 × legs + 0.25 × width) × 0.71 per axis, grows with scale
+const c = cos(rot), s = sin(rot), o = (.3 * cfg.legLen + .25 * cfg.bodyWidth) * Math.SQRT1_2, M = ctx.getTransform(), z = hypot(M.a, M.b), [, y0, x1, y1] = morphBox(cfg),
+R = (hypot(x1, max(-y0, y1)) + .12 * cfg.bodyLength + 2 * o) * scale, n = Math.ceil(2 * R * z);
 shCv.height < n && (shCv.width = shCv.height = n), shCx.setTransform(1, 0, 0, 1, 0, 0), shCx.clearRect(0, 0, n, n);
 shCx.setTransform(z, 0, 0, z, n / 2, n / 2), shCx.rotate(rot), shCx.scale(scale, scale), shCx.fillStyle = shCx.strokeStyle = "#000";
-renderMorphParts(shCx, cfg, walk, null, !1, [2 * c + 2.5 * s, 2.5 * c - 2 * s]);
+renderMorphParts(shCx, cfg, walk, null, !1, [o * (c + s), o * (c - s)]);
 ctx.save(), ctx.globalAlpha *= .35, ctx.shadowBlur = 0, ctx.drawImage(shCv, 0, 0, n, n, x - R, y - R, n / z, n / z), ctx.restore()
 }
 let palette = 0, gait = 1, bugTheme = 0;

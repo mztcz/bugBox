@@ -5,7 +5,7 @@ slowT = 0; // real ms left of the last-kill slow motion (0.3×)
 // screen shake of the box canvas (panic, last kill)
 const shake = () => (boxCv.classList.remove("shake"), void boxCv.offsetWidth, boxCv.classList.add("shake"), setTimeout(() => boxCv.classList.remove("shake"), 500));
 function drawBoxBackdrop() {
-boxCx.clearRect(-boxOX, -boxOY, boxLW + 2 * boxOX, boxLH + 2 * boxOY), boxK() < 1 && (boxCx.strokeStyle = combatState ? "#fa4" : "#4cf", boxCx.lineWidth = 2, boxCx.strokeRect(-1, -1, boxLW + 2, boxLH + 2));
+boxCx.clearRect(-boxOX, -boxOY, boxLW + 2 * boxOX, boxLH + 2 * boxOY);
 if (bgOn && combatState && 3 !== bugTheme && drawBg()) return;
 boxCx.fillStyle = "#0a0809", boxCx.fillRect(0, 0, boxLW, boxLH), boxCx.fillStyle = "#120f0a";
 for (let i = 0; i < boxLW; i += 8)
@@ -27,7 +27,9 @@ tickDebt -= 1, tick(COMBAT_STEP_MS, combatState), combatState && fightMs >= 0 &&
 }
 if (guard >= MAX_STEPS_PER_FRAME) tickDebt = 0;
 sysAnimPhase(), syncHud();
-sysRender(combatState)
+sysRender(combatState);
+// small box frame last, so bugs at the edge never cover it
+boxK() < 1 && (boxCx.strokeStyle = combatState ? "#fa4" : "#4cf", boxCx.lineWidth = 2, boxCx.strokeRect(-1, -1, boxLW + 2, boxLH + 2))
 }
 function tick(dt, fight) {
 // drop-in: second half of the jump arc, landing sound; no AI or fight timer before the last landing
