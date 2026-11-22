@@ -3,14 +3,16 @@ dzSide = 0, dzZoom = 1;
 dzSync();
 function dzSync() { dz.link && Object.assign(dz, statMorph(dz)) }
 const DZ_ROWS = [["hue", "Hue", 0, 340, 20], ["bodySegments", "Segments"], ["segmentGradient", "Gradient"],
-["headGear", "Gear type", 0, GEAR_KEYS.length - 1], ["bodyLength", "Length"], ["bodyWidth", "Width"],
+["headGear", "Gear type", 0, GEAR_KEYS.length - 1], ["mandType", "Mandibles", 0, MAND_KEYS.length - 1], ["bodyLength", "Length"], ["bodyWidth", "Width"],
 ["legLen", "Legs"], ["headSize", "Head"], ["headGearSize", "Gear size"]],
-DZ_RED = ["hue", "bodySegments", "segmentGradient", "headGear"],
+DZ_RED = ["hue", "bodySegments", "segmentGradient", "headGear", "mandType"],
+// list sliders: [keys, labels]
+DZ_LIST = { headGear: [GEAR_KEYS, GEAR_LABEL], mandType: [MAND_KEYS, MAND_LABEL] },
 dzLo = r => r[2] ?? MORPH_RANGE[r[0]][0],
 dzStep = r => r[4] ?? 1,
 dzHi = r => r[3] ?? MORPH_RANGE[r[0]][1],
-dzVal = k => k === "headGear" ? GEAR_KEYS.indexOf(dz.headGear) : dz[k],
-dzTxt = k => k === "headGear" ? GEAR_LABEL[dz.headGear] : k === "headGearSize" ? SIZE_LABEL[dz.headGearSize] : k in MORPH_STAT ? round(dz[k] * 10) / 10 : dz[k],
+dzVal = k => DZ_LIST[k] ? DZ_LIST[k][0].indexOf(dz[k]) : dz[k],
+dzTxt = k => DZ_LIST[k] ? DZ_LIST[k][1][dz[k]] : k === "headGearSize" ? dz[k] + 1 : k in MORPH_STAT ? round(dz[k] * 10) / 10 : dz[k],
 dzLocked = k => dz.link && k in MORPH_STAT;
 function dzRefresh() {
 DZ_ROWS.forEach(r => {
@@ -54,7 +56,7 @@ const el = $("dz-" + k);
 el.oninput = () => {
 let v = parseInt(el.value);
 SK.includes(k) && (el.value = v = min(v, STAT_SUM_MAX - statSum(dz) + dz[k]));
-k === "headGear" ? dz.headGear = GEAR_KEYS[v] : dz[k] = v;
+dz[k] = DZ_LIST[k] ? DZ_LIST[k][0][v] : v;
 SK.includes(k) && dzSync(), dzRefresh()
 }
 }
@@ -91,8 +93,7 @@ const cv = $("dz-cv"), ctx = hidpi(cv, 150, 130);
 cancelAnimationFrame(dzAnim);
 ! function tick() {
 ctx.clearRect(0, 0, 150, 130), ctx.fillStyle = "#0a0a12", ctx.fillRect(0, 0, 150, 130);
-drawMorphBug(ctx, dz, morphColor(dz.hue), 75, 65 + 2 * dz.headSize * dzZoom, 0,
-{ hue: dz.hue, scale: dzZoom, walk: .006 * performance.now() });
+drawMorphCentered(ctx, { hue: dz.hue, morph: dz }, 150, 130, 0, { scale: dzZoom, walk: .006 * performance.now(), shadow: !0 });
 dzAnim = requestAnimationFrame(tick)
 }()
 }

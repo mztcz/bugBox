@@ -47,7 +47,8 @@ boxCx.fillText(`${ABILITIES[id].name}${has?" "+(cd<=0?"\u2713":(cd/1000).toFixed
 }
 // red hit flash; tutorial: blue tint with blue glow fading in 0.35 s
 const tint = (b, col, a, x, y, dir) => a > 0 && a <= 1 && drawMorphBug(boxCx, ensureMorph(b), col, x, y, dir + HALF_PI, { alpha: a, shadow: !1, glow: "#4cf" === col ? col : null }),
-lungeOf = t => 14 / 3 * max(0, (t.biteT || 0) - 300) / 200, clampOf = (t, bt = 500 - (t.biteT || 0)) => bt < 120 ? bt / 120 : bt < 300 ? 1 : (500 - bt) / 200,
+lungeOf = t => 14 / 3 * max(0, (t.biteT || 0) - 300) / 200, // mandible state [wind-up progress 0–1, biteT ms]: fight wind-up cb.bitePrep, love-bite wind-up t.prepT
+jawOf = (t, cb) => [cb ? 1 - cb.bitePrep / cb.bitePrepMax : t.prepT > 0 ? 1 - t.prepT / t.prepMax : 0, t.biteT || 0],
 drawHit = (b, t, x, y, dir) => (tint(b, "#ff2828", t.hitT, x, y, dir), tutTint?.b === b && tint(b, "#4cf", 1 - (performance.now() - tutTint.at) / 350, x, y, dir));
 const drawFood = (p, c1, c2) => {
 boxCx.fillStyle = c1, boxCx.beginPath(), boxCx.arc(p.x, p.y, 4, 0, 7), boxCx.fill();
@@ -82,7 +83,7 @@ const b = C.bug.get(e),
 p = C.pos.get(e), t = C.walk.get(e);
 if (!inCombat) {
 const lg = lungeOf(t), lx = p.x + lg * cos(p.dir), ly = p.y + lg * sin(p.dir);
-drawBugStyled(boxCx, b, lx, ly, p.dir, 1, b === inspected, posPhase(t), null, !0, clampOf(t));
+drawBugStyled(boxCx, b, lx, ly, p.dir, 1, b === inspected, posPhase(t), null, !0, jawOf(t));
 drawHit(b, t, lx, ly, p.dir);
 const r = morphR(b);
 post.push(() => {
@@ -112,7 +113,7 @@ boxCx.globalAlpha = 1;
 const k = cb.airT > 0 ? sin(PI * (1 - cb.airT / cb.airMs)) * (cb.dashT > 0 ? .5 : 1) : 0, by = p.y + offY - bugLen(b) * k * (cb.dashT > 0 ? .5 : 1), s = 1 + .15 * k;
 k && 3 !== bugTheme && morphShadow(boxCx, cfg, p.x + offX, p.y + offY, p.dir + HALF_PI, 1.5 - 1.2 * k);
 boxCx.save(), boxCx.translate(p.x + offX, by), boxCx.scale(s, s);
-drawBugStyled(boxCx, b, 0, 0, p.dir, 1, b === inspected, k ? null : posPhase(t), sci("col") ? TEAM_HUE[tm.team] : null, !k, clampOf(t));
+drawBugStyled(boxCx, b, 0, 0, p.dir, 1, b === inspected, k ? null : posPhase(t), sci("col") ? TEAM_HUE[tm.team] : null, !k, jawOf(t, cb));
 boxCx.restore();
 drawHit(b, t, p.x + offX, by, p.dir);
 post.push(() => {

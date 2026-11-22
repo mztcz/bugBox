@@ -3,7 +3,7 @@ let devBug;
 ! function() {
 const ctx = hidpi($("intro-art"), 200, 60), hues = shuf([120, 30, 275]);
 ctx.fillStyle = "#0a0a12", ctx.fillRect(0, 0, 200, 60), [40, 100, 160].forEach((cx, i) => {
-const m = randomMorph(), s = morphFitScale(m, 52, 48);
+const m = randomMorph(), s = morphFit(m, 52, 48)[0] * .9;
 drawMorphBug(ctx, m, morphColor(hues[i]), cx, 32, 0, { scale: s, shadow: !1, hue: hues[i] }), devBug = { m, s }
 }), ctx.fillStyle = "#ffdd44", [
 [10, 6],
