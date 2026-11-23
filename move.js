@@ -2,34 +2,6 @@ const BASE_WALK = 20, RUSH = 1.25;
 const zf        = b => hasAbil(b, "zoom") ? 2 : 1;
 const spdOf     = b => statLin(b, "agi", BASE_WALK, 10 * BASE_WALK) * zf(b);
 const turningOf = b => TAU / statLin(b, "agi", 5.99, .5) * zf(b);
-// Turn in place (Turn: new, Dev Settings): body pivots 70 % of its length from the head. Turns up to 30° run smooth at ω, bigger ones in
-// equal steps (n = min(ceil(T / K), floor(T / 15°)), K 15°–60° by AGI) at min(ω, 360°/s) with a 150–0 ms pause between steps; over 65° the bug
-// also backs up at 0.3 × spdOf during the first half (max 0.3 × body length, stops at a wall or obstacle). Legs per side: walk.lw phase offsets,
-// walk.la amplitudes (outer side forward ×1, inner side back ×0.4), walk.ip = shift and turn of this frame that sysAnimPhase keeps out of stride
-let turnNew = 1;
-const TURN_SMOOTH = PI / 6, TURN_MIN = PI / 12, TURN_BACK = 13 * PI / 36;
-function turnIP(e, d, step) {
-const p = C.pos.get(e), v = C.vel.get(e), t = C.walk.get(e), b = C.bug.get(e), g = sign(d), o = g > 0 ? 1 : 0, L = bugLen(b), K = statLin(b, "agi", TURN_MIN, PI / 3),
-ip = t.ip ||= [0, 0, 0], lw = t.lw ||= [0, 0], mv = (dx, dy) => (p.x += dx, p.y += dy, ip[0] += dx, ip[1] += dy);
-let q = v.tw, A = abs(d), ms = COMBAT_STEP_MS;
-q && q.g === g || (q = v.tw = { g, T: A, a: 0, w: 0, r: 0, bd: 0 });
-t.la = o ? [1, .4] : [.4, 1];
-const sm = q.T <= TURN_SMOOTH, rate = (sm ? step : min(step, TAU * COMBAT_STEP_MS / 1e3)) / COMBAT_STEP_MS;
-while (ms > 1e-9) {
-if (q.w > 0) { const u = min(q.w, ms); q.w -= u, ms -= u; continue }
-const Tc = A + q.a, sz = sm ? Tc : Tc / max(1, min(ceil(Tc / K - 1e-9), floor(Tc / TURN_MIN + 1e-9))), r = min(rate * ms, A, sz - q.a), c0 = cos(p.dir), s0 = sin(p.dir), f = r * (sm ? 2.2 : PI / sz);
-ms -= r / rate;
-if (!sm && q.T > TURN_BACK && q.r < A && q.bd < .3 * L) {
-const bx = min(.3 * spdOf(b) * r / rate / 1e3, .3 * L - q.bd), nx = p.x - bx * c0, ny = p.y - bx * s0, m = bugRadius(b);
-nx < m || ny < m || nx > boxLW - m || ny > boxLH - m || ecsQuery("obstacle", "pos").some(oe => { const [od, , , cr] = obstCap(oe, nx, ny); return od < cr + L / 2 }) ? q.bd = L :
-(mv(nx - p.x, ny - p.y), q.bd += bx, lw[0] -= .32 * bx, lw[1] -= .32 * bx)
-}
-p.dir = norm(p.dir + g * r), mv(.2 * L * (cos(p.dir) - c0), .2 * L * (sin(p.dir) - s0)), ip[2] += r, q.r += r, lw[1 - o] += f, lw[o] -= f, A -= r;
-if (A < 1e-9) return !0;
-(q.a += r) >= sz - 1e-9 && (q.a = 0, q.w = 150 - 150 * (b.agi - 1) / 19)
-}
-return !1
-}
 const STUCK_CHECK_MS = 2000;
 const SLIDE_K = .25;
 const CORPSE_SLOW = .5;
@@ -55,7 +27,7 @@ tu = "turning" === t.act,
 ru = "rushing" === t.act;
 if (!tu && !ru && "walking" !== t.act || t.slide != null) return;
 if (busy(t)) return void(t.frzMs = 0, t.lastX = p.x, t.lastY = p.y);
-if (tu) return void(turnToward(e, t.turnA, turningOf(b) * dtS, 1) && (v.wanderAngle = p.dir, t.turnA = null, wallNext(e)));
+if (tu) return void(turnToward(e, t.turnA, turningOf(b) * dtS) && (v.wanderAngle = p.dir, t.turnA = null, wallNext(e)));
 if ((t.frzMs = (t.frzMs || 0) + dt) >= STUCK_CHECK_MS) {
 const stuck = hypot(p.x - (t.lastX ?? p.x), p.y - (t.lastY ?? p.y)) < bugLen(b);
 t.frzMs = 0, t.lastX = p.x, t.lastY = p.y;

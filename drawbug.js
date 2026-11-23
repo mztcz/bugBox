@@ -8,14 +8,13 @@ glow: highlighted ? glowCol(hue) : null
 })
 }
 const glowCol = hue => `hsl(${hue},80%,60%)`;
-// leg phase: a number (both sides), or [[left, right] phases, [left, right] amplitudes] once a turn in place has run (turnIP)
-const posPhase = t => { const P = (t.stride || 0) + 2.2 * (t.turnAcc || 0); return t.lw ? [[P + t.lw[0], P + t.lw[1]], t.la || [1, 1]] : P };
+const posPhase = t => (t.stride || 0) + 2.2 * (t.turnAcc || 0);
 function sysAnimPhase() {
 ecsQuery("bug", "pos").forEach(e => {
-const p = C.pos.get(e), t = C.walk.get(e), q = t.ip || (t.la = null, [0, 0, 0]), dx = p.x - (t._px ?? p.x) - q[0], dy = p.y - (t._py ?? p.y) - q[1];
+const p = C.pos.get(e), t = C.walk.get(e), dx = p.x - (t._px ?? p.x), dy = p.y - (t._py ?? p.y);
 const dd = norm(p.dir - (t._pd ?? p.dir));
-t.stride = (t.stride || 0) + .32 * hypot(dx, dy), t.turnAcc = (t.turnAcc || 0) + max(0, abs(dd) - q[2]);
-t._px = p.x, t._py = p.y, t._pd = p.dir, t.ip = null
+t.stride = (t.stride || 0) + .32 * hypot(dx, dy), t.turnAcc = (t.turnAcc || 0) + abs(dd);
+t._px = p.x, t._py = p.y, t._pd = p.dir
 })
 }
 function bugCardH(b, w = 54, h = 54) {

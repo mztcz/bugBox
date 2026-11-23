@@ -186,7 +186,7 @@ flee(e, p.dir + rf(45, 110) * PI / 180 * rsign()), cb.aimLock = 0, cb.aimTarget 
 }
 }
 if ("fleeing" === t.act) {
-if (cb.fleeT != null) return void(turnToward(e, cb.fleeT, turn, 1) && (cb.fleeT = null));
+if (cb.fleeT != null) return void(turnToward(e, cb.fleeT, turn) && (cb.fleeT = null));
 const fc = cb.fleeC, v = C.vel.get(e);
 fc && (v.angVel += .9 * (random() - .5) * dtS, v.angVel *= .95, cb.fleeA = atan2(fc.y - p.y, fc.x - p.x) + (fc.j += v.angVel));
 const fT = hurt(e) && seenFood(b, p);
@@ -214,7 +214,7 @@ if (minD <= attackReach) cb.aimLock = 0;
 if (tier === 4) cb.aimLock = 0;
 if (!cb.aimLock) {
 const far = minD > attackReach && tier !== 4;
-turnToward(e, p.dir + aimDiff, turn, 1) ? far && (cb.aimLock = 1) : aiming = far;
+turnToward(e, p.dir + aimDiff, turn) ? far && (cb.aimLock = 1) : aiming = far;
 }
 cb.lostSide = sign(aimDiff) || cb.lostSide || 1;
 cb.trailE = target, cb.trailT = ABILITIES.scent.dur, cb.memT = memMsOf(b), cb.memX = tp.x, cb.memY = tp.y, cb.memA = tp.dir, cb.searchPhase = 0;
@@ -309,7 +309,7 @@ cb.aimLock = 0, cb.aimTarget = -1;
 cb.dashT = 0, cb.dashHitPend = 0;
 cb.memT > 0 && (cb.memT -= dt);
 if (cb.avengeE >= 0) {
-turnToward(e, cb.avengeA, turn, 1) && (cb.avengeE = -1);
+turnToward(e, cb.avengeA, turn) && (cb.avengeE = -1);
 return
 }
 if (cb.trailT > 0 && hasAbil(b, "scent") && liveE(cb.trailE) && !(C.combat.get(cb.trailE).fakeT > 0)) {
@@ -325,7 +325,7 @@ call && (cb.goOn = 1, cb.goX = call.callX, cb.goY = call.callY)
 if (cb.goOn) {
 const dxc = cb.goX - p.x, dyc = cb.goY - p.y;
 if (hypot(dxc, dyc) > bugLen(b)) {
-turnToward(e, atan2(dyc, dxc), turn, 1) && (cb.mvA = p.dir, cb.mvSpd = spd);
+turnToward(e, atan2(dyc, dxc), turn) && (cb.mvA = p.dir, cb.mvSpd = spd);
 return
 }
 cb.goOn = 0, cb.callDoneX = cb.goX, cb.callDoneY = cb.goY, cb.memT = 0;
@@ -334,7 +334,7 @@ cb.searchPhase = 2, t.scanRemain = scanOf(b), cb.lostSide = rsign()
 if (cb.memT > 0 && tier < 4 && cb.searchPhase === 0) {
 const dxm = cb.memX - p.x, dym = cb.memY - p.y, dm = hypot(dxm, dym);
 if (dm > 12) {
-turnToward(e, atan2(dym, dxm), turn, 1) && (cb.mvA = p.dir, cb.mvSpd = spd * .5);
+turnToward(e, atan2(dym, dxm), turn) && (cb.mvA = p.dir, cb.mvSpd = spd * .5);
 return
 }
 if (tier === 1) { cb.memT = 0, decide(e); return }
@@ -343,7 +343,7 @@ t.scanRemain = scanOf(b);
 cb.lostSide = rsign()
 }
 if (cb.searchPhase === 1) {
-if (!turnToward(e, cb.memA, turn, 1)) return
+if (!turnToward(e, cb.memA, turn)) return
 cb.searchPhase = 2
 }
 cb.searchPhase || (cb.searchPhase = 2, t.scanRemain = PI);
