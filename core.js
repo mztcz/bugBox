@@ -1,5 +1,5 @@
-const GAME_VERSION = "75.33";
-const {PI,random,max,min,hypot,sin,cos,atan2,round,abs,sign,pow,floor}=Math;
+const GAME_VERSION = "75.34";
+const {PI,random,max,min,hypot,sin,cos,atan2,round,abs,sign,pow,floor,ceil}=Math;
 const TAU=2*PI, HALF_PI=PI/2;
 const $ = id => document.getElementById(id);
 function pathPts(g, n, fn) { for (let i = 0; i < n; i++) { const [x, y] = fn(i); i ? g.lineTo(x, y) : g.moveTo(x, y) } }
