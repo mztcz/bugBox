@@ -46,11 +46,13 @@ ta.touch = now
 }
 ents.forEach(e => {
 const s = C.walk.get(e).pair;
-if (!s || s.a !== e && C.pos.has(s.a)) return;
+if (!s || s.a !== e && C.walk.get(s.a)?.pair === s) return;
 if (!C.pos.has(s.a) || !C.pos.has(s.b)) return void pairEnd(s);
 s.phase ? mateStep(s, dt, dtS) : loveStep(s, dt, dtS)
 })
 }
+// love bite: the biter leaves the pair at once and walks on (no thinking pause); the other bites only while still in reach
+const loveLeave = e => (C.walk.get(e).pair = C.walk.get(e).prepT = 0, setAct(e, "walking", rf(WALK_MIN, WALK_MAX)), newDir(e));
 function loveStep(s, dt, dtS) {
 const pa = C.pos.get(s.a), pb = C.pos.get(s.b);
 if (hypot(pb.x - pa.x, pb.y - pa.y) <= sepPair(s.a, s.b) * LOVE_BITE_REACH) {
@@ -58,11 +60,11 @@ for (const [x, y, k2] of [[s.a, s.b, "ta"], [s.b, s.a, "tb"]]) {
 if (!s[k2]) continue;
 const px = C.pos.get(x), py = C.pos.get(y), bx = C.bug.get(x), tx = C.walk.get(x), a = atan2(py.y - px.y, py.x - px.x);
 C.vel.get(x).wanderAngle = a, turnToward(x, a, turningOf(bx) * dtS);
-abs(norm(a - px.dir)) < LOVE_BITE_CONE && (tx.prepT = (tx.prepT || (tx.prepMax = bitePrepOf(bx))) - dt) <= 0 && (s[k2] = tx.prepT = 0, tx.biteT = 500, nibble(x, y), SFX.bite())
+abs(norm(a - px.dir)) < LOVE_BITE_CONE && (tx.prepT = (tx.prepT || (tx.prepMax = bitePrepOf(bx))) - dt) <= 0 && (s[k2] = 0, tx.biteT = 500, nibble(x, y), SFX.bite(), loveLeave(x))
 }
 if (s.ta || s.tb) return
 }
-pairEnd(s)
+[s.a, s.b].forEach(e => C.walk.get(e).pair === s && loveLeave(e))
 }
 function mateStep(m, dt, dtS) {
 const sp = C.pos.get(m.a), tp = C.pos.get(m.b),
