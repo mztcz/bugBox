@@ -7,9 +7,12 @@ const turningOf = b => TAU / statLin(b, "agi", 5.99, .5) * zf(b);
 // also backs up at 0.3 × spdOf during the first half (max 0.3 × body length, stops at a wall or obstacle). Legs per side: walk.lw phase offsets,
 // walk.la amplitudes (outer side forward ×1, inner side back ×0.4), walk.ip = shift and turn of this frame that sysAnimPhase keeps out of stride
 let turnNew = 1;
-const TURN_SMOOTH = PI / 6, TURN_MIN = PI / 12, TURN_BACK = 13 * PI / 36;
+const TURN_SMOOTH = PI / 6, TURN_MIN = PI / 12, TURN_BACK = 13 * PI / 36,
+turnN = (b, T) => max(1, min(ceil(T / statLin(b, "agi", TURN_MIN, PI / 3) - 1e-9), floor(T / TURN_MIN + 1e-9))), // steps of a turn T
+turnPause = b => statLin(b, "agi", 150, 0), // ms between steps
+halfTurnS = b => PI / min(turningOf(b), TAU) + (turnN(b, PI) - 1) * turnPause(b) / 1e3; // half turn in place, s (Info)
 function turnIP(e, d, step) {
-const p = C.pos.get(e), v = C.vel.get(e), t = C.walk.get(e), b = C.bug.get(e), g = sign(d), o = g > 0 ? 1 : 0, L = bugLen(b), K = statLin(b, "agi", TURN_MIN, PI / 3),
+const p = C.pos.get(e), v = C.vel.get(e), t = C.walk.get(e), b = C.bug.get(e), g = sign(d), o = g > 0 ? 1 : 0, L = bugLen(b),
 ip = t.ip ||= [0, 0, 0], lw = t.lw ||= [0, 0], mv = (dx, dy) => (p.x += dx, p.y += dy, ip[0] += dx, ip[1] += dy);
 let q = v.tw, A = abs(d), ms = COMBAT_STEP_MS;
 q && q.g === g || (q = v.tw = { g, T: A, a: 0, w: 0, r: 0, bd: 0 });
@@ -17,7 +20,7 @@ t.la = o ? [1, .4] : [.4, 1];
 const sm = q.T <= TURN_SMOOTH, rate = (sm ? step : min(step, TAU * COMBAT_STEP_MS / 1e3)) / COMBAT_STEP_MS;
 while (ms > 1e-9) {
 if (q.w > 0) { const u = min(q.w, ms); q.w -= u, ms -= u; continue }
-const Tc = A + q.a, sz = sm ? Tc : Tc / max(1, min(ceil(Tc / K - 1e-9), floor(Tc / TURN_MIN + 1e-9))), r = min(rate * ms, A, sz - q.a), c0 = cos(p.dir), s0 = sin(p.dir), f = r * (sm ? 2.2 : PI / sz);
+const Tc = A + q.a, sz = sm ? Tc : Tc / turnN(b, Tc), r = min(rate * ms, A, sz - q.a), c0 = cos(p.dir), s0 = sin(p.dir), f = r * (sm ? 2.2 : PI / sz);
 ms -= r / rate;
 if (!sm && q.T > TURN_BACK && q.r < A && q.bd < .3 * L) {
 const bx = min(.3 * spdOf(b) * r / rate / 1e3, .3 * L - q.bd), nx = p.x - bx * c0, ny = p.y - bx * s0, m = bugRadius(b);
@@ -26,7 +29,7 @@ nx < m || ny < m || nx > boxLW - m || ny > boxLH - m || ecsQuery("obstacle", "po
 }
 p.dir = norm(p.dir + g * r), mv(.2 * L * (cos(p.dir) - c0), .2 * L * (sin(p.dir) - s0)), ip[2] += r, q.r += r, lw[1 - o] += f, lw[o] -= f, A -= r;
 if (A < 1e-9) return !0;
-(q.a += r) >= sz - 1e-9 && (q.a = 0, q.w = 150 - 150 * (b.agi - 1) / 19)
+(q.a += r) >= sz - 1e-9 && (q.a = 0, q.w = turnPause(b))
 }
 return !1
 }
