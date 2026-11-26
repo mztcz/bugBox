@@ -33,11 +33,11 @@ rsign = () => random() < .5 ? -1 : 1,
 ownedById = id => bugsOwned.find(b => b.id === id),
 bugsHome = () => bugsOwned.filter(b => !b.away),
 fmtT = ms => { const d = floor(ms / 100), p = n => String(n).padStart(2, "0"); return p(floor(d / 600)) + ":" + p(floor(d / 10) % 60) + "." + d % 10 };
-// ip = turn in place (no forward move): with turnNew it runs turnIP (move.js)
+// ip = turn in place (no forward move): runs turnIP (move.js) unless Dev Settings Turn = Old
 function turnToward(e, want, step, ip) {
 const p = C.pos.get(e), v = C.vel.get(e), d = norm(want - p.dir);
 step *= v.tk ||= rf(.9, 1.1);
-if (ip && turnNew) return turnIP(e, d, step) && !(v.tk = 0, v.tw = null);
+if (ip && turnMode !== "old") return turnIP(e, d, step) && !(v.tk = 0, v.tw = null);
 return v.tw = null, abs(d) <= step ? (p.dir = norm(want), v.tk = 0, !0) : (p.dir = norm(p.dir + sign(d) * step), !1)
 }
 function norm(a) { a %= TAU; return a > PI ? a - TAU : a < -PI ? a + TAU : a }

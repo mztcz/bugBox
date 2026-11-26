@@ -2,34 +2,48 @@ const BASE_WALK = 20, RUSH = 1.25;
 const zf        = b => hasAbil(b, "zoom") ? 2 : 1;
 const spdOf     = b => statLin(b, "agi", BASE_WALK, 10 * BASE_WALK) * zf(b);
 const turningOf = b => TAU / statLin(b, "agi", 5.99, .5) * zf(b);
-// Turn in place (Turn: new, Dev Settings): body pivots 70 % of its length from the head. Turns up to 30° run smooth at ω, bigger ones in
-// equal steps (n = min(ceil(T / K), floor(T / 15°)), K 15°–60° by AGI) at min(ω, 360°/s) with a 150–0 ms pause between steps; over 65° the bug
-// also backs up at 0.3 × spdOf during the first half (max 0.3 × body length, stops at a wall or obstacle). Legs per side: walk.lw phase offsets,
-// walk.la amplitudes (outer side forward ×1, inner side back ×0.4), walk.ip = shift and turn of this frame that sysAnimPhase keeps out of stride
-let turnNew = 1;
-const TURN_SMOOTH = PI / 6, TURN_MIN = PI / 12, TURN_BACK = 13 * PI / 36,
-turnN = (b, T) => max(1, min(ceil(T / statLin(b, "agi", TURN_MIN, PI / 3) - 1e-9), floor(T / TURN_MIN + 1e-9))), // steps of a turn T
-turnPause = b => statLin(b, "agi", 150, 0), // ms between steps
-halfTurnS = b => PI / min(turningOf(b), TAU) + (turnN(b, PI) - 1) * turnPause(b) / 1e3; // half turn in place, s (Info)
+// Turn in place by style (gene morph.turnStyle, turnStyleOf). TURN_STYLES row: [name, smooth up to °, step at AGI 1 °, at AGI 20 °,
+// pause between steps at AGI 1 ms, at AGI 20 ms, max step speed °/s, pivot % of the length from the head, inner legs (− back, + forward, |x| = swing),
+// body shift × length (+ forward, − back, 0 none), shift only over this turn angle °, step ease E]. Smooth turns run at the caller's speed,
+// legs 2.2 phase per rad; steps: n = max(1, min(ceil(T / step), floor(T / 15°))) equal steps of T / n at min(speed, max) × e(u),
+// e(u) = (1 − E) + E · π/2 · sin(π u), u = share of the step done (0.03–0.97), half a gait cycle per step. The shift runs during the first half of
+// the turn at 0.3 × spdOf and stops at a wall or obstacle. Legs per side: walk.lw phase offsets, walk.la amplitudes; walk.ip = shift and turn
+// of this frame that sysAnimPhase keeps out of the stride. me = the single turn of v75.34 (Dev only)
+const TURN_STYLES = {
+tiger: ["Tiger beetle", 20, 60, 60, 120, 60, 720, 50, -.6, 0, 0, .8],
+dung: ["Dung beetle", 10, 60, 60, 250, 150, 240, 50, -1, 0, 0, .5],
+ground: ["Ground beetle", 180, 60, 60, 0, 0, 720, 45, .3, .4, 0, 0],
+stag: ["Stag beetle", 20, 60, 60, 300, 150, 120, 55, -.3, -.2, 90, .6],
+darkling: ["Darkling beetle", 30, 60, 60, 0, 0, 150, 50, -.2, .1, 0, .3],
+me: ["ME", 30, 15, 60, 150, 0, 360, 70, -.4, -.3, 65, 0]
+}, TURN_KEYS = ["tiger", "dung", "ground", "stag", "darkling"], TURN_LABEL = Object.fromEntries(TURN_KEYS.map(k => [k, TURN_STYLES[k][0]])),
+DEG = PI / 180, TURN_MIN = 15 * DEG;
+let turnMode = "bug"; // Dev Settings Turn: old (before v75.34), bug (gene), me, or one style for every bug
+const turnStyleOf = b => TURN_STYLES[turnMode] ? turnMode : ensureMorph(b).turnStyle,
+turnN = (b, T, s) => max(1, min(ceil(T / (statLin(b, "agi", s[2], s[3]) * DEG) - 1e-9), floor(T / TURN_MIN + 1e-9))), // steps of a turn T
+turnEase = (E, u) => 1 - E + E * HALF_PI * sin(PI * clamp(u, .03, .97)),
+turnEaseK = E => memo("te" + E, () => { let k = 0; for (let i = 0; i < 1e3; i++) k += 1e-3 / turnEase(E, (i + .5) / 1e3); return k }), // step time / (step / speed)
+halfTurnS = (b, k = turnStyleOf(b)) => { const s = TURN_STYLES[k], n = turnN(b, PI, s); return PI > s[1] * DEG ? PI / min(turningOf(b), s[6] * DEG) * turnEaseK(s[11]) + (n - 1) * statLin(b, "agi", s[4], s[5]) / 1e3 : PI / turningOf(b) }; // half turn in place, s (Info)
 function turnIP(e, d, step) {
-const p = C.pos.get(e), v = C.vel.get(e), t = C.walk.get(e), b = C.bug.get(e), g = sign(d), o = g > 0 ? 1 : 0, L = bugLen(b),
-ip = t.ip ||= [0, 0, 0], lw = t.lw ||= [0, 0], mv = (dx, dy) => (p.x += dx, p.y += dy, ip[0] += dx, ip[1] += dy);
+const p = C.pos.get(e), v = C.vel.get(e), t = C.walk.get(e), b = C.bug.get(e), s = TURN_STYLES[turnStyleOf(b)], g = sign(d), o = g > 0 ? 1 : 0, L = bugLen(b),
+pv = (s[7] / 100 - .5) * L, sh = s[9] * L, ip = t.ip ||= [0, 0, 0], lw = t.lw ||= [0, 0], mv = (dx, dy) => (p.x += dx, p.y += dy, ip[0] += dx, ip[1] += dy);
 let q = v.tw, A = abs(d), ms = COMBAT_STEP_MS;
 q && q.g === g || (q = v.tw = { g, T: A, a: 0, w: 0, r: 0, bd: 0 });
-t.la = o ? [1, .4] : [.4, 1];
-const sm = q.T <= TURN_SMOOTH, rate = (sm ? step : min(step, TAU * COMBAT_STEP_MS / 1e3)) / COMBAT_STEP_MS;
+t.la = o ? [1, abs(s[8])] : [abs(s[8]), 1];
+const sm = q.T <= s[1] * DEG, rate = (sm ? step : min(step, s[6] * DEG * COMBAT_STEP_MS / 1e3)) / COMBAT_STEP_MS;
 while (ms > 1e-9) {
 if (q.w > 0) { const u = min(q.w, ms); q.w -= u, ms -= u; continue }
-const Tc = A + q.a, sz = sm ? Tc : Tc / turnN(b, Tc), r = min(rate * ms, A, sz - q.a), c0 = cos(p.dir), s0 = sin(p.dir), f = r * (sm ? 2.2 : PI / sz);
-ms -= r / rate;
-if (!sm && q.T > TURN_BACK && q.r < A && q.bd < .3 * L) {
-const bx = min(.3 * spdOf(b) * r / rate / 1e3, .3 * L - q.bd), nx = p.x - bx * c0, ny = p.y - bx * s0, m = bugRadius(b);
-nx < m || ny < m || nx > boxLW - m || ny > boxLH - m || ecsQuery("obstacle", "pos").some(oe => { const [od, , , cr] = obstCap(oe, nx, ny); return od < cr + L / 2 }) ? q.bd = L :
-(mv(nx - p.x, ny - p.y), q.bd += bx, lw[0] -= .32 * bx, lw[1] -= .32 * bx)
+const Tc = A + q.a, sz = sm ? Tc : Tc / turnN(b, Tc, s), re = sm ? rate : rate * turnEase(s[11], q.a / sz), r = min(re * (s[11] && !sm ? min(ms, 2) : ms), A, sz - q.a),
+c0 = cos(p.dir), s0 = sin(p.dir), f = r * (sm ? 2.2 : PI / sz);
+ms -= r / re;
+if (sh && q.T > s[10] * DEG && q.r < A && q.bd < abs(sh)) {
+const bx = min(.3 * spdOf(b) * r / re / 1e3, abs(sh) - q.bd), k = sign(sh) * bx, nx = p.x + k * c0, ny = p.y + k * s0, m = bugRadius(b);
+nx < m || ny < m || nx > boxLW - m || ny > boxLH - m || ecsQuery("obstacle", "pos").some(oe => { const [od, , , cr] = obstCap(oe, nx, ny); return od < cr + L / 2 }) ? q.bd = abs(sh) :
+(mv(nx - p.x, ny - p.y), q.bd += bx, lw[0] += .32 * k, lw[1] += .32 * k)
 }
-p.dir = norm(p.dir + g * r), mv(.2 * L * (cos(p.dir) - c0), .2 * L * (sin(p.dir) - s0)), ip[2] += r, q.r += r, lw[1 - o] += f, lw[o] -= f, A -= r;
+p.dir = norm(p.dir + g * r), mv(pv * (cos(p.dir) - c0), pv * (sin(p.dir) - s0)), ip[2] += r, q.r += r, lw[1 - o] += f, lw[o] += f * sign(s[8]), A -= r;
 if (A < 1e-9) return !0;
-(q.a += r) >= sz - 1e-9 && (q.a = 0, q.w = turnPause(b))
+(q.a += r) >= sz - 1e-9 && (q.a = 0, q.w = statLin(b, "agi", s[4], s[5]))
 }
 return !1
 }

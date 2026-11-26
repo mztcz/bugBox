@@ -32,9 +32,10 @@ return { bodyLength: statLin(s, "con", 15.5, 29), bodyWidth: statLin(s, "arm", 2
 function randomMorph() {
 const m = {};
 for (const k in MORPH_RANGE) { const [lo, hi] = MORPH_RANGE[k]; m[k] = lo + ri(hi - lo + 1) }
-return m.headGear = rnd(GEAR_KEYS), m.mandType = rnd(MAND_KEYS), m
+return m.headGear = rnd(GEAR_KEYS), m.mandType = rnd(MAND_KEYS), m.turnStyle = rnd(TURN_KEYS), m
 }
-function ensureMorph(b) { return b.morph || (b.morph = randomMorph()), b.morph }
+// turnStyle (move.js TURN_STYLES): an old save without it gets a random one once
+function ensureMorph(b) { return (b.morph ||= randomMorph()).turnStyle ||= rnd(TURN_KEYS), b.morph }
 function syncMorph(b) { return Object.assign(ensureMorph(b), statMorph(b)) }
 function inheritThird(va, vb, pool) {
 const r = random();
@@ -50,7 +51,7 @@ const [lo, hi] = MORPH_FREE[k], pool = [];
 for (let v = lo; v <= hi; v++) pool.push(v);
 m[k] = inheritThird(ma[k], mb[k], pool)
 }
-return m.headGear = inheritThird(ma.headGear, mb.headGear, GEAR_KEYS), m.mandType = inheritThird(ma.mandType, mb.mandType, MAND_KEYS), m
+return m.headGear = inheritThird(ma.headGear, mb.headGear, GEAR_KEYS), m.mandType = inheritThird(ma.mandType, mb.mandType, MAND_KEYS), m.turnStyle = inheritThird(ma.turnStyle, mb.turnStyle, TURN_KEYS), m
 }
 function getSegmentScale(grad, s, segs) {
 let i = s, g = grad;
