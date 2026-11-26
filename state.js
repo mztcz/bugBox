@@ -1,12 +1,12 @@
 const WALK_MIN = 500, WALK_MAX = 1e4;
 function setAct(e, act, ms = 1 / 0) {
 const t = C.walk.get(e);
-return t.slide = null, t.act = act, t.actT = ms
+return t.slide = null, t.ws = t.sgS = 0, t.act = act, t.actT = ms
 }
 const intMs = e => statLin(C.bug.get(e), "int", 5e3, 500);
 const think = (e, k = 1) => setAct(e, "thinking", k * intMs(e) + rf(-250, 250));
 const aiAct = t => "fighting" === t.act || "fleeing" === t.act;
-const newDir = e => C.vel.get(e).wanderAngle = C.pos.get(e).dir + rsign() * rf(0, TAU / 3);
+const newDir = (e, a = TAU / 3) => C.vel.get(e).wanderAngle = C.pos.get(e).dir + rsign() * rf(0, a);
 const SN = ["CON", "STR", "ARM", "AGI", "INT", "PER"];
 let dzAnim = 0,
 money = 500,
@@ -33,11 +33,11 @@ rsign = () => random() < .5 ? -1 : 1,
 ownedById = id => bugsOwned.find(b => b.id === id),
 bugsHome = () => bugsOwned.filter(b => !b.away),
 fmtT = ms => { const d = floor(ms / 100), p = n => String(n).padStart(2, "0"); return p(floor(d / 600)) + ":" + p(floor(d / 10) % 60) + "." + d % 10 };
-// ip = turn in place (no forward move): runs turnIP (move.js) unless Dev Settings Turn = Old
+// ip = turn in place (no forward move): runs turnIP (move.js) unless Dev Settings Turn = Old; ip = a TURN_STYLES key forces that style
 function turnToward(e, want, step, ip) {
 const p = C.pos.get(e), v = C.vel.get(e), d = norm(want - p.dir);
 step *= v.tk ||= rf(.9, 1.1);
-if (ip && turnMode !== "old") return turnIP(e, d, step) && !(v.tk = 0, v.tw = null);
+if (ip && turnMode !== "old") return turnIP(e, d, step, ip) && !(v.tk = 0, v.tw = null);
 return v.tw = null, abs(d) <= step ? (p.dir = norm(want), v.tk = 0, !0) : (p.dir = norm(p.dir + sign(d) * step), !1)
 }
 function norm(a) { a %= TAU; return a > PI ? a - TAU : a < -PI ? a + TAU : a }

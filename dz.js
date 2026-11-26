@@ -3,7 +3,7 @@ dzSide = 0, dzZoom = 1;
 dzSync();
 function dzSync() { dz.link && Object.assign(dz, statMorph(dz)) }
 const DZ_ROWS = [["hue", "Hue", 0, 340, 20], ["bodySegments", "Segments"], ["segmentGradient", "Gradient"],
-["headGear", "Gear type", 0, GEAR_KEYS.length - 1], ["mandType", "Mandibles", 0, MAND_KEYS.length - 1], ["turnStyle", "Turn", 0, TURN_KEYS.length - 1], ["bodyLength", "Length"], ["bodyWidth", "Width"],
+["headGear", "Gear type", 0, GEAR_KEYS.length - 1], ["mandType", "Mandibles", 0, MAND_KEYS.length - 1], ["turnStyle", "Style", 0, TURN_KEYS.length - 1], ["bodyLength", "Length"], ["bodyWidth", "Width"],
 ["legLen", "Legs"], ["headSize", "Head"], ["headGearSize", "Gear size"]],
 DZ_RED = ["hue", "bodySegments", "segmentGradient", "headGear", "mandType", "turnStyle"],
 // list sliders: [keys, labels]

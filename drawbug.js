@@ -14,7 +14,7 @@ function sysAnimPhase() {
 ecsQuery("bug", "pos").forEach(e => {
 const p = C.pos.get(e), t = C.walk.get(e), q = t.ip || (t.la = null, [0, 0, 0]), dx = p.x - (t._px ?? p.x) - q[0], dy = p.y - (t._py ?? p.y) - q[1];
 const dd = norm(p.dir - (t._pd ?? p.dir));
-t.stride = (t.stride || 0) + .32 * hypot(dx, dy), t.turnAcc = (t.turnAcc || 0) + max(0, abs(dd) - q[2]);
+t.stride = (t.stride || 0) + wsOf(t)[6] * hypot(dx, dy), t.turnAcc = (t.turnAcc || 0) + max(0, abs(dd) - q[2]);
 t._px = p.x, t._py = p.y, t._pd = p.dir, t.ip = null
 })
 }

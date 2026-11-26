@@ -18,14 +18,25 @@ darkling: ["Darkling beetle", 30, 60, 60, 0, 0, 150, 50, -.2, .1, 0, .3],
 me: ["ME", 30, 15, 60, 150, 0, 360, 70, -.4, -.3, 65, 0]
 }, TURN_KEYS = ["tiger", "dung", "ground", "stag", "darkling"], TURN_LABEL = Object.fromEntries(TURN_KEYS.map(k => [k, TURN_STYLES[k][0]])),
 DEG = PI / 180, TURN_MIN = 15 * DEG;
-let turnMode = "bug"; // Dev Settings Turn: old (before v75.34), bug (gene), me, or one style for every bug
+let turnMode = "bug", walkMode = "bug"; // Dev Settings Turn: old (before v75.34), bug (gene), me, or one style for every bug; Walk style: old (before v75.39), bug, or one style
+// Free walk by style (same gene, act walking from decide). WALK_STYLES row: [speed × spdOf, walk min ms, max ms, steer noise ×, new direction ±°,
+// thinking ×, leg phase per px, special: "sg" stop-and-go (every 0.3–0.8 s a 150–300 ms stop with a tiger turn ±0–45°), "dance" (30 % after a walk:
+// 2 × 180° dung turns the same way, then the same direction), or [, min ms, max ms, noise] = second mode taken by 50 % of the walks]
+const WALK_STYLES = {
+old: [1, WALK_MIN, WALK_MAX, 1, 120, 1, .32],
+tiger: [1.5, 500, 3e3, .3, 60, 1, .24, "sg"],
+dung: [.8, 3e3, 1e4, .1, 120, 1, .32, "dance"],
+ground: [1.2, 1e3, 6e3, 1, 120, .5, .32],
+stag: [.6, 500, 4e3, .6, 90, 1.5, .4],
+darkling: [.7, 3e3, 1e4, .1, 120, 1, .36, [, 1e3, 4e3, 2.5]]
+}, walkOf = b => WALK_STYLES[WALK_STYLES[walkMode] ? walkMode : ensureMorph(b).turnStyle], wsOf = t => t.ws || WALK_STYLES.old;
 const turnStyleOf = b => TURN_STYLES[turnMode] ? turnMode : ensureMorph(b).turnStyle,
 turnN = (b, T, s) => max(1, min(ceil(T / (statLin(b, "agi", s[2], s[3]) * DEG) - 1e-9), floor(T / TURN_MIN + 1e-9))), // steps of a turn T
 turnEase = (E, u) => 1 - E + E * HALF_PI * sin(PI * clamp(u, .03, .97)),
 turnEaseK = E => memo("te" + E, () => { let k = 0; for (let i = 0; i < 1e3; i++) k += 1e-3 / turnEase(E, (i + .5) / 1e3); return k }), // step time / (step / speed)
 halfTurnS = (b, k = turnStyleOf(b)) => { const s = TURN_STYLES[k], n = turnN(b, PI, s); return PI > s[1] * DEG ? PI / min(turningOf(b), s[6] * DEG) * turnEaseK(s[11]) + (n - 1) * statLin(b, "agi", s[4], s[5]) / 1e3 : PI / turningOf(b) }; // half turn in place, s (Info)
-function turnIP(e, d, step) {
-const p = C.pos.get(e), v = C.vel.get(e), t = C.walk.get(e), b = C.bug.get(e), s = TURN_STYLES[turnStyleOf(b)], g = sign(d), o = g > 0 ? 1 : 0, L = bugLen(b),
+function turnIP(e, d, step, k) {
+const p = C.pos.get(e), v = C.vel.get(e), t = C.walk.get(e), b = C.bug.get(e), s = TURN_STYLES[TURN_STYLES[k] ? k : turnStyleOf(b)], g = sign(d), o = g > 0 ? 1 : 0, L = bugLen(b),
 pv = (s[7] / 100 - .5) * L, sh = s[9] * L, ip = t.ip ||= [0, 0, 0], lw = t.lw ||= [0, 0], mv = (dx, dy) => (p.x += dx, p.y += dy, ip[0] += dx, ip[1] += dy);
 let q = v.tw, A = abs(d), ms = COMBAT_STEP_MS;
 q && q.g === g || (q = v.tw = { g, T: A, a: 0, w: 0, r: 0, bd: 0 });
@@ -52,13 +63,22 @@ const SLIDE_K = .25;
 const CORPSE_SLOW = .5;
 const PULL_STRONG = PI / 9, PULL_WEAK = PI / 36, WALL_NEAR = .15;
 const COMBAT_STEP_MS = 16, MAX_STEPS_PER_FRAME = 64;
-const wallNext = e => random() < statLin(C.bug.get(e), "int", .5, .05) && think(e) || decide(e);
+const wallNext = e => { const b = C.bug.get(e); return random() < statLin(b, "int", .5, .05) && think(e, walkOf(b)[5]) || decide(e) };
+// end of a walk timer: dung dance (30 %) or a thinking pause by walk style
+const walkEnd = e => { const t = C.walk.get(e), w = "walking" === t.act && t.ws; w && "dance" === w[7] && random() < .3 ? (t.dance = 2, danceTurn(e)) : think(e, w ? w[5] : 1) },
+danceTurn = e => (C.walk.get(e).turnA = norm(C.pos.get(e).dir + (C.walk.get(e).dg ||= rsign()) * (PI - 1e-6)), setAct(e, "turning"));
+// new free walk by style; keep = same direction (after the dance)
+function walkGo(e, keep) {
+const t = C.walk.get(e), w = walkOf(C.bug.get(e)), m = Array.isArray(w[7]) && random() < .5 ? w[7] : w;
+setAct(e, "walking", rf(m[1], m[2])), t.ws = w, t.wn = m[3], t.dance = t.dg = 0, "sg" === w[7] && (t.sgT = rf(300, 800));
+keep ? C.vel.get(e).wanderAngle = C.pos.get(e).dir : newDir(e, w[4] * DEG)
+}
 const facing = (p, a) => max(0, cos(a - p.dir));
 const busy = t => t.pair || t.dropStuck;
 function decide(e) {
 const b = C.bug.get(e), t = C.walk.get(e);
 if (t.turnA != null) return setAct(e, "turning");
-if (combatState || hpFrac(b) < 1 || random() < .7) return setAct(e, "walking", rf(WALK_MIN, WALK_MAX)), newDir(e);
+if (combatState || hpFrac(b) < 1 || random() < .7) return walkGo(e);
 setAct(e, RARE_ACT[b.int > 4 ? ri(hasAbil(b, "flanking") ? 4 : 3) : 0], RARE_MIN + random() * RARE_SPAN), t.rareA = PI / 3, t.rareS = rsign(), t.rareE = null
 }
 function sysSteer(dt, ents) {
@@ -72,7 +92,12 @@ tu = "turning" === t.act,
 ru = "rushing" === t.act;
 if (!tu && !ru && "walking" !== t.act || t.slide != null) return;
 if (busy(t)) return void(t.frzMs = 0, t.lastX = p.x, t.lastY = p.y);
-if (tu) return void(turnToward(e, t.turnA, turningOf(b) * dtS, 1) && (v.wanderAngle = p.dir, t.turnA = null, wallNext(e)));
+if (tu) return void(turnToward(e, t.turnA, turningOf(b) * dtS, t.dance ? "dung" : 1) && (v.wanderAngle = p.dir, t.turnA = null, t.dance ? --t.dance ? danceTurn(e) : walkGo(e, 1) : wallNext(e)));
+if ("sg" === t.ws?.[7] && (t.sgS > 0 || (t.sgT -= dt) <= 0)) {
+t.sgS > 0 || (t.sgS = rf(150, 300), t.sgT = rf(300, 800), t.sgA = norm(p.dir + rsign() * rf(0, PI / 4)));
+(t.sgS -= dt) > 0 ? t.sgA != null && turnToward(e, t.sgA, turningOf(b) * dtS, "tiger") && (t.sgA = null) : (t.sgS = 0, t.sgA = null, v.wanderAngle = p.dir, v.tw = null, v.tk = 0);
+return
+}
 if ((t.frzMs = (t.frzMs || 0) + dt) >= STUCK_CHECK_MS) {
 const stuck = hypot(p.x - (t.lastX ?? p.x), p.y - (t.lastY ?? p.y)) < bugLen(b);
 t.frzMs = 0, t.lastX = p.x, t.lastY = p.y;
@@ -86,7 +111,7 @@ ru || setAct(e, "rushing"), turnToward(e, want, turningOf(b) * dtS), (t.rushK = 
 return
 }
 if (ru) return void decide(e);
-v.angVel += .9 * (random() - .5) * dtS, v.angVel *= .95, v.wanderAngle += v.angVel;
+v.angVel += .9 * (t.ws ? t.wn : 1) * (random() - .5) * dtS, v.angVel *= .95, v.wanderAngle += v.angVel;
 if (combatState && t.seekX == null) {
 const fx = p.x / boxLW, fy = p.y / boxLH, r = (t.mid ? PULL_WEAK : PULL_STRONG) * dtS;
 (!t.mid || min(fx, 1 - fx, fy, 1 - fy) < WALL_NEAR) && (v.wanderAngle += clamp(norm(atan2(boxLH / 2 - p.y, boxLW / 2 - p.x) - v.wanderAngle), -r, r))
@@ -167,8 +192,8 @@ if (moved) clampToBox(e);
 return
 }
 const ru = "rushing" === t.act;
-if (busy(t) || !ru && "walking" !== t.act) return;
-const spd = spdOf(b) * slow * (ru ? t.rushK : 1);
+if (busy(t) || !ru && ("walking" !== t.act || t.sgS > 0)) return;
+const spd = spdOf(b) * slow * (ru ? t.rushK : wsOf(t)[0]);
 if (t.slide != null) {
 if ((abs(sin(t.slide)) > .5 ? (p.x < boxLW / 2 ? -1 : 1) * cos(p.dir) : (p.y < boxLH / 2 ? -1 : 1) * sin(p.dir)) > 0) {
 const st = spd * dtS * cos(p.dir - t.slide);

@@ -281,6 +281,18 @@ Turn
 </select>
 </label>
 <label style="display:flex;align-items:center;gap:8px;font-size:11px;color:#aabbaa;padding:6px 2px;">
+Walk style
+<select id="gset-wst" onchange="walkMode = this.value" style="flex:1;background:#0a0a12;color:#aabbaa;border:1px solid #2a2a4a;font-size:11px;padding:2px;">
+<option value="old">Old</option>
+<option value="bug" selected>By bug</option>
+<option value="tiger">Tiger</option>
+<option value="dung">Dung</option>
+<option value="ground">Ground</option>
+<option value="stag">Stag</option>
+<option value="darkling">Darkling</option>
+</select>
+</label>
+<label style="display:flex;align-items:center;gap:8px;font-size:11px;color:#aabbaa;padding:6px 2px;">
 Bug palette
 <select id="gset-pal" onchange="setPalette(this.value)" style="flex:1;background:#0a0a12;color:#aabbaa;border:1px solid #2a2a4a;font-size:11px;padding:2px;">
 <option value="0">Original</option>

@@ -94,7 +94,7 @@ $("gset-mus").value = sound.mus * 100, $("gset-sfx").value = sound.sfx * 100, $(
 $("gset-sci").checked = scienceOn;
 $("gset-bg").checked = !!bgOn;
 $("gset-thm").value = bugTheme;
-$("gset-gait").value = gait, $("gset-turn").value = turnMode, $("gset-turn").parentNode.style.display = dev ? "" : "none";
+$("gset-gait").value = gait, $("gset-turn").value = turnMode, $("gset-wst").value = walkMode, $("gset-turn").parentNode.style.display = $("gset-wst").parentNode.style.display = dev ? "" : "none";
 $("gset-pal").value = palette;
 impRow(0), ov("ov-set", 1)
 };

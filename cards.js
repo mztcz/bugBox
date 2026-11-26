@@ -92,7 +92,7 @@ function inspectLine(b) {
 const [hp, mhp] = liveHp(b);
 return `${b.name} | Gen${b.gen} | K${b.killsTotal||0}/F${b.fights||0} | ` +
 SK.map((k, i) => `<span style="color:#44ff88;font-size:9px;">${SN[i]}:${round(b[k])}</span>`).join(" ") + ` <span style="color:#888;font-size:9px;">(${statSum(b)})</span>` +
-` | <span style="color:${hp>=mhp?"#44ff88":"#ff5555"};">${hp}/${mhp}</span> ${hp > 0 ? C.walk.get(entOf(b))?.act ?? "" : "Dead"} | Turn: ${TURN_STYLES[turnStyleOf(b)][0]}` +
+` | <span style="color:${hp>=mhp?"#44ff88":"#ff5555"};">${hp}/${mhp}</span> ${hp > 0 ? C.walk.get(entOf(b))?.act ?? "" : "Dead"} | Style: ${TURN_STYLES[turnStyleOf(b)][0]}` +
 abilTags(b)
 }
 let toastQ = [], toastBot = 96;
