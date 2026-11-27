@@ -20,7 +20,7 @@ me: ["ME", 30, 15, 60, 150, 0, 360, 70, -.4, -.3, 65, 0]
 DEG = PI / 180, TURN_MIN = 15 * DEG;
 let turnMode = "bug", walkMode = "bug"; // Dev Settings Turn: old (before v75.34), bug (gene), me, or one style for every bug; Walk style: old (before v75.39), bug, or one style
 // Free walk by style (same gene, act walking from decide). WALK_STYLES row: [speed × spdOf, walk min ms, max ms, steer noise ×, new direction ±°,
-// thinking ×, leg phase per px, special: "sg" stop-and-go (every 0.3–0.8 s a 150–300 ms stop with a tiger turn ±0–45°), "dance" (30 % after a walk:
+// thinking ×, leg phase per px, special: "sg" stop-and-go (every 0.3–0.8 s a stop of 150–300 ms, longer until its tiger turn ±0–45° ends), "dance" (30 % after a walk:
 // 2 × 180° dung turns the same way, then the same direction), or [, min ms, max ms, noise] = second mode taken by 50 % of the walks]
 const WALK_STYLES = {
 old: [1, WALK_MIN, WALK_MAX, 1, 120, 1, .32],
@@ -67,11 +67,11 @@ const wallNext = e => { const b = C.bug.get(e); return random() < statLin(b, "in
 // end of a walk timer: dung dance (30 %) or a thinking pause by walk style
 const walkEnd = e => { const t = C.walk.get(e), w = "walking" === t.act && t.ws; w && "dance" === w[7] && random() < .3 ? (t.dance = 2, danceTurn(e)) : think(e, w ? w[5] : 1) },
 danceTurn = e => (C.walk.get(e).turnA = norm(C.pos.get(e).dir + (C.walk.get(e).dg ||= rsign()) * (PI - 1e-6)), setAct(e, "turning"));
-// new free walk by style; keep = same direction (after the dance)
+// new free walk by style; keep = same direction (after the dance); the stuck check starts here
 function walkGo(e, keep) {
-const t = C.walk.get(e), w = walkOf(C.bug.get(e)), m = Array.isArray(w[7]) && random() < .5 ? w[7] : w;
-setAct(e, "walking", rf(m[1], m[2])), t.ws = w, t.wn = m[3], t.dance = t.dg = 0, "sg" === w[7] && (t.sgT = rf(300, 800));
-keep ? C.vel.get(e).wanderAngle = C.pos.get(e).dir : newDir(e, w[4] * DEG)
+const t = C.walk.get(e), p = C.pos.get(e), w = walkOf(C.bug.get(e)), m = Array.isArray(w[7]) && random() < .5 ? w[7] : w;
+setAct(e, "walking", rf(m[1], m[2])), t.ws = w, t.wn = m[3], t.dance = t.dg = 0, t.frzMs = 0, t.lastX = p.x, t.lastY = p.y, "sg" === w[7] && (t.sgT = rf(300, 800));
+keep ? C.vel.get(e).wanderAngle = p.dir : newDir(e, w[4] * DEG)
 }
 const facing = (p, a) => max(0, cos(a - p.dir));
 const busy = t => t.pair || t.dropStuck;
@@ -95,7 +95,8 @@ if (busy(t)) return void(t.frzMs = 0, t.lastX = p.x, t.lastY = p.y);
 if (tu) return void(turnToward(e, t.turnA, turningOf(b) * dtS, t.dance ? "dung" : 1) && (v.wanderAngle = p.dir, t.turnA = null, t.dance ? --t.dance ? danceTurn(e) : walkGo(e, 1) : wallNext(e)));
 if ("sg" === t.ws?.[7] && (t.sgS > 0 || (t.sgT -= dt) <= 0)) {
 t.sgS > 0 || (t.sgS = rf(150, 300), t.sgT = rf(300, 800), t.sgA = norm(p.dir + rsign() * rf(0, PI / 4)));
-(t.sgS -= dt) > 0 ? t.sgA != null && turnToward(e, t.sgA, turningOf(b) * dtS, "tiger") && (t.sgA = null) : (t.sgS = 0, t.sgA = null, v.wanderAngle = p.dir, v.tw = null, v.tk = 0);
+t.sgA != null && turnToward(e, t.sgA, turningOf(b) * dtS, "tiger") && (t.sgA = null);
+(t.sgS = max(t.sgS - dt, +(t.sgA != null))) > 0 || (v.wanderAngle = p.dir, v.tw = null, v.tk = 0);
 return
 }
 if ((t.frzMs = (t.frzMs || 0) + dt) >= STUCK_CHECK_MS) {
