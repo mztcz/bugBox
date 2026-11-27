@@ -32,10 +32,10 @@ return { bodyLength: statLin(s, "con", 15.5, 29), bodyWidth: statLin(s, "arm", 2
 function randomMorph() {
 const m = {};
 for (const k in MORPH_RANGE) { const [lo, hi] = MORPH_RANGE[k]; m[k] = lo + ri(hi - lo + 1) }
-return m.headGear = rnd(GEAR_KEYS), m.mandType = rnd(MAND_KEYS), m.turnStyle = rnd(TURN_KEYS), m
+return m.headGear = rnd(GEAR_KEYS), m.mandType = rnd(MAND_KEYS), m.turnStyle = rnd(TURN_KEYS), m.legType = rnd(LEG_KEYS), m
 }
-// turnStyle (move.js TURN_STYLES): an old save without it gets a random one once
-function ensureMorph(b) { return (b.morph ||= randomMorph()).turnStyle ||= rnd(TURN_KEYS), b.morph }
+// turnStyle (move.js TURN_STYLES): an old save without it gets a random one once; legType: Standard (the old legs)
+function ensureMorph(b) { const m = b.morph ||= randomMorph(); return m.turnStyle ||= rnd(TURN_KEYS), m.legType ||= "standard", m }
 function syncMorph(b) { return Object.assign(ensureMorph(b), statMorph(b)) }
 function inheritThird(va, vb, pool) {
 const r = random();
@@ -51,7 +51,7 @@ const [lo, hi] = MORPH_FREE[k], pool = [];
 for (let v = lo; v <= hi; v++) pool.push(v);
 m[k] = inheritThird(ma[k], mb[k], pool)
 }
-return m.headGear = inheritThird(ma.headGear, mb.headGear, GEAR_KEYS), m.mandType = inheritThird(ma.mandType, mb.mandType, MAND_KEYS), m.turnStyle = inheritThird(ma.turnStyle, mb.turnStyle, TURN_KEYS), m
+return m.headGear = inheritThird(ma.headGear, mb.headGear, GEAR_KEYS), m.mandType = inheritThird(ma.mandType, mb.mandType, MAND_KEYS), m.turnStyle = inheritThird(ma.turnStyle, mb.turnStyle, TURN_KEYS), m.legType = inheritThird(ma.legType, mb.legType, LEG_KEYS), m
 }
 function getSegmentScale(grad, s, segs) {
 let i = s, g = grad;
@@ -93,6 +93,43 @@ const n = cfg.bodySegments, g = cfg.segmentGradient ?? 3, sl = cfg.bodyLength / 
 y0 = -cfg.bodyLength / 2 + sl / 2 - sl * (1 - getSegmentScale(g, 0, n)) / 2;
 return [y0 + (n - 1) * sl * .45 + sl * getSegmentScale(g, n - 1, n) / 2, sl, y0]
 }
+// leg types (look only): joints [x out, y back] in leg lengths, segment widths w, extras x; LEG_TU = [length ×, line width ×]
+const pl = (t, P, w) => { t.lineWidth = w, t.beginPath(), P.forEach(([x, y]) => t.lineTo(x, y)), t.stroke() },
+LW = (t, f) => t.lineWidth *= f, STD = [[0, 0], [.4, 0], [.648, .248], [.733, .483]], sc = (p, f) => p.map(([x, y]) => [x * f, y * f]);
+// ellipse between A and B with half axis ry (Neon: outline only)
+function ell(t, A, B, ry, nl) {
+const fs = t.fillStyle;
+t.beginPath(), t.ellipse((A[0] + B[0]) / 2, (A[1] + B[1]) / 2, hypot(B[0] - A[0], B[1] - A[1]) / 2, ry, atan2(B[1] - A[1], B[0] - A[0]), 0, TAU);
+nl ? t.stroke() : (t.fillStyle = t.strokeStyle, t.fill(), t.fillStyle = fs)
+}
+// n teeth along A→B on side sx, length len, leaning back by back × len
+function teeth(t, A, B, sx, n, len, back = 0) {
+const dx = B[0] - A[0], dy = B[1] - A[1], l = hypot(dx, dy) || 1; let nx = -dy / l, ny = dx / l; nx * sx < 0 && (nx = -nx, ny = -ny);
+for (let q = 1; q <= n; q++) { const f = q / (n + 1), x = A[0] + dx * f, y = A[1] + dy * f; t.beginPath(), t.moveTo(x, y), t.lineTo(x + nx * len + dx / l * len * back, y + ny * len + dy / l * len * back), t.stroke() }
+}
+const LEG = {
+standard: () => ({ p: STD }),
+runner: i => ({ p: i === 1 ? [[0, 0], [.5, -.05], [.85, -.3], [1, -.6]] : i === 2 ? [[0, 0], [.55, 0], [.9, .25], [1.05, .55]] : [[0, 0], [.5, .05], [.85, .4], [1, .8]], w: [.75, .75, .6] }),
+digger: i => i === 1 ? { p: [[0, 0], [.25, -.12], [.42, -.32], [.48, -.5]], w: [1.8, 1.9, 1], x: (t, P, s) => teeth(t, P[1], P[2], s, 3, 1.2, .3) } :
+{ p: sc(STD, .85), w: [1.3, 1.2, .9], x: (t, P, s) => teeth(t, P[1], P[2], s, 2, .8, .4) },
+swimmer: i => i === 1 ? { p: sc(STD, .8) } : { p: i === 2 ? STD : [[0, 0], [.45, .12], [.85, .45], [1.1, .8]], w: [1.1, 1.1, 1],
+x: (t, P, s, L, nl) => { const n = i === 3 ? 7 : 4; ell(t, P[1], P[3], L * (i === 3 ? .12 : .08), nl), LW(t, .35), teeth(t, P[1], P[3], s, n, L * .12, .6), teeth(t, P[1], P[3], -s, n, L * .12, .6) } },
+jumper: i => i === 3 ? { p: [[0, 0], [.55, .05], [.4, .5], [.62, .85]], w: [1, .8, .7], x: (t, P, s, L, nl) => { ell(t, P[0], P[1], L * .13, nl), teeth(t, P[1], P[2], -s, 2, .7, .5) } } : { p: sc(STD, .8) },
+raptor: i => i === 1 ? { p: [[0, 0], [.3, -.28], [.38, -.78], [.2, -.58]], w: [1.5, 1.2, .9], x: (t, P, s) => { LW(t, .6), teeth(t, P[0], P[1], -s, 3, 1, -.3), teeth(t, P[1], P[2], -s, 3, .9, -.2) } } : { p: STD },
+spiny: () => ({ p: STD, x: (t, P, s, L) => {
+const [x, y] = P[3], dx = x - P[2][0], dy = y - P[2][1], l = hypot(dx, dy) || 1, ux = dx / l * L * .07, uy = dy / l * L * .07, vx = dy / l * L * .06, vy = dx / l * L * .06;
+LW(t, .55), teeth(t, P[1], P[2], s, 3, L * .1, .5), teeth(t, P[0], P[1], -s, 1, L * .08, .5), pl(t, [[x, y], [x + ux + vx, y + uy - vy]], .5), pl(t, [[x, y], [x + ux - vx, y + uy + vy]], .5) } }),
+strider: i => ({ p: i === 1 ? [[0, 0], [.25, -.1], [.4, -.3], [.45, -.45]] : i === 2 ? [[0, 0], [.6, -.05], [1.3, .05], [1.9, .2]] : [[0, 0], [.5, .15], [1.1, .55], [1.6, 1]], w: [.7, .6, .55] })
+}, LEG_KEYS = Object.keys(LEG), LEG_LABEL = Object.fromEntries(LEG_KEYS.map(k => [k, k[0].toUpperCase() + k.slice(1)])), LEG_TU = { runner: [1.9, 1], digger: [1.15, 1.4] };
+// one leg: pair i 1..3, side s, root (a, ly), swing offset w (all joints but the root), leg length L, shadow factors k / offset so
+function legDraw(t, type, i, s, a, ly, w, L, k, so, nl) {
+const g = (LEG[type] || LEG.standard)(i), [f, tw] = LEG_TU[type] || [1, 1], lw = t.lineWidth * tw;
+L *= f;
+const P = g.p.map(([x, y], j) => [a + s * x * L + (so ? k[j] * so[0] : 0), ly + (j ? w : 0) + y * L + (so ? k[j] * so[1] : 0)]);
+if (g.w) for (let j = 0; j < 3; j++) pl(t, [P[j], P[j + 1]], lw * g.w[j]);
+else pl(t, P, lw);
+t.lineWidth = lw, g.x && g.x(t, P, s, L, nl), t.lineWidth = lw / tw
+}
 function renderMorphParts(t, cfg, wp, sh, nl, so) {
 const bl = cfg.bodyLength, [be, segLen, y0] = bodyEnd(cfg), h0 = cfg.headSize - bl / 2, A = be - h0, still = wp === null, L = cfg.legLen, hx = cfg.bodyWidth / 2;
 t.lineWidth = nl ? .9 : .8, t.lineCap = t.lineJoin = nl ? "miter" : "round";
@@ -104,9 +141,8 @@ ph = gait ? (i % 2 ? 0 : PI) : i, sw = still ? 0 : min(L * .28 * (m ? 1.35 : .6)
 // fan = [55, 25, 0][i - 1] * PI / 180; rotate each leg point (dx, dy) around the root (a, ly) towards the head
 // by s * fan before adding the swing: dx' = dx * cos(fan) + s * dy * sin(fan), dy' = dy * cos(fan) - s * dx * sin(fan)
 for (const s of [-1, 1]) {
-const j = s > 0 ? 1 : 0, x = (cfg.legW ? cfg.legW[j] : wp) + ph, a = s * hx, w = c - s * sw * sin(x) * (cfg.legA ? cfg.legA[j] : 1), P = [[a, ly], [a + s * .4 * L, ly + w], [a + s * .648 * L, ly + w + .248 * L], [a + s * .733 * L, ly + w + .483 * L]],
-lf = still ? 0 : max(0, s * cos(x)), k = so ? [1, .6 + .4 * lf, .3 + .7 * lf, lf] : [0, 0, 0, 0];
-t.beginPath(), P.forEach(([px, py], j) => t.lineTo(px + (so ? k[j] * so[0] : 0), py + (so ? k[j] * so[1] : 0))), t.stroke()
+const j = s > 0 ? 1 : 0, x = (cfg.legW ? cfg.legW[j] : wp) + ph, lf = still ? 0 : max(0, s * cos(x));
+legDraw(t, cfg.legType, i, s, s * hx, ly, c - s * sw * sin(x) * (cfg.legA ? cfg.legA[j] : 1), L, so ? [1, .6 + .4 * lf, .3 + .7 * lf, lf] : null, so, nl)
 }
 }
 so && t.translate(so[0], so[1]);
@@ -284,7 +320,7 @@ return { get: () => P, line: pts, thin: pts, tri: (...a) => pts(a), dot: (x, y, 
 // gear ES: every type except Eyes overhangs the head as far as Antennae at the same PER
 const esK = (gk, f, hs, xm) => memo(`k|${gk}|${f.toFixed(3)}|${hs}|${xm.toFixed(2)}`, () => { const pr = g => { const p = measPen(hs); return gearSide(p, g, f, 0, hs, xm, 1, 1), p.get() }; return pr("ant") / max(.5, pr(gk)) });
 // drawn extent [x0, y0, x1, y1] around the body centre (head up, mandibles open and closed, legs still), +1 px for line width
-const BOX_K = ["bodyLength", "bodyWidth", "headSize", "legLen", "headGearSize", "headGear", "mandType", "mand", "bodySegments", "segmentGradient"];
+const BOX_K = ["bodyLength", "bodyWidth", "headSize", "legLen", "headGearSize", "headGear", "mandType", "mand", "legType", "bodySegments", "segmentGradient"];
 function morphBox(m) {
 return memo("b" + BOX_K.map(k => m[k]).join(), () => {
 const b = [0, 0, 0, 0], ad = (x, y, r = 0) => { b[0] = min(b[0], x - r), b[1] = min(b[1], y - r), b[2] = max(b[2], x + r), b[3] = max(b[3], y + r) },

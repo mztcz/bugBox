@@ -46,12 +46,13 @@ items.map(([lbl], i) => `<div class="mw-item"><canvas class="mw-cv" data-r="${ti
 const sections = [
 ["Head gear (PER 1 / 20)", GEAR_KEYS.flatMap(g => [0, 9].map(z => [`${GEAR_LABEL[g]} ${z + 1}`, { headGear: g, headGearSize: z }]))],
 ["Mandibles (STR 20)", MAND_KEYS.map(t => [MAND_LABEL[t], { mandType: t, mand: 20 }])],
+["Legs (AGI 20)", LEG_KEYS.map(t => [LEG_LABEL[t], { legType: t, legLen: 14 }])],
 ["Head size (INT)", [2, 3, 4, 5, 6].map(v => [`Size ${v}`, { headSize: v }])],
 ["Body (CON \u00d7 STR)", [["Short thin", { bodyLength: 9, bodyWidth: 2 }], ["Mid", { bodyLength: 17, bodyWidth: 6 }], ["Long", { bodyLength: 27, bodyWidth: 6 }], ["Long wide", { bodyLength: 27, bodyWidth: 11 }]]],
 ["Segment gradient", [1, 2, 3, 4, 5].map(v => [`Grad ${v}`, { segmentGradient: v, bodySegments: 3, bodyLength: 24 }])],
 ["Legs (AGI)", [5, 9, 14].map(v => [`Len ${v}`, { legLen: v }])]
 ];
-el.innerHTML = '<p>Length follows CON, width ARM, head INT, legs AGI, mandibles STR, head gear size PER. Segments, gradient, gear type, mandible type and hue are independent; gear and mandible types are inherited.</p>' + sections.map(([t, items]) => row(t, items)).join("");
+el.innerHTML = '<p>Length follows CON, width ARM, head INT, legs AGI, mandibles STR, head gear size PER. Segments, gradient, gear type, mandible type, leg type and hue are independent; gear, mandible and leg types are inherited.</p>' + sections.map(([t, items]) => row(t, items)).join("");
 sections.forEach(([t, items]) => items.forEach(([lbl, mod], i) => {
 const cv = el.querySelector(`[data-r="${t}-${i}"]`), ctx = hidpi(cv, 86, 86);
 drawMorphCentered(ctx, { hue: 140, morph: { ...baseCfg, ...mod } }, 86, 86)
