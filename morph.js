@@ -85,12 +85,20 @@ const seg = (x1, y1, x2, y2, x3, y3) => { t.beginPath(), t.moveTo(x1, y1), t.lin
 "antb" === gk ? (seg(-rx * .5, cy - ry * .5, rx * .5, cy + ry * .5), seg(rx * .5, cy - ry * .5, -rx * .5, cy + ry * .5)) :
 (hexPath(t, cy, rx * .45, ry * .45), t.stroke())
 }
+// legs sit in the body behind the head: front pair LEG_F of it, back pair LEG_R before the body end
+const LEG_F = .2, LEG_R = .4;
+// body segments: [body end y, segment length, first segment centre y]
+function bodyEnd(cfg) {
+const n = cfg.bodySegments, g = cfg.segmentGradient ?? 3, sl = cfg.bodyLength / (1 + .45 * (n - 1)),
+y0 = -cfg.bodyLength / 2 + sl / 2 - sl * (1 - getSegmentScale(g, 0, n)) / 2;
+return [y0 + (n - 1) * sl * .45 + sl * getSegmentScale(g, n - 1, n) / 2, sl, y0]
+}
 function renderMorphParts(t, cfg, wp, sh, nl, so) {
-const bl = cfg.bodyLength, legSp = bl / 4, still = wp === null, L = cfg.legLen, hx = cfg.bodyWidth / 2;
+const bl = cfg.bodyLength, [be, segLen, y0] = bodyEnd(cfg), h0 = cfg.headSize - bl / 2, A = be - h0, still = wp === null, L = cfg.legLen, hx = cfg.bodyWidth / 2;
 t.lineWidth = nl ? .9 : .8, t.lineCap = t.lineJoin = nl ? "miter" : "round";
 sh && (t.strokeStyle = hsl3(sh.hue, 62, 38));
 for (let i = 1; i <= 3; i++) {
-const ly = -bl / 2 + i * legSp, m = i - 2,
+const ly = h0 + A * (LEG_F + (1 - LEG_F - LEG_R) * (i - 1) / 2), m = i - 2,
 ph = gait ? (i % 2 ? 0 : PI) : i, sw = still ? 0 : min(L * .28 * (m ? 1.35 : .6), bl * .12), c = m * .15 * L;
 // spider walk, saved here, to be used in the future with 4th leg pair:
 // fan = [55, 25, 0][i - 1] * PI / 180; rotate each leg point (dx, dy) around the root (a, ly) towards the head
@@ -102,8 +110,7 @@ t.beginPath(), P.forEach(([px, py], j) => t.lineTo(px + (so ? k[j] * so[0] : 0),
 }
 }
 so && t.translate(so[0], so[1]);
-const grad = cfg.segmentGradient ?? 3, segLen = bl / (1 + .45 * (cfg.bodySegments - 1)),
-f0 = getSegmentScale(grad, 0, cfg.bodySegments),
+const grad = cfg.segmentGradient ?? 3,
 hy = -bl / 2, hs = cfg.headSize, gk = GEAR_LABEL[cfg.headGear] ? cfg.headGear : "eyes", mt = MAND[cfg.mandType] ? cfg.mandType : "sickle", S = cfg.mand ?? 1,
 gf = clamp(cfg.headGearSize ?? 0, 0, 9) * 2 / 9, gs = sh ? strokeShades(sh.hue, sh.gear) : null;
 const shape = (cy, rx, ry) => {
@@ -112,7 +119,7 @@ if (!nl) return sh && (t.fillStyle = bulgeGrad(t, 0, cy, max(rx, ry), sh.hue, sh
 const sb = t.shadowBlur, sf = t.fillStyle;
 t.shadowBlur = 0, t.fillStyle = NEON_BG, t.fill(), t.shadowBlur = sb, t.fillStyle = sf, t.lineWidth = .9, t.stroke()
 };
-let cy = hy + segLen / 2 - segLen * (1 - f0) / 2;
+let cy = y0;
 for (let s = 0; s < cfg.bodySegments; s++) {
 const sc = getSegmentScale(grad, s, cfg.bodySegments), rw = cfg.bodyWidth * sc, rh = segLen * sc / 2;
 shape(cy, rw, rh), nl && (backPattern(t, gk, cy, rw, rh), t.lineWidth = .9), cy += segLen * .45
