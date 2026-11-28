@@ -80,7 +80,8 @@ return
 }
 mateSnap(m), m.hold -= dt;
 if (m.hold <= 0) {
-const bug = boxFull() || makeBug(eggItems(computeOffspring(sb, tb)));
+// parent A = the upper bug on the screen, B = the lower one
+const bug = boxFull() || makeBug(eggItems(computeOffspring(...sp.y <= tp.y ? [sb, tb] : [tb, sb])));
 !1 === bug.dead && (ecsSpawn({
 young: { st: "egg", bug, pT: parentTier(sb, tb), r: min(bugLen(sb), bugLen(tb)) * .25, ck: ri(3), lt: ri(3), pv: ri(2), eaten: 0, ready: 0, t: 0, mv: 0, trail: [] },
 pos: { x: (sp.x + tp.x) / 2, y: (sp.y + tp.y) / 2, dir: rf(-PI, PI) }, vel: {}

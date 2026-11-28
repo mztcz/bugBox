@@ -17,6 +17,7 @@ boxCv.addEventListener("pointerdown", dragStart);
 boxCv.addEventListener("pointermove", dragMove);
 boxCv.addEventListener("pointerup", endDrag);
 boxCv.addEventListener("pointercancel", endDrag);
+$("box-zoom").oninput = e => boxView(+e.target.value, camX, camY);
 let tapT = [];
 const tapHit = (cx, cy) => { const hitE = nearest(["bug", "pos"], cx, cy, en => bugLen(C.bug.get(en))) ?? nearest(["young", "pos"], cx, cy, youngR); return hitE != null && (C.bug.get(hitE) || C.young.get(hitE).bug) };
 const TAP_R = 29, TAP_MS = 1000;

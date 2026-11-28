@@ -37,11 +37,11 @@ return m.headGear = rnd(GEAR_KEYS), m.mandType = rnd(MAND_KEYS), m.turnStyle = r
 // turnStyle (move.js TURN_STYLES): an old save without it gets a random one once; legType: Standard (the old legs)
 function ensureMorph(b) { const m = b.morph ||= randomMorph(); return m.turnStyle ||= rnd(TURN_KEYS), m.legType ||= "standard", m }
 function syncMorph(b) { return Object.assign(ensureMorph(b), statMorph(b)) }
-function inheritThird(va, vb, pool) {
+function inheritThird(va, vb, pool, all) {
 const r = random();
 if (r < 1 / 3) return va;
 if (r < 2 / 3) return vb;
-const rest = pool.filter(v => v !== va && v !== vb);
+const rest = all && va === vb ? pool : pool.filter(v => v !== va && v !== vb);
 return rest.length ? rest[ri(rest.length)] : va
 }
 function mixMorph(a, b) {
@@ -51,7 +51,7 @@ const [lo, hi] = MORPH_FREE[k], pool = [];
 for (let v = lo; v <= hi; v++) pool.push(v);
 m[k] = inheritThird(ma[k], mb[k], pool)
 }
-return m.headGear = inheritThird(ma.headGear, mb.headGear, GEAR_KEYS), m.mandType = inheritThird(ma.mandType, mb.mandType, MAND_KEYS), m.turnStyle = inheritThird(ma.turnStyle, mb.turnStyle, TURN_KEYS), m.legType = inheritThird(ma.legType, mb.legType, LEG_KEYS), m
+return m.headGear = inheritThird(ma.headGear, mb.headGear, GEAR_KEYS, 1), m.mandType = inheritThird(ma.mandType, mb.mandType, MAND_KEYS), m.turnStyle = inheritThird(ma.turnStyle, mb.turnStyle, TURN_KEYS), m.legType = inheritThird(ma.legType, mb.legType, LEG_KEYS), m
 }
 function getSegmentScale(grad, s, segs) {
 let i = s, g = grad;
@@ -223,7 +223,8 @@ return [polys.map(pl => pl.map(([x, y]) => { const dx = x - pv[0], dy = y - pv[1
 // outline points outside the head (head centre at 0, 0)
 const mandVis = (mt, S, hs, th, e) => mandShape(mt, S, 0, hs, th, e)[0].flat().filter(p => hypot(...p) > hs);
 // ES: every type reaches as far from the head centre as Sickle at the same STR and head size
-const esM = (mt, S, hs) => memo(`e|${mt}|${S}|${hs}`, () => { const reach = t => max(...mandShape(t, S, 0, hs, 0)[0].flat().map(p => hypot(...p))); return reach("sickle") / reach(mt) });
+// mandR = farthest mandible point from the head centre (rest pose 0, no ES)
+const mandR = (mt, S, hs) => memo(`r|${mt}|${S}|${hs}`, () => max(...mandShape(mt, S, 0, hs, 0)[0].flat().map(p => hypot(...p)))), esM = (mt, S, hs) => mandR("sickle", S, hs) / mandR(mt, S, hs);
 // poses [close, open]: close = largest inward turn with no visible point more than 10 % of the length over the body axis; rest = close − 6°; open = rest − up to 40°
 function mandPose(mt, S, hs, e) {
 return memo(`p|${mt}|${S}|${hs}|${e}`, () => {

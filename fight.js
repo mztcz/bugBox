@@ -1,4 +1,4 @@
-const BOSS = { boss: [1.5, 1], rb: [3, 10], wb: [3, 50] }, weekOf = () => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate() - (d.getDay() + 6) % 7).toDateString() };
+const BOSS = { boss: [1.5, 3], rb: [3, 10], wb: [3, 50] }, weekOf = () => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate() - (d.getDay() + 6) % 7).toDateString() };
 // fightFx = item effects of the running fight (bet payout, mir = Mirror Shard, slip payout); decoys = decoy bugs of the player team
 let bosses = {}, wbWeek = "", match = null, fightFx = {}, decoys = [];
 try { const s = JSON.parse(localStorage.getItem("bugbox_wb")); s?.v === SAVE_VER && (wbWeek = s.week, Object.entries(s.bugs).forEach(([k, b]) => bosses[k] = { ...b, id: bid++, role: roleOf(b), abilities: b.abilities.filter(a => ABILITIES[a]) })) } catch (e) {}
@@ -13,7 +13,7 @@ const m = BOSS[fightMode], k = fightMode + T, w = weekOf(), c = "chaos" === figh
 if (!m) return Array.from({ length: c ? max(1, round(fightTeam.length * rf(.67, 1.33))) : fightTeam.length }, () => makeBug([12, 14].includes(tutStep) ? { con: 1, str: 1, arm: 1, agi: 1, int: 1, per: 1, hue: rf(0, 45), hpMul: .5, abilities: [] } : { ...genStats(c ? clamp(T + ri(3) - 1, 0, 5) : T), hue: rf(0, 45) }));
 wbWeek !== w && (Object.keys(bosses).forEach(x => "w" === x[0] && delete bosses[x]), wbWeek = w);
 const S = min(bossSum(T), SK.length * tierLim(T));
-if (!bosses[k] || statSum(bosses[k]) !== S) {
+if (!bosses[k] || statSum(bosses[k]) !== S || bosses[k].hpMul !== m[1]) {
 const b = bosses[k] = makeBug({ ...genStats(T, S), hue: rf(0, 45), hpMul: m[1], abilities: shuf(ABIL_IDS.slice()).slice(0, min(4, T)) });
 ["bodyLength", "bodyWidth", "headSize", "legLen"].forEach(x => b.morph[x] *= m[0])
 }
@@ -113,7 +113,7 @@ fightCount = isPlayer && lb ? lb.fights || 0 : 1,
 imgId = `rc-ph-${isPlayer?"p":"e"}-${b.id}`;
 const div = makeBugCard({
 name: b.name,
-line3: `G${b.gen||1} \u00b7 K${killsTot}${killsThis ? `(+${killsThis})` : ""}/F${fightCount}`,
+line3: `G${b.gen || 1} L${b.line || b.gen || 1} \u00b7 K${killsTot}${killsThis ? `(+${killsThis})` : ""}/F${fightCount}`,
 statsObj: b,
 abilB: b,
 dead: isDead,

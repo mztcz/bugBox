@@ -37,7 +37,8 @@ const sylSplit = n => { const p = SYL1.find(s => n.startsWith(s)) || SYL1[0]; re
 function childName(a, b) {
 const [a1, a2] = sylSplit(a.name), [b1, b2] = sylSplit(b.name),
 used = n => bugsOwned.some(x => x.name === n) || youngAll().some(y => y.bug.name === n);
-for (const f of [() => a1 + b2, () => b1 + a2, () => a1 + rnd(SYL2), () => b1 + rnd(SYL2), genName])
+// 2nd syllable from parent A first
+for (const f of [() => b1 + a2, () => a1 + b2, () => b1 + rnd(SYL2), () => a1 + rnd(SYL2), genName])
 for (let i = 5; i--;) { const n = f(); if (!used(n)) return n }
 }
 function makeBug(o = {}) {

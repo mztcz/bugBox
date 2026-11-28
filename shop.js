@@ -94,7 +94,7 @@ function updateShopFooter() {
 const n = shopCart.length;
 $("shop-cart-info").textContent = `${n} bug${1!==n?"s":""} selected`;
 const doneBtn = $("bt-buy");
-doneBtn.textContent = n > 0 ? "Buy →" : "BugBox →", doneBtn.disabled = !1
+doneBtn.textContent = n > 0 ? "💰" : "📦", doneBtn.title = n > 0 ? "Buy" : "BugBox", doneBtn.disabled = !1
 }
 function renderShop() {
 const g = $("shop-grid");

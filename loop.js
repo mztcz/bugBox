@@ -1,4 +1,4 @@
-const dropMs = () => ABILITIES.jump.dur / 2;
+const dropMs = () => ABILITIES.jump.dur;
 let simLastT = 0,
 tickDebt = 0,
 slowT = 0; // real ms left of the last-kill slow motion (0.3×)

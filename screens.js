@@ -15,7 +15,9 @@ $("info-foot").innerHTML = (t === "rec" ? '<button class="danger bt" onclick="re
 const OV_PAUSE = ["ov-set", "ov-inf", "ov-design"];
 let ovSpd = -1;
 function ov(id, on) {
-on || cancelAnimationFrame(dzAnim), $(id).style.display = on ? "flex" : "none", "ov-res" === id && ($("hud-sci").style.right = 6 + (on ? $(id).offsetWidth - $(id).clientWidth : 0) + "px");
+const r = $(id).style, h = $("s-box").querySelector(".topbar").offsetHeight;
+// result screen: below the box top bar, content one more top bar height lower, Science buttons hidden
+on || cancelAnimationFrame(dzAnim), r.display = on ? "flex" : "none", "ov-res" === id && (r.top = h + "px", r.paddingTop = 20 + h + "px", $("hud-sci").style.visibility = on ? "hidden" : "");
 OV_PAUSE.includes(id) && (on ? ovSpd < 0 && (ovSpd = simSpd, simSpd = 0) : ovSpd >= 0 && !OV_PAUSE.some(o => "flex" === $(o).style.display) && (simSpd = ovSpd, ovSpd = -1), tickDebt = 0, syncSpeedLabel())
 }
 function showScreen(id) {

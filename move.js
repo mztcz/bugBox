@@ -253,7 +253,7 @@ a.x -= nx * h, a.y -= ny * h, c.x += nx * h, c.y += ny * h
 function resolveObstacles(ents, dtS) {
 const obs = ecsQuery("obstacle", "pos");
 ents.forEach(e => {
-if (drag && drag.e === e) return;
+if (drag?.moved && drag.e === e) return;
 const dcb = C.combat.get(e);
 if (dcb && dcb.dead) return;
 const p = C.pos.get(e), t = C.walk.get(e);

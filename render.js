@@ -112,10 +112,13 @@ let offX = 7 * hitFrac * (cb.hitDx || 0) + lg * cos(p.dir),
 offY = 7 * hitFrac * (cb.hitDy || 0) + lg * sin(p.dir);
 if (cb.loudT > 0) { const amp = (cfg.legLen * 0.5 / 3) * sin(cb.loudT / 20), sa = p.dir + HALF_PI; offX += cos(sa) * amp, offY += sin(sa) * amp }
 boxCx.globalAlpha = 1;
-const k = cb.airT > 0 ? sin(PI * (1 - cb.airT / cb.airMs)) * (cb.dashT > 0 ? .5 : 1) : 0, by = p.y + offY - bugLen(b) * k * (cb.dashT > 0 ? .5 : 1), s = 1 + .15 * k;
-k && 3 !== bugTheme && morphShadow(boxCx, cfg, p.x + offX, p.y + offY, p.dir + HALF_PI, 1.5 - 1.2 * k);
+// drop-in (dr): shadow alone grows from 0.2×, at 35 % the bug appears 2× big and high, shrinks and sinks, both 1× at landing; legs hidden 300 ms after landing, out over 400 ms
+const dr = cb.dropT > fightMs, u = dr ? 1 - cb.airT / dropMs() : 1, ld = fightMs - cb.dropT,
+k = dr ? 1 - clamp((u - .35) / .65, 0, 1) : cb.airT > 0 ? sin(PI * (1 - cb.airT / cb.airMs)) * (cb.dashT > 0 ? .5 : 1) : 0, by = p.y + offY - bugLen(b) * k * (dr ? 2 : cb.dashT > 0 ? .5 : 1), s = 1 + (dr ? 1 : .15) * k;
+k && 3 !== bugTheme && morphShadow(boxCx, cfg, p.x + offX, p.y + offY, p.dir + HALF_PI, dr ? .2 + .8 * u : 1 - .7 * k);
+if (u < .35) return;
 boxCx.save(), boxCx.translate(p.x + offX, by), boxCx.scale(s, s);
-drawBugStyled(boxCx, b, 0, 0, p.dir, 1, b === inspected, k ? null : posPhase(t), sci("col") ? TEAM_HUE[tm.team] : null, !k, jawOf(t, cb));
+drawBugStyled(boxCx, ld >= 0 && ld < 700 ? { ...b, morph: { ...cfg, legLen: cfg.legLen * round(clamp((ld - 300) / 20, 0, 20)) / 20 } } : b, 0, 0, p.dir, 1, b === inspected, k ? null : posPhase(t), sci("col") ? TEAM_HUE[tm.team] : null, !k, jawOf(t, cb));
 boxCx.restore();
 drawHit(b, t, p.x + offX, by, p.dir);
 post.push(() => {

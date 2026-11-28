@@ -231,11 +231,11 @@ bgC = z < 0 || z > 0 && ri(2), bgS = ri(1e9), bgWait = 1, requestAnimationFrame(
 }
 // cached per pick and box size; right after a pick the plain backdrop shows for one frame (the render runs while the fight box is still empty)
 function drawBg() {
-const key = [bgE, bgC, bgS, boxLW, boxLH, boxS].join();
+const key = [bgE, bgC, bgS, boxLW, boxLH, boxB].join();
 if (key !== bgKey) {
 if (bgWait) return 0;
 bgKey = key;
-const dpr = (window.devicePixelRatio || 1) * boxS, g = bgCv.getContext("2d");
+const dpr = (window.devicePixelRatio || 1) * boxB, g = bgCv.getContext("2d");
 bgCv.width = max(1, round(boxLW * dpr)), bgCv.height = max(1, round(boxLH * dpr)), g.setTransform(dpr, 0, 0, dpr, 0, 0);
 bgDraw(g, bgE, bgC, bgS, boxLW, boxLH);
 g.strokeStyle = "rgba(0,0,0,.45)", g.lineWidth = 2, g.strokeRect(1, 1, boxLW - 2, boxLH - 2)

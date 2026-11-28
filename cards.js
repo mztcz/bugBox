@@ -17,9 +17,10 @@ c.fillStyle = col || hpColor(frac), c.fillRect(x, y, w * clamp(frac, 0, 1), h)
 function bugCardBody(o) {
 const img = `<div style="flex-shrink:0;align-self:flex-start;">${o.showHp ? hpBar(o.dead ? 0 : o.hpFrac) : ""}<div class="card-img" id="${o.imgId}"></div></div>`,
 s = round(statSum(o.statsObj)), t = tierOf(s),
-info = `<div class="card-info"><div class="card-line"${o.dead?' style="color:#555"':""}>T${t} ${o.statsObj.role}</div><div class="card-line">${o.line3}</div></div>`;
+c = o.dead ? "#555" : TIER_COL[t],
+info = `<div class="card-info"><div class="card-line" style="color:${c}">T${t} ${o.statsObj.role}</div><div class="card-line">${o.line3}</div></div>`;
 // name + info left, HP bar + image right, both from the card top
-return `<div class="card-head"><div style="flex:1;min-width:0;align-self:flex-start;"><div class="card-name" style="color:${o.dead ? "" : TIER_COL[t]}">${o.name} <span style="color:${o.dead?"#555":STAR_COL[t]}">${'<span class="sx">★</span>'.repeat(starsOf(s))}</span><span class="card-lbl"></span></div>${info}</div>${img}</div>${statBars(o.statsObj, { dead: !!o.dead })}${abilLine(o.abilB, o.dead)}`
+return `<div class="card-head"><div style="flex:1;min-width:0;align-self:flex-start;"><div class="card-name" style="color:#fff">${o.name} <span style="color:${c}">${'<span class="sx">★</span>'.repeat(starsOf(s))}</span><span class="card-lbl"></span></div>${info}</div>${img}</div>${statBars(o.statsObj, { dead: !!o.dead })}${abilLine(o.abilB, o.dead)}`
 }
 function makeBugCard(o) {
 const div = document.createElement("div");
@@ -72,8 +73,7 @@ const fixedW = div.offsetWidth, fixedH = div.offsetHeight;
 div.style.width = fixedW + "px", div.style.height = fixedH + "px", div.style.boxSizing = "border-box";
 div.innerHTML = '<div style="font-size:9px;color:#445;text-align:center;padding:' + max(0, (fixedH - 20) / 2) + 'px 0;">— gone —</div>'
 }
-const STAR_COL = ["", "#f93", "#fd4", "#4f8", "#22dddd", "#a4f"];
-function gkfLine(b) { return `G${b.gen} \u00b7 K${b.killsTotal||0}/F${b.fights||0}${b.mated?'<br><span style="color:#c8f;">mated</span>':""}${b.away ? `<br><span style="color:#fa4;">away ${b.away}</span>` : ""}${b.fx ? "<br>" + (b.fx.str ? "🥩" : "") + (b.fx.pol ? "🛡️" : "") : ""}` }
+function gkfLine(b) { return `G${b.gen} L${b.line || b.gen} \u00b7 K${b.killsTotal||0}/F${b.fights||0}${b.mated?'<br><span style="color:#c8f;">mated</span>':""}${b.away ? `<br><span style="color:#fa4;">away ${b.away}</span>` : ""}${b.fx ? "<br>" + (b.fx.str ? "🥩" : "") + (b.fx.pol ? "🛡️" : "") : ""}` }
 let fow = 0, killPh = null, killPhClose = null;
 function toggleFow() { fow = fow ? 0 : 1, syncFowBtn(), syncHud(!0) }
 function syncFowBtn() {

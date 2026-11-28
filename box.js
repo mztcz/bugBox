@@ -82,16 +82,22 @@ function stopSimLoop() {
 simFrame && cancelAnimationFrame(simFrame), simFrame = null
 }
 let boxLW = 360, boxOX = 0, boxOY = 0, boxS = 1,
-boxLH = 300;
+boxLH = 300, boxB = 1, boxZ = 1, camX = 0, camY = 0; // boxB = scale that fits the whole box, boxZ = view zoom 1–4, camX camY = world point in the view centre
 // Fixed game world (full box area in game px, side ratio follows the window within 1:2..2:1, kept during a fight); the canvas only zooms it (boxS)
 const BOX_AREA = 26e4, BOX_RATIO_MIN = .5, BOX_RATIO_MAX = 2;
 // Fight box area = (tierMax + 1) / 4 of the full box (T0 only 1/4, T3 open = full)
-// Peaceful box area = (Box Expansion level + 1) / 4 of the full box
-const boxK = () => Math.sqrt((combatState ? min(tierMax + 1, 4) : boxLv + 1) / 4);
+// peaceful box: Box Expansion level, at least 1 / 2 after a T0 / T1 boss win
+const boxK = () => Math.sqrt((combatState ? min(tierMax + 1, 4) : max(boxLv, min(tierMax, 2)) + 1) / 4);
 function resizeBoxCV() {
 const dpr = window.devicePixelRatio || 1, k = boxK(), rect = boxCv.getBoundingClientRect(), W = rect.width || 360, H = rect.height || 300,
-keep = ecsQuery("combat").length, ar = clamp(W / H, BOX_RATIO_MIN, BOX_RATIO_MAX), FW = keep ? boxLW / k : Math.sqrt(BOX_AREA * ar), FH = keep ? boxLH / k : BOX_AREA / FW, z = dpr * (boxS = min(W / FW, H / FH));
-boxLW = k * FW, boxLH = k * FH, boxOX = (W / boxS - boxLW) / 2, boxOY = (H / boxS - boxLH) / 2, boxCv.width = floor(W * dpr), boxCv.height = floor(H * dpr), boxCx.setTransform(z, 0, 0, z, z * boxOX, z * boxOY)
+keep = ecsQuery("combat").length, ar = clamp(W / H, BOX_RATIO_MIN, BOX_RATIO_MAX), FW = keep ? boxLW / k : Math.sqrt(BOX_AREA * ar), FH = keep ? boxLH / k : BOX_AREA / FW;
+boxB = min(W / FW, H / FH), boxLW = k * FW, boxLH = k * FH, boxCv.width = floor(W * dpr), boxCv.height = floor(H * dpr), boxView(boxZ, boxLW / 2, boxLH / 2)
+}
+// view zoom z around the world point cx cy (kept inside the box; a box smaller than the view stays centred); pinch (input.js) and the zoom slider
+function boxView(z, cx, cy) {
+const dpr = window.devicePixelRatio || 1, vw = boxCv.width / dpr / (boxS = boxB * (boxZ = clamp(z, 1, 4))), vh = boxCv.height / dpr / boxS, f = dpr * boxS;
+camX = vw >= boxLW ? boxLW / 2 : clamp(cx, vw / 2, boxLW - vw / 2), camY = vh >= boxLH ? boxLH / 2 : clamp(cy, vh / 2, boxLH - vh / 2);
+boxOX = vw / 2 - camX, boxOY = vh / 2 - camY, boxCx.setTransform(f, 0, 0, f, f * boxOX, f * boxOY), $("box-zoom").value = boxZ
 }
 let boxW0 = 0, boxH0 = 0, boxC0 = !1;
 function rescaleBox() {
@@ -210,10 +216,11 @@ think(ecsSpawn(bugEntity(b, 30 + random() * (boxLW - 60), 30 + random() * (boxLH
 });
 return void syncHud(!0)
 }
+// teams start at 18 % / 82 % of the width, T0–T2 closer at 30 % / 70 %
 const q = [[], []], side = (arr, tm) => {
 const gap = boxLH / (arr.length + 1);
 arr.forEach((b, i) => {
-const c = bugEntity(b, (0 === tm ? .18 : .82) * boxLW + rf(-.04, .04) * boxLW, gap * (i + 1 + rf(-.25, .25)), (0 === tm ? 0 : PI) + rf(-.35, .35), tm);
+const c = bugEntity(b, abs(tm - (enemyTier < 3 ? .3 : .18)) * boxLW + rf(-.04, .04) * boxLW, gap * (i + 1 + rf(-.25, .25)), (0 === tm ? 0 : PI) + rf(-.35, .35), tm);
 const mhp = maxHpOf(b);
 c.combat = newCombat(b, max(1, min(b.curHp, mhp)), mhp), b.decoy && (c.combat.decoy = b.decoy, c.combat.bit = {});
 const e = ecsSpawn(c);

@@ -43,7 +43,7 @@ if(typeof window[n]==="undefined")bar().textContent+="NOT LOADED: "+n+"\n"})
 <div class="sep"></div>
 <span>Budget:</span><span class="money" id="shop-money">$500</span>
 <span class="dim" id="shop-cart-info">0 bugs selected</span>
-<button class="nav-box bt" id="bt-buy" style="margin-left:auto;">BugBox →</button>
+<button class="nav-box bt" id="bt-buy" style="margin-left:auto;" title="BugBox">📦</button>
 </div>
 <div class="scroll">
 <p style="font-size:9px;color:#555566;margin-bottom:10px;">
@@ -58,7 +58,7 @@ if(typeof window[n]==="undefined")bar().textContent+="NOT LOADED: "+n+"\n"})
 <span class="title" style="color:#4cf;">LEGACY</span>
 <div class="sep"></div>
 <span>DNA:</span><span class="money" id="leg-dna"></span>
-<button class="nav-shop bt" id="bt-leg" style="margin-left:auto;">Shop →</button>
+<button class="nav-shop bt" id="bt-leg" style="margin-left:auto;" title="Shop">🛒</button>
 </div>
 <div class="scroll" id="leg-body"></div>
 </div>
@@ -68,10 +68,10 @@ if(typeof window[n]==="undefined")bar().textContent+="NOT LOADED: "+n+"\n"})
 <span class="title" id="box-title" style="color:#4f8;">BUGBOX</span>
 <div class="sep"></div>
 <span class="money" id="box-money">$0</span>
-<button class="nav-lab bt bt-lab" id="bt-lab" style="margin-left:auto;">↓ Lab 🧬</button>
-<button class="nav-shop bt bt-shop" id="bt-box-shop">Shop 🛒</button>
-<button class="warn bt bt-boo" id="bt-boo">⚔ BOOKER →</button>
-<button class="warn bt" id="bt-leave" style="display:none;margin-left:auto;">← Leave</button>
+<button class="nav-shop bt bt-shop" id="bt-box-shop" style="margin-left:auto;" title="Shop">🛒</button>
+<button class="nav-lab bt bt-lab" id="bt-lab" title="Lab">🧬</button>
+<button class="warn bt bt-boo" id="bt-boo" title="Booker">⚔</button>
+<button class="warn bt" id="bt-leave" style="display:none;margin-left:auto;" title="Leave">🏳️</button>
 </div>
 <canvas id="box-canvas"></canvas>
 <div id="box-bar" style="position:relative;">
@@ -88,6 +88,7 @@ if(typeof window[n]==="undefined")bar().textContent+="NOT LOADED: "+n+"\n"})
 <button class="bt" id="bt-inf" onclick="openInfoTab('tut')">📖 INFO</button>
 <button id="bt-speed" class="bt">Speed 1×</button>
 <button id="bt-pause" class="bt" style="display:none;" title="pause the fight, then step it one 16 ms tick at a time">❚❚ PAUSE</button>
+<input type="range" id="box-zoom" min="1" max="4" step=".05" value="1" style="width:80px;" title="zoom the box (also two fingers on the box)">
 </div>
 <span id="box-info">— select a bug to inspect —</span>
 </div>
@@ -102,9 +103,9 @@ if(typeof window[n]==="undefined")bar().textContent+="NOT LOADED: "+n+"\n"})
 <span class="title" style="color:#a4f;">BREEDING LAB</span>
 <div class="sep"></div>
 <span class="money" id="lab-money"></span>
-<button class="nav-shop bt bt-shop" style="margin-left:auto;">Shop 🛒</button>
-<button class="nav-box bt bt-box">↑ BugBox</button>
-<button class="warn bt bt-boo">⚔ BOOKER →</button>
+<button class="nav-shop bt bt-shop" style="margin-left:auto;" title="Shop">🛒</button>
+<button class="nav-box bt bt-box" title="BugBox">📦</button>
+<button class="warn bt bt-boo" title="Booker">⚔</button>
 </div>
 <div style="text-align:right;padding:4px 12px 0;"><button class="bt" id="bt-unmate">Unmate</button></div>
 <div class="lab-layout" id="lab-layout">
@@ -116,10 +117,10 @@ if(typeof window[n]==="undefined")bar().textContent+="NOT LOADED: "+n+"\n"})
 <div class="sep"></div>
 <span class="money" id="boo-money">$0</span>
 <span style="margin-left:auto;"></span>
-<button id="bt-boo-shop" class="nav-shop bt bt-shop" style="display:none;">← Shop</button>
-<button class="nav-lab bt bt-lab">← Lab 🧬</button>
-<button class="nav-box bt bt-box">← BugBox</button>
-<button class="warn bt" id="bt-combat" disabled>⚔ FIGHT →</button>
+<button id="bt-boo-shop" class="nav-shop bt bt-shop" style="display:none;" title="Shop">🛒</button>
+<button class="nav-lab bt bt-lab" title="Lab">🧬</button>
+<button class="nav-box bt bt-box" title="BugBox">📦</button>
+<button class="warn bt" id="bt-combat" disabled title="Fight">⚔</button>
 </div>
 <div style="display:flex;align-items:center;padding:3px 12px 0;"><button class="bt bt-inv">🎒 Items</button><div id="boo-fee" style="margin-left:auto;color:#888;font-size:10px;"></div></div>
 <div class="boo-layout">

@@ -61,7 +61,7 @@ childRow.appendChild(cc), markMeta(cc, l);
 return
 }
 }
-const abLbl = (card, l) => card.querySelector(".card-lbl").innerHTML = l ? ` <span style="color:${l==="A"?"#ffdd44":"#ff9933"}">(${l})</span>` : "";
+const abLbl = (card, l) => card.querySelector(".card-lbl").innerHTML = l ? ` <span style="color:#c8f">(${l})</span>` : "";
 function labApplyCard(div, b) {
 const isA = labSt.pA?.id === b.id,
 isB = labSt.pB?.id === b.id;
@@ -181,8 +181,9 @@ src.length && confetti(src, lv)
 }
 // 5 confetti spans along the bottom edge of an element
 const spans5 = el => { const r = el.getBoundingClientRect(); return [0, 1, 2, 3, 4].map(i => [r.left + r.width * i / 5, r.left + r.width * (i + 1) / 5, r.bottom]) };
-// confetti bursts from screen spans [x0, x1, y], size level lv 1-5
+// confetti bursts from screen spans [x0, x1, y], size level lv 1-5; the n-th show of a game uses max n spans
 function confetti(src, lv) {
+src = src.slice(0, ++run.cf);
 const cv = document.createElement("canvas"), cx = cv.getContext("2d"), d = devicePixelRatio || 1, W = innerWidth, H = innerHeight, k = FX_SIZE[lv];
 let parts = [], left = src.length, last = performance.now();
 cv.style = "position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:400", cv.width = W * d, cv.height = H * d, cx.scale(d, d), document.body.appendChild(cv);
@@ -203,7 +204,7 @@ parts.length || left ? requestAnimationFrame(step) : cv.remove()
 })
 }
 function computeOffspring(a, b) {
-const name = childName(a, b), child = { gen: max(a.gen, b.gen) + 1, name: name || "Dead", dead: !name, meta: {} };
+const name = childName(a, b), child = { gen: max(a.gen, b.gen) + 1, line: min(a.gen, b.gen) + 1, name: name || "Dead", dead: !name, meta: {} };
 const hr = random();
 child.hue = hr < 1 / 3 ? a.hue : hr < 2 / 3 ? b.hue : ((random() < .5 ? a.hue : b.hue) + HUE_OFF[ri(4)] + 360) % 360, child.morph = mixMorph(a, b);
 const avg = {};

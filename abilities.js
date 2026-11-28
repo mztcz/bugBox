@@ -49,7 +49,8 @@ const shuf = a => { for (let i = a.length - 1; i > 0; i--) { const j = floor(ran
 const bitePrepOf = (b, k = 1) => statLin(b, "agi", BITE_PREP_MAX, BITE_PREP_MIN) * k + rf(-125, 125),
 biteDone = (e, b, t, k = 1, cb = C.combat.get(e)) => (SFX.bite(t), C.walk.get(e).biteT = 500, cb.bitePrep = cb.bitePrepMax = bitePrepOf(b, k * cb.prepK), cb.prepK = 1);
 const FOV_MIN_DEG = 90, FOV_MAX_DEG = 94.5;
-function engageDistOf(b) { const m = ensureMorph(b); return m.bodyLength / 2 + m.headSize * 2 }
+// bite reach: half body + 2 × head + half of the mandible length outside the head (all types reach as far as Sickle)
+function engageDistOf(b) { const m = ensureMorph(b), hs = m.headSize; return m.bodyLength / 2 + 1.5 * hs + mandR("sickle", m.mand || b.str || 1, hs) / 2 }
 function bugRadius(b) { const m = ensureMorph(b); return m.bodyLength / 2 + m.headSize }
 const statLin = (b, k, a, z) => a + (z - a) * (b[k] - 1) / 19;
 const visRangeOf = b => statLin(b, "per", 75, 300) * (hasAbil(b, "antennae") ? 1.5 : 1);

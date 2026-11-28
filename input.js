@@ -23,19 +23,31 @@ if (e != null) return { e: e, kind: "food", pad: 5 };
 e = obstacleAt(cx, cy);
 return e == null ? null : { e: e, kind: "obstacle", pad: C.obstacle.get(e).r }
 }
+// pinch zoom: pts = fingers on the box, pinch = [finger distance, zoom, world point under the midpoint] at the 2nd finger
+const pts = new Map(), mid = () => { const [a, b] = [...pts.values()]; return [hypot(a[0] - b[0], a[1] - b[1]), { clientX: (a[0] + b[0]) / 2, clientY: (a[1] + b[1]) / 2 }] };
+let pinch = null;
 function dragStart(e) {
+if (pts.set(e.pointerId, [e.clientX, e.clientY]), boxCv.setPointerCapture?.(e.pointerId), pts.size > 1) {
+const [d, m] = mid();
+return clearTimeout(holdT), drag && (clearTimeout(drag.cardT), $("hold-card").replaceChildren(), drag = null), suppressClick = !0, void(pinch = [d, boxZ, boxPt(m)])
+}
 const [cx, cy] = boxPt(e), t = draggableAt(cx, cy);
 suppressClick = !1, t || hold(HOLD_MS, () => canPlaceFood() && cx >= 0 && cy >= 0 && cx <= boxLW && cy <= boxLH && (ecsSpawn({ food: {}, pos: { x: cx, y: cy, dir: 0 } }), SFX.feed(), tutFed = 1, combatState && foodLeft--, suppressClick = !0));
-if (!t || combatState) return;
-dragAt(t, cx, cy);
-boxCv.setPointerCapture && boxCv.setPointerCapture(e.pointerId)
+// fight: a held bug only shows its card (fix), it is not moved and may walk away
+if (!t || combatState && "bug" !== t.kind) return;
+dragAt({ ...t, fix: combatState }, cx, cy)
 }
 function dragMove(e) {
+if (pinch && pts.has(e.pointerId)) {
+pts.set(e.pointerId, [e.clientX, e.clientY]);
+const [d, m] = mid(), z = clamp(pinch[1] * d / pinch[0], 1, 4), s = boxB * z, r = boxCv.getBoundingClientRect(), w = pinch[2];
+return void boxView(z, w[0] + boxCv.width / (window.devicePixelRatio || 1) / s / 2 - (m.clientX - r.left) / s, w[1] + boxCv.height / (window.devicePixelRatio || 1) / s / 2 - (m.clientY - r.top) / s)
+}
 if (!drag) return;
 const [cx, cy] = boxPt(e), p = C.pos.get(drag.e);
 if (!p) return void(drag = null);
 "bug" === drag.kind && hypot(cx - drag.x0, cy - drag.y0) * boxS > DRAG_SLOP && (drag.x0 = cx, drag.y0 = cy, $("hold-card").children.length || holdCard(500));
-if (!drag.moved && hypot(cx - drag.sx, cy - drag.sy) < DRAG_SLOP) return;
+if (drag.fix || !drag.moved && hypot(cx - drag.sx, cy - drag.sy) < DRAG_SLOP) return;
 drag.moved || achieve({ bug: "drag", obstacle: "dragObst" }[drag.kind]), drag.moved = !0;
 p.x = clamp(cx + drag.ox, drag.pad, boxLW - drag.pad);
 p.y = clamp(cy + drag.oy, drag.pad, boxLH - drag.pad);
@@ -48,4 +60,4 @@ abs(drag.turn) > 5.6 && ("bug" === drag.kind ? p.dir = norm(p.dir + s * PI / 4) 
 }
 e.preventDefault()
 }
-function endDrag() { drag && (suppressClick = drag.moved, clearTimeout(drag.cardT), $("hold-card").replaceChildren(), drag = null) }
+function endDrag(e) { e?.pointerId != null && pts.delete(e.pointerId), pts.size < 2 && (pinch = null), drag && (suppressClick = drag.moved, clearTimeout(drag.cardT), $("hold-card").replaceChildren(), drag = null) }
